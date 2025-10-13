@@ -279,14 +279,12 @@ class SaaS_Client
         if ($verified) {
             // Success! Update status and switch to hourly updates
             update_option('surefeedback_verification_status', 'verified');
-            error_log("SureFeedback: Verification successful after {$attempts} attempts");
             
             // Clear minute-based scheduling
             wp_clear_scheduled_hook('surefeedback_auto_verify');
             
             // Schedule hourly updates to keep database fresh
             wp_schedule_event(time() + 3600, 'hourly', 'surefeedback_hourly_verify');
-            error_log('SureFeedback: Switched to hourly verification updates');
         } else {
             // Not yet verified, schedule next attempt in 1 minute
             $status = $verification_result['status'] ?? 'unknown';
@@ -294,10 +292,8 @@ class SaaS_Client
             
             if ($attempts < 10) {
                 // Schedule next attempt in 1 minute
-                wp_schedule_single_event(time() + 60, 'surefeedback_auto_verify');
-                error_log("SureFeedback: Verification failed ({$status}), scheduling attempt " . ($attempts + 1) . '/10 in 1 minute');
+                wp_schedule_single_event(time() + 1, 'surefeedback_auto_verify');
             } else {
-                error_log('SureFeedback: Final verification attempt failed, stopping scheduled verification');
                 update_option('surefeedback_verification_status', 'failed');
             }
         }
@@ -316,7 +312,6 @@ class SaaS_Client
         
         if ($verified) {
             update_option('surefeedback_verification_status', 'verified');
-            error_log('SureFeedback: Hourly verification update - still verified');
         } else {
             // Verification failed, switch back to retry mode
             update_option('surefeedback_verification_status', 'pending');
@@ -326,7 +321,6 @@ class SaaS_Client
             wp_clear_scheduled_hook('surefeedback_hourly_verify');
             wp_schedule_single_event(time() + 60, 'surefeedback_auto_verify');
             
-            error_log('SureFeedback: Hourly verification failed, switching back to retry mode');
         }
     }
 
@@ -337,8 +331,6 @@ class SaaS_Client
      */
     public function verify_script_integration()
     {
-        // Debug: Start logging
-        error_log('=== SureFeedback Verification Debug Start ===');
         
         $script_token = get_option('surefeedback_script_token');
         $site_token = get_option('surefeedback_api_key');
@@ -346,16 +338,8 @@ class SaaS_Client
         $verification_status = get_option('surefeedback_verification_status');
         $verification_attempts = get_option('surefeedback_verification_attempts');
         
-        // Debug: Log configuration
-        error_log('Script Token: ' . ($script_token ? substr($script_token, 0, 10) . '...' : 'NOT SET'));
-        error_log('Site Token: ' . ($site_token ? substr($site_token, 0, 10) . '...' : 'NOT SET'));
-        error_log('Parent URL: ' . ($parent_url ? $parent_url : 'NOT SET'));
-        error_log('Current Verification Status: ' . ($verification_status ?: 'NOT SET'));
-        error_log('Current Verification Attempts: ' . ($verification_attempts ?: '0'));
         
         if ((!$script_token && !$site_token) || !$parent_url) {
-            error_log('VERIFICATION FAILED: Missing script token or parent URL');
-            error_log('=== SureFeedback Verification Debug End ===');
             return array(
                 'success' => false,
                 'message' => 'Missing script token or parent URL',
@@ -364,15 +348,11 @@ class SaaS_Client
 
         // Use script_token if available, otherwise fall back to site_token
         $token_to_use = $script_token ?: $site_token;
-        error_log('Token to use: ' . ($token_to_use ? substr($token_to_use, 0, 10) . '...' : 'NONE'));
 
         // Call the widget verification endpoint using the parent URL directly
         // The parent URL should contain the actual domain/port of the SaaS service
         $verification_url = trailingslashit($parent_url) . 'api/v1/admin/verify-integration?script_token=' . $token_to_use;
         
-        // Debug: Log URL construction details
-        error_log('Constructed Verification URL: ' . $verification_url);
-        error_log('Verification URL: ' . $verification_url);
         
         $response = wp_remote_get($verification_url, array(
             'timeout' => 30,
@@ -386,9 +366,6 @@ class SaaS_Client
         if (is_wp_error($response)) {
             $error_message = $response->get_error_message();
             $error_code = $response->get_error_code();
-            error_log('VERIFICATION FAILED: WP Error - Code: ' . $error_code . ', Message: ' . $error_message);
-            error_log('VERIFICATION FAILED: Full WP_Error: ' . print_r($response->get_error_messages(), true));
-            error_log('=== SureFeedback Verification Debug End ===');
             return array(
                 'success' => false,
                 'message' => 'Failed to connect to verification service: [' . $error_code . '] ' . $error_message,
@@ -402,25 +379,15 @@ class SaaS_Client
         $response_headers = wp_remote_retrieve_headers($response);
         $data = json_decode($response_body, true);
         
-        // Debug: Log response details
-        error_log('Response Code: ' . $response_code);
-        error_log('Response Headers: ' . wp_json_encode($response_headers));
-        error_log('Response Body: ' . $response_body);
-        error_log('Parsed Data: ' . wp_json_encode($data));
 
         // The widget verification endpoint returns 'integrated' instead of 'success'
         if ($response_code === 200 && isset($data['integrated']) && $data['integrated']) {
-            // Success
-            error_log('VERIFICATION SUCCESS: Script integration verified');
-            
             // Store verification result
             update_option('surefeedback_last_verification', current_time('mysql'));
             update_option('surefeedback_verification_status', 'verified');
             
             // Extract verification details
             $verification_data = $data['verification'] ?? array();
-            error_log('Verification data: ' . wp_json_encode($verification_data));
-            error_log('=== SureFeedback Verification Debug End ===');
             
             return array(
                 'success' => true,
@@ -442,13 +409,6 @@ class SaaS_Client
             
             $message = $error_messages[$data['status']] ?? ($data['error'] ?? 'Verification failed');
             
-            $failure_reason = sprintf(
-                'Status: %s, Message: %s',
-                $data['status'],
-                $message
-            );
-            error_log('VERIFICATION FAILED: ' . $failure_reason);
-            error_log('=== SureFeedback Verification Debug End ===');
             
             return array(
                 'success' => false,
@@ -458,13 +418,6 @@ class SaaS_Client
             );
         }
 
-        $failure_reason = sprintf(
-            'Status: %d, Data: %s',
-            $response_code,
-            wp_json_encode($data)
-        );
-        error_log('VERIFICATION FAILED: ' . $failure_reason);
-        error_log('=== SureFeedback Verification Debug End ===');
 
         return array(
             'success' => false,
