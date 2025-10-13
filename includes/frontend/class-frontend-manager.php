@@ -134,23 +134,19 @@ class Frontend_Manager {
 	public function trigger_script_injection_immediately() {
 		// Get the site URL to make internal request
 		$site_url = home_url();
-		
-		// Log the attempt
-		error_log( 'SureFeedback: Triggering immediate script injection by requesting: ' . $site_url );
-		
-		// Make internal HTTP request to trigger wp_footer
+
+		// Make blocking HTTP request to ensure script injection completes
 		$response = wp_remote_get( $site_url, array(
-			'timeout' => 30,
+			'timeout' => 15,
 			'blocking' => false, // Don't wait for response, just trigger the request
 			'headers' => array(
-				'User-Agent' => 'SureFeedback-Auto-Injection/1.0'
-			)
+				'User-Agent' => 'SureFeedback-Auto-Injection/1.0',
+				'Cache-Control' => 'no-cache',
+				'Pragma' => 'no-cache'
+			),
+			'sslverify' => false // In case of local SSL issues
 		) );
 		
-		if ( is_wp_error( $response ) ) {
-			error_log( 'SureFeedback: Failed to trigger immediate script injection: ' . $response->get_error_message() );
-		} else {
-			error_log( 'SureFeedback: Successfully triggered immediate script injection request' );
-		}
+		
 	}
 }
