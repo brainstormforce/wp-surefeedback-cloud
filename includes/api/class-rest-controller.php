@@ -402,30 +402,74 @@ class Rest_Controller extends WP_REST_Controller
     public function handle_webhook_callback($request)
     {
         $params = $request->get_params();
+        $headers = $request->get_headers();
+        $raw_body = $request->get_body();
         
-        // Log webhook received for debugging
-        error_log('SureFeedback: Webhook endpoint called with params: ' . print_r($params, true));
+        // Enhanced logging for debugging
+        error_log('=== SureFeedback Webhook Debug Start ===');
+        error_log('Webhook endpoint called at: ' . current_time('mysql'));
+        error_log('Request method: ' . $request->get_method());
+        error_log('Request headers: ' . print_r($headers, true));
+        error_log('Request params (get_params): ' . print_r($params, true));
+        error_log('Request body (raw): ' . $raw_body);
+        error_log('Remote IP: ' . (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown'));
+        error_log('Content-Type header: ' . ($headers['content_type'][0] ?? 'not set'));
+        
+        // Laravel sends JSON, so let's try to parse the body if params are empty or insufficient
+        if ((empty($params) || (!isset($params['success']) && !isset($params['site_token']))) && !empty($raw_body)) {
+            $json_data = json_decode($raw_body, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($json_data)) {
+                error_log('SureFeedback: Using JSON body data instead of params');
+                $params = $json_data;
+                error_log('JSON decoded params: ' . print_r($params, true));
+            } else {
+                error_log('SureFeedback: Failed to decode JSON body. JSON error: ' . json_last_error_msg());
+            }
+        }
         
         // Validate required parameters
         if (empty($params['success']) || empty($params['site_token'])) {
             error_log('SureFeedback: Webhook validation failed - missing required parameters');
+            error_log('Success param: ' . (isset($params['success']) ? $params['success'] : 'MISSING'));
+            error_log('Site token param: ' . (isset($params['site_token']) ? 'PROVIDED' : 'MISSING'));
+            error_log('All available params: ' . print_r(array_keys($params), true));
+            error_log('=== SureFeedback Webhook Debug End ===');
             return new WP_Error('missing_params', 'Missing required parameters', array('status' => 400));
         }
 
-        if ($params['success'] === '1') {
-            $this->process_successful_connection($params);
+        if ($params['success'] === '1' || $params['success'] === 1 || $params['success'] === true) {
+            error_log('SureFeedback: Processing successful connection webhook');
+            $result = $this->process_successful_connection($params);
+            error_log('SureFeedback: Connection processing result: ' . ($result ? 'SUCCESS' : 'FAILED'));
+            
+            // Log current option values after processing
+            error_log('SureFeedback: Current WordPress option values after processing:');
+            error_log('  surefeedback_id: ' . get_option('surefeedback_id', 'NOT SET'));
+            error_log('  surefeedback_site_token: ' . get_option('surefeedback_site_token', 'NOT SET'));
+            error_log('  surefeedback_parent_url: ' . get_option('surefeedback_parent_url', 'NOT SET'));
+            error_log('  surefeedback_connection_status: ' . get_option('surefeedback_connection_status', 'NOT SET'));
+            
+            error_log('=== SureFeedback Webhook Debug End ===');
             
             return rest_ensure_response(array(
                 'success' => true,
                 'message' => 'Connection data saved successfully',
+                'processed_at' => current_time('mysql'),
+                'saved_options' => $result ? 'true' : 'false',
             ));
         } else {
             // Connection failed
-            error_log('SureFeedback: Webhook received - connection failed');
+            error_log('SureFeedback: Webhook received - connection failed or invalid success parameter');
+            error_log('SureFeedback: Success parameter value: ' . var_export($params['success'] ?? 'NOT SET', true));
+            error_log('=== SureFeedback Webhook Debug End ===');
             
             return rest_ensure_response(array(
                 'success' => false,
-                'message' => 'Connection failed',
+                'message' => 'Connection failed or invalid data',
+                'debug_info' => array(
+                    'success_param' => $params['success'] ?? 'NOT SET',
+                    'available_keys' => array_keys($params)
+                ),
             ));
         }
     }
@@ -435,45 +479,53 @@ class Rest_Controller extends WP_REST_Controller
      */
     private function process_successful_connection($params)
     {
-        // Sanitize and save connection data
-        // Get the SureFeedback instance to determine proper parent URL
-        $surefeedback = \SureFeedback::get_instance();
-        $parent_url = $params['parent_url'] ?? $surefeedback->get_api_url();
-        
-        $connection_data = array(
-            'surefeedback_site_token' => sanitize_text_field($params['site_token']),
-            'surefeedback_script_token' => sanitize_text_field($params['script_token'] ?? $params['site_token']),
-            'surefeedback_api_key' => sanitize_text_field($params['site_token']),
-            'surefeedback_id' => sanitize_text_field($params['site_id'] ?? ''),
-            'surefeedback_site_id' => sanitize_text_field($params['site_id'] ?? ''),
-            'surefeedback_organization_id' => sanitize_text_field($params['organization_id'] ?? ''),
-            'surefeedback_site_name' => sanitize_text_field($params['site_name'] ?? ''),
-            'surefeedback_domain' => sanitize_text_field($params['domain'] ?? ''),
-            'surefeedback_integration_script' => $params['integration_script'] ?? '',
-            'surefeedback_script_instructions' => $params['script_instructions'] ?? '',
-            'surefeedback_user_token' => sanitize_text_field($params['user_token'] ?? ''),
-            'surefeedback_connection_status' => 'connected',
-            'surefeedback_widget_enabled' => true,
-            'surefeedback_access_token' => sanitize_text_field($params['site_token']),
-            'surefeedback_parent_url' => esc_url_raw($parent_url),
-            'surefeedback_verification_status' => 'pending',
-            'surefeedback_verification_attempts' => 0,
-        );
+        try {
+            // Sanitize and save connection data
+            // Get the SureFeedback instance to determine proper parent URL
+            $surefeedback = \SureFeedback::get_instance();
+            $parent_url = $params['parent_url'] ?? $surefeedback->get_api_url();
+            
+            $connection_data = array(
+                'surefeedback_site_token' => sanitize_text_field($params['site_token']),
+                'surefeedback_script_token' => sanitize_text_field($params['script_token'] ?? $params['site_token']),
+                'surefeedback_api_key' => sanitize_text_field($params['site_token']),
+                'surefeedback_id' => sanitize_text_field($params['site_id'] ?? ''),
+                'surefeedback_site_id' => sanitize_text_field($params['site_id'] ?? ''),
+                'surefeedback_organization_id' => sanitize_text_field($params['organization_id'] ?? ''),
+                'surefeedback_site_name' => sanitize_text_field($params['site_name'] ?? ''),
+                'surefeedback_domain' => sanitize_text_field($params['domain'] ?? ''),
+                'surefeedback_user_token' => sanitize_text_field($params['user_token'] ?? ''),
+                'surefeedback_connection_status' => 'connected',
+                'surefeedback_widget_enabled' => true,
+                'surefeedback_access_token' => sanitize_text_field($params['site_token']),
+                'surefeedback_parent_url' => esc_url_raw($parent_url),
+                'surefeedback_verification_status' => 'pending',
+                'surefeedback_verification_attempts' => 0,
+            );
 
-        foreach ($connection_data as $key => $value) {
-            update_option($key, $value);
+            $saved_options = 0;
+            foreach ($connection_data as $key => $value) {
+                if (update_option($key, $value)) {
+                    $saved_options++;
+                }
+            }
+
+            // Log successful connection
+            error_log('SureFeedback: Webhook received - site connected successfully');
+            error_log('SureFeedback: Saved ' . $saved_options . ' options - site_id: ' . $connection_data['surefeedback_id'] . ', script_token: ' . $connection_data['surefeedback_script_token']);
+            
+            // Trigger auto verification
+            $surefeedback = \SureFeedback::get_instance();
+            $surefeedback->auto_verify_script();
+            
+            // Trigger the connection updated action
+            do_action('surefeedback_connection_updated');
+            
+            return true;
+        } catch (\Exception $e) {
+            error_log('SureFeedback: Error processing webhook connection: ' . $e->getMessage());
+            return false;
         }
-
-        // Log successful connection
-        error_log('SureFeedback: Webhook received - site connected successfully');
-        error_log('SureFeedback: Saved options - site_id: ' . $connection_data['surefeedback_id'] . ', script_token: ' . $connection_data['surefeedback_script_token']);
-        
-        // Trigger auto verification
-        $surefeedback = \SureFeedback::get_instance();
-        $surefeedback->auto_verify_script();
-        
-        // Trigger the connection updated action
-        do_action('surefeedback_connection_updated');
     }
 
     // ===========================================

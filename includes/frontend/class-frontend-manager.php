@@ -51,19 +51,10 @@ class Frontend_Manager {
 		$script_token = get_option( 'surefeedback_script_token' );
 		$access_token = get_option( 'surefeedback_access_token' );
 		$parent_url = get_option( 'surefeedback_parent_url' );
-		$integration_script = get_option( 'surefeedback_integration_script' );
 
 		// Debug: Add console logging to help troubleshoot
 		?>
-		<script>
-		console.log('SureFeedback Debug: Connection check', {
-			site_id: '<?php echo esc_js( $site_id ); ?>',
-			script_token: '<?php echo esc_js( $script_token ? 'present' : 'missing' ); ?>',
-			access_token: '<?php echo esc_js( $access_token ? 'present' : 'missing' ); ?>',
-			parent_url: '<?php echo esc_js( $parent_url ); ?>',
-			integration_script: '<?php echo esc_js( $integration_script ? 'present' : 'missing' ); ?>'
-		});
-		</script>
+
 		<?php
 
 		if ( ! $site_id || ! $parent_url ) {
@@ -120,35 +111,15 @@ class Frontend_Manager {
 		}
 		
 		s.parentNode.insertBefore(sf, s);
-		console.log('SureFeedback: Token set in localStorage and script injected');
-		console.log('SureFeedback: Token:', defaultToken);
-		console.log('SureFeedback: Base URL:', baseUrl);
-		console.log('SureFeedback: Script src:', sf.src);
-		console.log('SureFeedback: LocalStorage token:', localStorage.getItem('surefeedback_api_token'));
-		
 		// Debug: Check URL parameters that widget-loader.js will look for
 		const urlParams = new URLSearchParams(window.location.search);
-		console.log('SureFeedback: URL Parameters Check:', {
-			api_token: urlParams.get('api_token'),
-			magic_token: urlParams.get('magic_token'), 
-			surefeedback_token: urlParams.get('surefeedback_token'),
-			current_url: window.location.href
-		});
-		
+	
 		// Debug: Set up listener for widget ready event
 		window.addEventListener('surefeedback:ready', function() {
 			console.log('SureFeedback: Widget ready event fired - widget is fully loaded');
 		});
 		
-		// Debug: Check if widget loads after 3 seconds
-		setTimeout(function() {
-			console.log('SureFeedback: Status check after 3s:', {
-				iframe_ready: window.SureFeedbackIframeReady,
-				widget_loaded: window.SureFeedbackWidget ? 'yes' : 'no',
-				verification_data: window.SureFeedbackVerification || 'none'
-			});
-		}, 3000);
-		})(document, 'script', '<?php echo esc_js( $parent_url ); ?>/js/widget-loader.js', '<?php echo esc_js( $token ); ?>', '<?php echo esc_js( $parent_url ); ?>', 'true', null, null);
+		})(document, 'script', '<?php echo esc_js( $parent_url ); ?>/dist/js/widget-loader.js', '<?php echo esc_js( $token ); ?>', '<?php echo esc_js( $parent_url ); ?>', 'true', null, null);
 		</script>
 		<!-- End SureFeedback Widget -->
 		<?php
