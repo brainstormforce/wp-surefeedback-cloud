@@ -423,8 +423,6 @@ if ( ! class_exists( 'SureFeedback_Admin_API' ) ) :
 				delete_transient( 'surefeedback_connection_test' );
 				delete_transient( 'surefeedback_verification_status' );
 				
-				// Log the disconnection
-				error_log( 'SureFeedback: Site disconnected locally. Cleared ' . $cleared_options . ' options.' );
 
 				return rest_ensure_response( array(
 					'success' => true,
@@ -436,7 +434,6 @@ if ( ! class_exists( 'SureFeedback_Admin_API' ) ) :
 				) );
 
 			} catch ( Exception $e ) {
-				error_log( 'SureFeedback: Disconnect error - ' . $e->getMessage() );
 				
 				return new WP_Error(
 					'disconnect_failed',

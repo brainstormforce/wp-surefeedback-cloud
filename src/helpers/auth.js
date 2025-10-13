@@ -80,8 +80,6 @@ export const reconnectSite = () => {
   sessionStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
   localStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
   
-  console.log('Reconnecting to:', reconnectUrl);
-  console.log('Reconnection intent stored:', connectionIntent);
   
   // Redirect to SaaS platform for reconnection
   window.open(reconnectUrl, '_blank');
@@ -147,14 +145,11 @@ export const disconnectSite = async () => {
         
         if (!wpResult.success) {
           console.warn('WordPress local data clearing failed:', wpResult.message);
-        } else {
-          console.log('WordPress local data cleared successfully');
         }
       } catch (error) {
         console.warn('Failed to clear WordPress local data:', error);
       }
 
-      console.log('Site disconnected successfully from SaaS platform');
       return { success: true, data: result.data };
     } else {
       console.error('Failed to disconnect site:', result.message);
