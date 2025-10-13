@@ -82,9 +82,7 @@ const Connected = () => {
         >
           <div className="grid grid-cols-2 gap-y-3 text-left">
             <span className="font-medium">Connection Site:</span>
-            <span className="text-gray-700">https://example.com</span>
-            <span className="font-medium">Organization:</span>
-            <span className="text-gray-700">Example Inc.</span>
+            <span className="text-gray-700">{window.sureFeedbackAdmin.connection.site_data.site_url}</span>
             <span className="font-medium">Status:</span>
             <span className="flex items-center gap-1 text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium w-fit">
               <CheckCircle size={14} />
