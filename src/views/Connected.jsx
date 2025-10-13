@@ -27,9 +27,9 @@ const Connected = () => {
       if (result.success) {
         setDisconnectStatus('success');
         
-        // Redirect to main admin page after short delay
+        // Reload the page after short delay
         setTimeout(() => {
-          window.location.href = `${window.origin}/wp-admin/admin.php?page=surefeedback&disconnected=1#connection`;
+          window.location.reload();
         }, 2000);
       } else {
         setDisconnectStatus('error');
