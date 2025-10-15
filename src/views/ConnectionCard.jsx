@@ -1,0 +1,364 @@
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Button, Title, Container } from "@bsf/force-ui";
+import { __ } from "@wordpress/i18n";
+import { LoaderCircle, ArrowUpRight, CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { useSettingsStore } from "../stores/settingsStore";
+import { useToast } from "../hooks/useToast";
+
+const ConnectionCard = () => {
+  const [manualConnectionData, setManualConnectionData] = useState("");
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const initializedRef = useRef(false);
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  
+  const {
+    connectionStatus,
+    connection,
+    loading,
+    saving,
+    errors,
+    loadSettings,
+    saveConnectionSettings,
+    testConnection,
+    updateConnectionSettings,
+    refreshConnectionStatus,
+  } = useSettingsStore();
+
+  const { showToast } = useToast();
+
+  // Initialize settings on component mount - only once
+  useEffect(() => {
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      loadSettings().then(() => {
+        setHasInitiallyLoaded(true);
+      });
+    }
+  }, []); // No dependencies - run only once
+
+  // Handle URL changes and detect successful disconnect - run only once
+  useEffect(() => {
+    // Check if we just came back from a disconnect operation
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasDisconnectSuccess = urlParams.has('surefeedback-site-disconnect');
+    
+    if (hasDisconnectSuccess) {
+      // Clean up the URL parameters
+      const cleanUrl = new URL(window.location);
+      cleanUrl.searchParams.delete('surefeedback-site-disconnect');
+      cleanUrl.searchParams.delete('surefeedback-site-disconnect-nonce');
+      window.history.replaceState({}, '', cleanUrl.toString());
+      
+      // Show success message and refresh data
+      setTimeout(() => {
+        showToast(__("Successfully disconnected from SureFeedback", "surefeedback"), "success");
+        loadSettings().then(() => {
+          setHasInitiallyLoaded(true); // Ensure we show the updated state
+        });
+      }, 100);
+    }
+
+    // Listen for popstate events (back/forward navigation) 
+    const handleUrlChange = () => {
+      loadSettings();
+    };
+    
+    window.addEventListener('popstate', handleUrlChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+    };
+  }, []); // Empty dependency array - run only once on mount
+
+  // Memoize callback functions to prevent unnecessary re-renders
+  const handleManualImport = useCallback(async () => {
+    if (!manualConnectionData.trim()) {
+      showToast(__("Please enter connection details", "surefeedback"), "error");
+      return;
+    }
+
+    try {
+      const connectionData = JSON.parse(manualConnectionData);
+      
+      // Map the connection data to the expected format
+      const settingsToSave = {
+        surefeedback_id: connectionData.id || connectionData.project_id,
+        surefeedback_api_key: connectionData.api_key || connectionData.apikey,
+        surefeedback_access_token: connectionData.access_token,
+        surefeedback_parent_url: connectionData.parent_url,
+        surefeedback_signature: connectionData.signature,
+        surefeedback_installed: true,
+      };
+
+      const success = await saveConnectionSettings(settingsToSave);
+      
+      if (success) {
+        setManualConnectionData("");
+        showToast(__("Connection settings saved successfully", "surefeedback"), "success");
+      } else {
+        showToast(errors.connection || __("Failed to save connection settings", "surefeedback"), "error");
+      }
+    } catch (error) {
+      showToast(__("Invalid JSON format. Please check your connection details.", "surefeedback"), "error");
+    }
+  }, [manualConnectionData, saveConnectionSettings, showToast, errors.connection]);
+
+  const handleDisconnect = useCallback(async () => {
+    if (!window.confirm(__("Are you sure you want to disconnect? This will remove all connection settings.", "surefeedback"))) {
+      return;
+    }
+
+    setIsDisconnecting(true);
+    
+    try {
+      // Use the original PHP disconnect functionality with URL parameters
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set('surefeedback-site-disconnect', '1');
+      currentUrl.searchParams.set('surefeedback-site-disconnect-nonce', window.sureFeedbackAdmin?.disconnect_nonce || '');
+      
+      // Redirect to disconnect URL - this will be handled by PHP
+      window.location.href = currentUrl.toString();
+    } catch (error) {
+      setIsDisconnecting(false);
+      showToast(__("Failed to disconnect", "surefeedback"), "error");
+    }
+  }, [showToast]);
+
+  const handleTestConnection = useCallback(async () => {
+    const success = await testConnection();
+    
+    if (success) {
+      showToast(__("Connection test successful", "surefeedback"), "success");
+    } else {
+      showToast(errors.connection || __("Connection test failed", "surefeedback"), "error");
+    }
+  }, [testConnection, showToast, errors.connection]);
+
+  const getConnectionStatusDisplay = useCallback(() => {
+    // Show loading only on initial load, not subsequent updates
+    if (!hasInitiallyLoaded && loading) {
+      return (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: "#f8f9fa" }}>
+          <LoaderCircle size={16} className="animate-spin" />
+          <span>{__("Loading connection status...", "surefeedback")}</span>
+        </div>
+      );
+    }
+
+    if (connectionStatus.connected && connectionStatus.parent_url) {
+      return (
+        <div className="flex items-center w-80 gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: "#daecda", marginTop: "12px", borderRadius: "6px" }}>
+          <CheckCircle size={16} style={{ color: "#559a55" }} />
+          <span style={{ color: "#559a55", fontWeight: "500" }}>
+            {__("Connected to", "surefeedback")} {connectionStatus.parent_url}
+          </span>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="flex items-center w-4/5 gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: "#f1ebd3", marginTop: "12px", borderRadius: "6px" }}>
+        <AlertCircle size={16} style={{ color: "#9c8a44" }} />
+        <span style={{ color: "#9c8a44", fontWeight: "500" }}>
+          {__("Not Connected. Please connect this plugin to your SureFeedback installation", "surefeedback")}
+        </span>
+      </div>
+    );
+  }, [hasInitiallyLoaded, loading, connectionStatus.connected, connectionStatus.parent_url]);
+
+  const getDashboardUrl = useCallback(() => {
+    if (connectionStatus.connected && connectionStatus.parent_url && connectionStatus.project_id) {
+      return `${connectionStatus.parent_url}/wp-admin/post.php?post=${connectionStatus.project_id}&action=edit`;
+    }
+    return null;
+  }, [connectionStatus.connected, connectionStatus.parent_url, connectionStatus.project_id]);
+
+  return (
+    <>
+      <Title
+        icon={null}
+        iconPosition="right"
+        size="sm"
+        tag="h2"
+        title={__("Connection", "surefeedback")}
+        description={__(
+          "Connect your site to your SureFeedback installation to enable feedback collection",
+          "surefeedback"
+        )}
+      />
+      <div
+        className="box-border bg-background-primary p-6 max-w-3xl rounded-lg"
+        style={{
+          marginTop: "24px",
+          borderRadius: "6px",
+        }}
+      >
+        <div className="flex flex-col">
+          <Title
+            icon={null}
+            iconPosition="right"
+            size="xs"
+            tag="h2"
+            title={__("Connection Status", "surefeedback")}
+            description={__(
+              "Current connection status with your SureFeedback parent site",
+              "surefeedback"
+            )}
+          />
+          
+          {getConnectionStatusDisplay()}
+
+          {connectionStatus.connected && (
+            <div className="flex gap-2 mt-4">
+              <Button
+                variant="secondary"
+                onClick={handleDisconnect}
+                className="surefeedback-remove-ring"
+                disabled={isDisconnecting}
+                style={{ backgroundColor: "#4353FF", borderRadius: '6px' }}
+              >
+                {isDisconnecting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {isDisconnecting ? __("Disconnecting...", "surefeedback") : __("Disconnect", "surefeedback")}
+              </Button>
+              
+              {getDashboardUrl() && (
+                <Button
+                  variant="secondary"
+                   className="surefeedback-remove-ring"
+                  onClick={() => window.open(getDashboardUrl(), "_blank")}
+                  iconPosition="right"
+                  style={{ backgroundColor: "#4353FF", borderRadius: '6px' }}
+                >
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                  {__("Visit Dashboard Site", "surefeedback")}
+                </Button>
+              )}
+              
+              <Button
+                variant="secondary"
+                onClick={handleTestConnection}
+                disabled={loading}
+                 className="surefeedback-remove-ring"
+                style={{ backgroundColor: "#4353FF", borderRadius: '6px' }}
+              >
+                {loading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                {loading ? __("Testing...", "surefeedback") : __("Test Connection", "surefeedback")}
+              </Button>
+            </div>
+          )}
+
+          {!connectionStatus.connected && (
+            <div
+              className="flex items-center justify-between px-4 rounded-xl mt-4"
+              style={{
+                backgroundColor: "#F3F0FF",
+              }}
+            >
+              <span className="flex items-center gap-x-2 text-base font-semibold">
+                <p className="text-base font-normal">
+                  {__(
+                    "Having challenges connecting plugin? Please reach out",
+                    "surefeedback"
+                  )}
+                </p>
+              </span>
+              <Button
+                iconPosition="right"
+                variant="link"
+                style={{
+                  // backgroundColor: "#4353FF",
+                  color: "#6005FF",
+                  borderColor: "#6005FF",
+                  borderRadius: '6px',
+                  transition: "color 0.3s ease, border-color 0.3s ease",
+                  fontSize: "16px",
+                }}
+                className="surefeedback-remove-ring text-[#6005FF]"
+                onClick={() => {
+                  window.open(
+                    "https://surefeedback.com/docs/adding-a-clients-wordpress-site#manual",
+                    "_blank"
+                  );
+                }}
+              >
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+                {__("Need Help ?", "surefeedback")}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {!connectionStatus.connected && (
+          <>
+            <hr
+              className="w-full border-b-0 border-x-0 border-t border-solid border-t-border-subtle"
+              style={{
+                marginTop: "34px",
+                marginBottom: "24px",
+                borderColor: "#E5E7EB",
+              }}
+            />
+
+            <Container
+              align="stretch"
+              className="flex flex-col lg:flex-row"
+              containerType="flex"
+              direction="column"
+              gap="sm"
+              justify="between"
+              item
+            >
+              <Container.Item className="flex flex-col w-full space-y-1">
+                <div className="text-base text-field-label font-semibold m-0">
+                  {__("Manual Connection Details", "surefeedback")}
+                </div>
+                <p className="text-sm text-field-label font-normal mr-2 mb-2">
+                  {__("If you are having trouble connecting, you can manually connect by pasting the connection details below", "surefeedback")}
+                </p>
+                <textarea
+                  value={manualConnectionData}
+                  onChange={(e) => setManualConnectionData(e.target.value)}
+                  name="manual_connection"
+                  className="w-full border border-subtle"
+                  placeholder={__("Paste your connection JSON data here...", "surefeedback")}
+                  rows={6}
+                  style={{
+                    borderColor: "#e0e0e0",
+                    outline: "none",
+                    boxShadow: "none",
+                    marginTop: "8px",
+                    padding: "12px",
+                    fontFamily: "monospace",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = "#6005FF")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
+                />
+                {errors.connection && (
+                  <div className="text-red-600 text-sm mt-2">
+                    {errors.connection}
+                  </div>
+                )}
+              </Container.Item>
+            </Container>
+
+            <Button
+              type="button"
+              onClick={handleManualImport}
+              disabled={saving || !manualConnectionData.trim()}
+              style={{ backgroundColor: "#4353FF", marginTop: "14px", borderRadius: '6px' }}
+              iconPosition="left"
+              className="w-40 sticky uavc-remove-ring"
+            >
+              {saving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+              {saving ? __("Saving...", "surefeedback") : __("Save Changes", "surefeedback")}
+            </Button>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default ConnectionCard;

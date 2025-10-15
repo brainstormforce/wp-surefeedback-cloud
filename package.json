@@ -1,0 +1,64 @@
+{
+  "name": "surefeedback",
+  "version": "1.2.6",
+  "description": "SureFeedback client plugin for collecting and managing user feedback",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "release": "echo 'Release script not configured'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "#"
+  },
+  "keywords": [
+    "surefeedback",
+    "feedback",
+    "client",
+    "wordpress"
+  ],
+  "author": "SureFeedback Team",
+  "license": "GPL-2.0+",
+  "bugs": {
+    "url": "#"
+  },
+  "homepage": "https://surefeedback.com",
+  "dependencies": {
+    "@bsf/force-ui": "git+https://github.com/brainstormforce/force-ui.git#1.7.4",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@wordpress/api-fetch": "^7.29.0",
+    "@wordpress/element": "^6.29.0",
+    "@wordpress/i18n": "^6.2.0",
+    "axios": "^1.6.0",
+    "class-variance-authority": "^0.7.1",
+    "classnames": "^2.5.1",
+    "clsx": "^2.1.1",
+    "history": "^5.3.0",
+    "immer": "^10.1.3",
+    "lucide-react": "^0.400.0",
+    "path-to-regexp": "^8.2.0",
+    "querystringify": "^2.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^3.3.1",
+    "zustand": "^5.0.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@types/node": "^20.10.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.20",
+    "grunt": "^1.6.1",
+    "grunt-contrib-compress": "^2.0.0",
+    "grunt-wp-i18n": "^1.0.4",
+    "grunt-wp-readme-to-markdown": "^2.1.0",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "typescript": "~5.2.0",
+    "vite": "^5.0.2"
+  }
+}
