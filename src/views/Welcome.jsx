@@ -2,6 +2,7 @@ import React from "react";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@bsf/force-ui";
 import { __ } from "@wordpress/i18n";
+import { authenticateRedirect } from "../helpers/auth";
 
 const Welcome = ({ setCurrentStep }) => {
   return (
@@ -32,16 +33,20 @@ const Welcome = ({ setCurrentStep }) => {
             borderRadius: "6px",
           }}
           iconPosition="right"
-          onClick={() => setCurrentStep(2)}
+          onClick={() => {
+            authenticateRedirect();
+          }}
         >
           {__("Get Started Now", "surefeedback")}
         </Button>
         <Button
           variant="link"
-          //   icon={<ChevronRight />}
           type="submit"
           iconPosition="left"
           style={{ marginTop: "20px" }}
+          onClick={() => {
+            window.location.href = `${window.origin}/wp-admin`;
+          }}
         >
           {__("Go Back to the dashboard", "surefeedback")}
         </Button>
@@ -187,7 +192,9 @@ const Welcome = ({ setCurrentStep }) => {
             borderRadius: "6px",
           }}
           iconPosition="right"
-          onClick={() => setCurrentStep(2)}
+          onClick={() => {
+            authenticateRedirect();
+          }}
         >
           {__("Get Started Now", "surefeedback")}
         </Button>
@@ -196,6 +203,9 @@ const Welcome = ({ setCurrentStep }) => {
           type="submit"
           iconPosition="left"
           style={{ marginTop: "20px" }}
+          onClick={() => {
+            window.location.href = `${window.origin}/wp-admin`;
+          }}
         >
           {__("Go Back to the dashboard", "surefeedback")}
         </Button>

@@ -9,7 +9,7 @@ export default defineConfig(({ command }) => ({
     'process.env.NODE_ENV': JSON.stringify(command === 'serve' ? 'development' : 'production')
   },
   build: {
-    watch: command === 'build' ? {} : null,
+    watch: null,
     rollupOptions: {
       input: {
         admin: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/main.tsx'),

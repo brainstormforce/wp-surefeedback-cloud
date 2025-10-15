@@ -60,12 +60,8 @@ class SureFeedback_Loader {
 	/**
 	 * Load required files
 	 */
-	private function load_dependencies() {
-		// Core functions
-		require_once $this->plugin_path . 'includes/core/surefeedback-functions.php';
-		
+	private function load_dependencies() {		
 		// API classes
-		require_once $this->plugin_path . 'includes/api/class-surefeedback-rest-api.php';
 		require_once $this->plugin_path . 'includes/admin/class-surefeedback-admin-api.php';
 	}
 
@@ -73,11 +69,6 @@ class SureFeedback_Loader {
 	 * Initialize services
 	 */
 	private function init_services() {
-		// Initialize REST API
-		if ( class_exists( 'SureFeedback_REST_API' ) ) {
-			$this->services['rest_api'] = new SureFeedback_REST_API();
-		}
-
 		// Initialize Admin API
 		if ( class_exists( 'SureFeedback_Admin_API' ) ) {
 			$this->services['admin_api'] = new SureFeedback_Admin_API();

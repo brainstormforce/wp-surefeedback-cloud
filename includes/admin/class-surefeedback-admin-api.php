@@ -128,69 +128,20 @@ if ( ! class_exists( 'SureFeedback_Admin_API' ) ) :
 
 			register_rest_route(
 				'surefeedback/v1',
-				'/settings/manual-import',
+				'/verify-integration',
 				array(
 					'methods'             => 'POST',
-					'callback'            => array( $this, 'manual_import' ),
+					'callback'            => array( $this, 'verify_integration' ),
 					'permission_callback' => array( $this, 'check_admin_permissions' ),
-					'args'                => array(
-						'parent_url' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'esc_url_raw',
-						),
-						'project_id' => array(
-							'type'              => 'integer',
-							'required'          => true,
-							'sanitize_callback' => 'intval',
-						),
-						'api_key' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_text_field',
-						),
-						'access_token' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_text_field',
-						),
-						'signature' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_text_field',
-						),
-					),
 				)
 			);
 
 			register_rest_route(
 				'surefeedback/v1',
-				'/settings/test-connection',
+				'/disconnect',
 				array(
 					'methods'             => 'POST',
-					'callback'            => array( $this, 'test_connection' ),
-					'permission_callback' => array( $this, 'check_admin_permissions' ),
-					'args'                => array(
-						'parent_url' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'esc_url_raw',
-						),
-						'access_token' => array(
-							'type'              => 'string',
-							'required'          => true,
-							'sanitize_callback' => 'sanitize_text_field',
-						),
-					),
-				)
-			);
-
-			register_rest_route(
-				'surefeedback/v1',
-				'/plugin-status',
-				array(
-					'methods'             => 'GET',
-					'callback'            => array( $this, 'get_plugin_status' ),
+					'callback'            => array( $this, 'disconnect_site' ),
 					'permission_callback' => array( $this, 'check_admin_permissions' ),
 				)
 			);
@@ -330,89 +281,6 @@ if ( ! class_exists( 'SureFeedback_Admin_API' ) ) :
 		}
 
 		/**
-		 * Manual import settings
-		 */
-		public function manual_import( $request ) {
-			$params = $request->get_params();
-
-			// Validate required fields
-			$required_fields = array( 'parent_url', 'project_id', 'api_key', 'access_token', 'signature' );
-			foreach ( $required_fields as $field ) {
-				if ( empty( $params[ $field ] ) ) {
-					return new WP_Error(
-						'missing_field',
-						sprintf( 'Missing required field: %s', $field ),
-						array( 'status' => 400 )
-					);
-				}
-			}
-
-			// Save connection settings
-			update_option( 'surefeedback_parent_url', $params['parent_url'] );
-			update_option( 'surefeedback_id', intval( $params['project_id'] ) );
-			update_option( 'surefeedback_api_key', $params['api_key'] );
-			update_option( 'surefeedback_access_token', $params['access_token'] );
-			update_option( 'surefeedback_signature', $params['signature'] );
-			update_option( 'surefeedback_installed', true );
-
-			$connection_status = $this->get_connection_status();
-
-			return rest_ensure_response(
-				array(
-					'success' => true,
-					'message' => 'Settings imported successfully.',
-					'data'    => array(
-						'connectionStatus' => $connection_status,
-					),
-				)
-			);
-		}
-
-		/**
-		 * Test connection to parent site
-		 */
-		public function test_connection( $request ) {
-			$params     = $request->get_params();
-			$parent_url = $params['parent_url'];
-			$token      = $params['access_token'];
-
-			// Simple connection test - try to reach the parent URL
-			$response = wp_remote_get(
-				$parent_url,
-				array(
-					'timeout'     => 10,
-					'headers'     => array(
-						'X-SureFeedback-Token' => $token,
-					),
-					'sslverify'   => true,
-				)
-			);
-
-			if ( is_wp_error( $response ) ) {
-				return new WP_Error(
-					'connection_failed',
-					sprintf( 'Connection failed: %s', $response->get_error_message() ),
-					array( 'status' => 500 )
-				);
-			}
-
-			$response_code = wp_remote_retrieve_response_code( $response );
-			
-			$status = array(
-				'connected'     => $response_code < 400,
-				'response_code' => $response_code,
-				'last_verified' => current_time( 'mysql' ),
-			);
-
-			return rest_ensure_response(
-				array(
-					'success' => true,
-					'data'    => $status,
-				)
-			);
-		}
-
-		/**
 		 * Get connection status
 		 */
 		private function get_connection_status() {
@@ -521,6 +389,58 @@ if ( ! class_exists( 'SureFeedback_Admin_API' ) ) :
 			}
 
 			return rest_ensure_response( $status_map );
+		}
+
+		/**
+		 * Verify script integration
+		 */
+		public function verify_integration( $request ) {
+			$surefeedback = SureFeedback::get_instance();
+			$result = $surefeedback->verify_script_integration();
+			
+			return rest_ensure_response( $result );
+		}
+
+		/**
+		 * Disconnect site and clear local data
+		 */
+		public function disconnect_site( $request ) {
+			try {
+				// Clear all SureFeedback related WordPress options
+				// $options_to_clear = array(
+				// 	'surefeedback_script_token',
+				// );
+
+				// $cleared_options = 0;
+				// foreach ( $options_to_clear as $option ) {
+				// 	if ( delete_option( $option ) ) {
+				// 		$cleared_options++;
+				// 	}
+				// }
+				delete_option( 'surefeedback_script_token' );
+				update_option( 'surefeedback_verification_status', 'failed');
+				// Clear any transients related to SureFeedback
+				delete_transient( 'surefeedback_connection_test' );
+				delete_transient( 'surefeedback_verification_status' );
+				
+
+				return rest_ensure_response( array(
+					'success' => true,
+					'message' => __( 'Site disconnected successfully. All local data has been cleared.', 'surefeedback' ),
+					'data' => array(
+						'cleared_options' => $cleared_options,
+						'disconnected_at' => current_time( 'mysql' ),
+					),
+				) );
+
+			} catch ( Exception $e ) {
+				
+				return new WP_Error(
+					'disconnect_failed',
+					__( 'Failed to disconnect site. Please try again.', 'surefeedback' ),
+					array( 'status' => 500 )
+				);
+			}
 		}
 	}
 endif;

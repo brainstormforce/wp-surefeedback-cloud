@@ -62,6 +62,8 @@ module.exports = function (grunt) {
               "!tests/**",
               "!.git/**",
               "!bin/**",
+              "!vendor/**",
+              "!src/**",
             ],
             dest: "/",
           },

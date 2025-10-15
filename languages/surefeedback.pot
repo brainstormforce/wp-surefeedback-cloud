@@ -1,11 +1,10 @@
 # Copyright (C) 2025 Brainstorm Force
-# This file is distributed under the same license as the SureFeedback Client Site package.
+# This file is distributed under the same license as the SureFeedback Client package.
 msgid ""
 msgstr ""
-"Project-Id-Version: SureFeedback Client Site 1.2.10\n"
-"Report-Msgid-Bugs-To: "
-"https://wordpress.org/support/plugin/projecthuddle-child-site\n"
-"POT-Creation-Date: 2025-08-09 06:54:48+00:00\n"
+"Project-Id-Version: SureFeedback Client 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
+"POT-Creation-Date: 2025-10-02 12:55:11+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,168 +24,70 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Generator: grunt-wp-i18n 1.0.4\n"
 
-#: includes/api/class-surefeedback-rest-api.php:43
-msgid "Access token required"
-msgstr ""
-
-#: includes/api/class-surefeedback-rest-api.php:46
-msgid "Invalid access token"
-msgstr ""
-
-#: includes/core/surefeedback-functions.php:112
-msgid ""
-"Flywheel hosting detected!  You'll need to request a cache exclusion in "
-"order for project access links to work correctly."
-msgstr ""
-
-#: includes/core/surefeedback-functions.php:138
-msgid ""
-"WPEngine hosting detected!  You'll need to request a cache exclusion in "
-"order for SureFeedback access links to work properly."
-msgstr ""
-
-#: surefeedback.php:78
-msgid "Website project ID."
-msgstr ""
-
-#: surefeedback.php:82
-msgid "Public API key for the script loader."
-msgstr ""
-
-#: surefeedback.php:86
-msgid "Access token to verify access to be able to register and leave comments."
-msgstr ""
-
-#: surefeedback.php:90
-msgid "Parent Site URL."
-msgstr ""
-
-#: surefeedback.php:94
-msgid "Secret signature to verify identity."
-msgstr ""
-
-#: surefeedback.php:98
-msgid "Is the plugin installed?"
-msgstr ""
-
-#: surefeedback.php:204
-msgid ""
-"You have both the client site and SureFeedback core plugins activated. You "
-"must only activate the client site on a client site, and SureFeedback on "
-"your main site."
-msgstr ""
-
-#: surefeedback.php:231
-msgid "Visit plugin site"
-msgstr ""
-
-#: surefeedback.php:292
-msgid "Settings"
-msgstr ""
-
-#: surefeedback.php:390
-msgid "Feedback Connection"
-msgstr ""
-
-#: surefeedback.php:391
+#: includes/admin/class-admin-menu.php:49
+#: includes/admin/class-admin-menu.php:53
 msgid "SureFeedback"
 msgstr ""
 
-#: surefeedback.php:406
-msgid "General Settings"
+#: includes/admin/class-admin-menu.php:65
+#: includes/admin/class-admin-menu.php:66 surefeedback.php:358
+msgid "Dashboard"
 msgstr ""
 
-#: surefeedback.php:413
-msgid "Comments Visibility Access"
+#: includes/admin/class-admin-menu.php:75
+#: includes/admin/class-admin-menu.php:76 surefeedback.php:359
+msgid "Settings"
 msgstr ""
 
-#: surefeedback.php:429
-msgid "Allow Site Visitors"
-msgstr ""
-
-#: surefeedback.php:447
-msgid "Dashboard Commenting"
-msgstr ""
-
-#: surefeedback.php:465
+#: includes/admin/class-admin-menu.php:85
+#: includes/admin/class-admin-menu.php:86
 msgid "Connection"
 msgstr ""
 
-#: surefeedback.php:472
-msgid "Connection Status"
+#: includes/admin/class-admin-menu.php:94
+msgid "Feedback Connection"
 msgstr ""
 
-#: surefeedback.php:490
-msgid "Manual Connection Details"
+#: includes/admin/class-surefeedback-admin-api.php:431
+#: includes/api/class-rest-controller.php:377
+msgid "Site disconnected successfully. All local data has been cleared."
 msgstr ""
 
-#: surefeedback.php:509
-msgid "White Label"
+#: includes/admin/class-surefeedback-admin-api.php:443
+#: includes/api/class-rest-controller.php:389
+msgid "Failed to disconnect site. Please try again."
 msgstr ""
 
-#: surefeedback.php:516
-msgid "Plugin Name"
+#: includes/api/class-rest-controller.php:182
+msgid "Invalid nonce."
 msgstr ""
 
-#: surefeedback.php:525
-msgid "Plugin Description"
+#: surefeedback.php:250
+msgid "Website project ID."
 msgstr ""
 
-#: surefeedback.php:534
-msgid "Plugin Author"
+#: surefeedback.php:254
+msgid "Public API key for the script loader."
 msgstr ""
 
-#: surefeedback.php:543
-msgid "Plugin Author URL"
+#: surefeedback.php:258
+msgid "Access token to verify access to be able to register and leave comments."
 msgstr ""
 
-#: surefeedback.php:552
-msgid "Plugin Link"
+#: surefeedback.php:262
+msgid "Parent Site URL."
 msgstr ""
 
-#: surefeedback.php:702
-msgid "Allow above user roles to view comments on your site without access token."
+#: surefeedback.php:266
+msgid "Secret signature to verify identity."
 msgstr ""
 
-#: surefeedback.php:717
-msgid ""
-"Allow the site visitors to view and add comments on your site without "
-"access token."
-msgstr ""
-
-#: surefeedback.php:729
-msgid "Allow commenting in your site's WordPress dashboard area."
-msgstr ""
-
-#: surefeedback.php:774
-#. translators: %s: parent site URL
-msgid "Connected to %s"
-msgstr ""
-
-#: surefeedback.php:784
-msgid "Disconnect"
-msgstr ""
-
-#: surefeedback.php:786
-msgid "Visit Dashboard Site"
-msgstr ""
-
-#: surefeedback.php:791
-msgid "Not Connected. Please connect this plugin to your Feedback installation."
-msgstr ""
-
-#: surefeedback.php:816
-msgid "Need Help?"
-msgstr ""
-
-#: surefeedback.php:830
-msgid ""
-"If you are having trouble connecting, you can manually connect by pasting "
-"the connection details below"
+#: surefeedback.php:270
+msgid "Is the plugin installed?"
 msgstr ""
 
 #. Plugin Name of the plugin/theme
-msgid "SureFeedback Client Site"
+msgid "SureFeedback Client"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
@@ -195,7 +96,7 @@ msgstr ""
 
 #. Description of the plugin/theme
 msgid ""
-"Collect note-style feedback from your client’s websites and sync them with "
+"Collect note-style feedback from your client's websites and sync them with "
 "your SureFeedback parent project."
 msgstr ""
 
