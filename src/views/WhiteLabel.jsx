@@ -10,41 +10,121 @@ import {
 } from "@bsf/force-ui";
 import { LoaderCircle, FileText } from "lucide-react";
 import { __ } from "@wordpress/i18n";
-import { useSettings } from "../hooks/useSettings";
+// import { useSettings } from "../hooks/useSettings"; // Temporarily removed
 
 const WhiteLabel = () => {
-  const {
-    settings,
-    loading,
-    saving,
-    errors,
-    loadSettings,
-    saveWhiteLabelSettings,
-    updateWhiteLabelField,
-    clearErrors,
-  } = useSettings();
+  // Temporarily commented out useSettings
+  // const {
+  //   settings,
+  //   loading,
+  //   saving,
+  //   errors,
+  //   loadSettings,
+  //   saveWhiteLabelSettings,
+  //   updateWhiteLabelField,
+  //   clearErrors,
+  // } = useSettings();
+  
+  // Proper state management for white label settings
+  const [settings, setSettings] = useState({
+    surefeedback_plugin_name: '',
+    surefeedback_plugin_description: '',
+    surefeedback_plugin_author: '',
+    surefeedback_plugin_author_url: '',
+    surefeedback_plugin_link: ''
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+  
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(sureFeedbackAdmin.rest_url + 'surefeedback/v1/settings', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': sureFeedbackAdmin.rest_nonce,
+        },
+      });
 
-  const [isLoading, setIsLoading] = useState(false);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSettings({
+            surefeedback_plugin_name: data.data.whiteLabel?.surefeedback_plugin_name || '',
+            surefeedback_plugin_description: data.data.whiteLabel?.surefeedback_plugin_description || '',
+            surefeedback_plugin_author: data.data.whiteLabel?.surefeedback_plugin_author || '',
+            surefeedback_plugin_author_url: data.data.whiteLabel?.surefeedback_plugin_author_url || '',
+            surefeedback_plugin_link: data.data.whiteLabel?.surefeedback_plugin_link || ''
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      setErrors({ load: 'Failed to load settings' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveWhiteLabelSettings = async () => {
+    try {
+      setSaving(true);
+      const response = await fetch(sureFeedbackAdmin.rest_url + 'surefeedback/v1/settings/white-label', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': sureFeedbackAdmin.rest_nonce,
+        },
+        body: JSON.stringify(settings),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          toast.success(__('White label settings saved successfully!', 'surefeedback'));
+          return true;
+        }
+      }
+      throw new Error('Save failed');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast.error(__('Failed to save white label settings', 'surefeedback'));
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateWhiteLabelField = (field, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   useEffect(() => {
     loadSettings();
-  }, [loadSettings]);
+  }, []);
 
   const handleInputChange = (field, value) => {
     updateWhiteLabelField(field, value);
   };
 
   const handleSaveChanges = async () => {
-    setIsLoading(true);
-    const success = await saveWhiteLabelSettings();
-    setIsLoading(false);
-
-    if (success) {
-      toast.success(
-        __("White label settings saved successfully!", "surefeedback")
-      );
-    }
+    await saveWhiteLabelSettings();
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-6">
+        <LoaderCircle className="h-8 w-8 animate-spin" />
+        <span className="ml-2">{__('Loading white label settings...', 'surefeedback')}</span>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-lg" style={{  width: "720px",
           marginLeft: "40px", }}>
@@ -84,7 +164,7 @@ const WhiteLabel = () => {
               name="surefeedback_plugin_name"
               type="text"
               className="w-full border border-subtle"
-              value={settings.whiteLabel.surefeedback_plugin_name || ""}
+              value={settings.surefeedback_plugin_name || ""}
               onChange={(e) =>
                 handleInputChange("surefeedback_plugin_name", e.target.value)
               }
@@ -108,7 +188,7 @@ const WhiteLabel = () => {
             <textarea
               name="surefeedback_plugin_description"
               className="w-full border border-subtle resize-none"
-              value={settings.whiteLabel.surefeedback_plugin_description || ""}
+              value={settings.surefeedback_plugin_description || ""}
               onChange={(e) =>
                 handleInputChange(
                   "surefeedback_plugin_description",
@@ -141,7 +221,7 @@ const WhiteLabel = () => {
               name="surefeedback_plugin_author"
               type="text"
               className="w-full border border-subtle"
-              value={settings.whiteLabel.surefeedback_plugin_author || ""}
+              value={settings.surefeedback_plugin_author || ""}
               onChange={(e) =>
                 handleInputChange("surefeedback_plugin_author", e.target.value)
               }
@@ -166,7 +246,7 @@ const WhiteLabel = () => {
               name="surefeedback_plugin_author_url"
               type="url"
               className="w-full border border-subtle"
-              value={settings.whiteLabel.surefeedback_plugin_author_url || ""}
+              value={settings.surefeedback_plugin_author_url || ""}
               onChange={(e) =>
                 handleInputChange(
                   "surefeedback_plugin_author_url",
@@ -195,7 +275,7 @@ const WhiteLabel = () => {
               name="surefeedback_plugin_link"
               type="url"
               className="w-full border border-subtle"
-              value={settings.whiteLabel.surefeedback_plugin_link || ""}
+              value={settings.surefeedback_plugin_link || ""}
               onChange={(e) =>
                 handleInputChange("surefeedback_plugin_link", e.target.value)
               }
@@ -242,9 +322,9 @@ const WhiteLabel = () => {
               iconPosition="left"
               className="sticky "
               onClick={handleSaveChanges}
-              disabled={saving || isLoading}
+              disabled={saving || loading}
             >
-              {(saving || isLoading) && (
+              {saving && (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               )}
               {__("Save Changes", "surefeedback")}

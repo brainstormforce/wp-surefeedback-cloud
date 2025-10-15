@@ -2,58 +2,130 @@ import React, { useState, useEffect } from "react";
 import { Button, Title, Container, Switch, toast, Toaster } from "@bsf/force-ui";
 import { __ } from "@wordpress/i18n";
 import { LoaderCircle } from "lucide-react";
-import { useSettings } from '../hooks/useSettings';
 
 const GeneralSettings = () => {
-  const {
-    settings,
-    availableRoles,
-    loading,
-    saving,
-    errors,
-    loadSettings,
-    saveGeneralSettings,
-    updateRoleSelection,
-    updateGuestComments,
-    updateAdminComments,
-    clearErrors
-  } = useSettings();
+  const [settings, setSettings] = useState({
+    surefeedback_role_can_comment: [],
+    surefeedback_guest_comments_enabled: false,
+    surefeedback_admin: false
+  });
+  const [availableRoles, setAvailableRoles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const [isLoading, setIsLoading] = useState(false);
-
+  // Load settings on component mount
   useEffect(() => {
-    if (availableRoles.length === 0) {
-      loadSettings();
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(sureFeedbackAdmin.rest_url + 'surefeedback/v1/settings', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': sureFeedbackAdmin.rest_nonce,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSettings({
+            surefeedback_role_can_comment: data.data.general?.surefeedback_role_can_comment || [],
+            surefeedback_guest_comments_enabled: data.data.general?.surefeedback_guest_comments_enabled || false,
+            surefeedback_admin: data.data.general?.surefeedback_admin || false
+          });
+          setAvailableRoles(data.data.availableRoles || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      setErrors({ load: 'Failed to load settings' });
+    } finally {
+      setLoading(false);
     }
-  }, [availableRoles.length, loadSettings]);
+  };
+
+  const saveGeneralSettings = async (updatedSettings = null) => {
+    try {
+      setSaving(true);
+      const dataToSave = updatedSettings || settings;
+      
+      const response = await fetch(sureFeedbackAdmin.rest_url + 'surefeedback/v1/settings/general', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': sureFeedbackAdmin.rest_nonce,
+        },
+        body: JSON.stringify(dataToSave),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          toast.success(__('Settings saved successfully!', 'surefeedback'));
+          return true;
+        }
+      }
+      throw new Error('Save failed');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast.error(__('Failed to save settings', 'surefeedback'));
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleRoleChange = async (roleName, selected) => {
-    updateRoleSelection(roleName, selected);
-    // Auto-save the setting immediately
-    await saveGeneralSettings();
+    const updatedRoles = selected 
+      ? [...settings.surefeedback_role_can_comment, roleName]
+      : settings.surefeedback_role_can_comment.filter(role => role !== roleName);
+    
+    const updatedSettings = {
+      ...settings,
+      surefeedback_role_can_comment: updatedRoles
+    };
+    
+    setSettings(updatedSettings);
+    await saveGeneralSettings(updatedSettings);
   };
 
   const handleGuestCommentsChange = async (checked) => {
-    updateGuestComments(checked);
-    // Auto-save the setting immediately
-    await saveGeneralSettings();
+    const updatedSettings = {
+      ...settings,
+      surefeedback_guest_comments_enabled: checked
+    };
+    
+    setSettings(updatedSettings);
+    await saveGeneralSettings(updatedSettings);
   };
 
   const handleAdminCommentsChange = async (checked) => {
-    updateAdminComments(checked);
-    // Auto-save the setting immediately
-    await saveGeneralSettings();
+    const updatedSettings = {
+      ...settings,
+      surefeedback_admin: checked
+    };
+    
+    setSettings(updatedSettings);
+    await saveGeneralSettings(updatedSettings);
   };
 
   const handleSaveChanges = async () => {
-    setIsLoading(true);
-    const success = await saveGeneralSettings();
-    setIsLoading(false);
-    
-    if (success) {
-      toast.success(__('Settings saved successfully!', 'surefeedback'));
-    }
+    await saveGeneralSettings();
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-6">
+        <LoaderCircle className="h-8 w-8 animate-spin" />
+        <span className="ml-2">{__('Loading settings...', 'surefeedback')}</span>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -99,7 +171,7 @@ const GeneralSettings = () => {
                 <input
                   type="checkbox"
                   className="role-checkbox uavc-remove-ring"
-                  checked={settings.general.surefeedback_role_can_comment.includes(role.name)}
+                  checked={settings.surefeedback_role_can_comment?.includes(role.name) || false}
                   onChange={(e) => handleRoleChange(role.name, e.target.checked)}
                 />
                 <span className="text-sm">{role.label}</span>
@@ -136,7 +208,7 @@ const GeneralSettings = () => {
           >
             <Switch
               size="md"
-              value={settings.general.surefeedback_guest_comments_enabled}
+              value={settings.surefeedback_guest_comments_enabled || false}
               onChange={handleGuestCommentsChange}
               className="surefeedback-remove-ring"
             />
@@ -182,7 +254,7 @@ const GeneralSettings = () => {
           >
             <Switch
               size="md"
-              value={settings.general.surefeedback_admin}
+              value={settings.surefeedback_admin || false}
               onChange={handleAdminCommentsChange}
               className="surefeedback-remove-ring"
             />
@@ -212,9 +284,9 @@ const GeneralSettings = () => {
           iconPosition="left"
           className="w-40 sticky surefeedback-remove-ring"
           onClick={handleSaveChanges}
-          disabled={saving || isLoading}
+          disabled={saving || loading}
         >
-          {(saving || isLoading) && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+          {saving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
           {__("Save Changes", "surefeedback")}
         </Button>
        </div>

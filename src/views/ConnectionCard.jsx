@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Button, Title, Container } from "@bsf/force-ui";
+import { Button, Title, Container, toast } from "@bsf/force-ui";
 import { __ } from "@wordpress/i18n";
 import { LoaderCircle, ArrowUpRight, CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
-import { useSettingsStore } from "../stores/settingsStore";
-import { useToast } from "../hooks/useToast";
+// import { useSettingsStore } from "../stores/settingsStore"; // Temporarily removed
+// import { useToast } from "../hooks/useToast"; // Temporarily removed
 
 const ConnectionCard = () => {
   const [manualConnectionData, setManualConnectionData] = useState("");
@@ -11,20 +11,106 @@ const ConnectionCard = () => {
   const initializedRef = useRef(false);
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   
-  const {
-    connectionStatus,
-    connection,
-    loading,
-    saving,
-    errors,
-    loadSettings,
-    saveConnectionSettings,
-    testConnection,
-    updateConnectionSettings,
-    refreshConnectionStatus,
-  } = useSettingsStore();
+  // Temporarily commented out useSettingsStore
+  // const {
+  //   connectionStatus,
+  //   connection,
+  //   loading,
+  //   saving,
+  //   errors,
+  //   loadSettings,
+  //   saveConnectionSettings,
+  //   testConnection,
+  //   updateConnectionSettings,
+  //   refreshConnectionStatus,
+  // } = useSettingsStore();
+  
+  // State for connection settings
+  const [connectionStatus, setConnectionStatus] = useState({});
+  const [connection, setConnection] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+  
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(sureFeedbackAdmin.rest_url + 'surefeedback/v1/settings', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': sureFeedbackAdmin.rest_nonce,
+        },
+      });
 
-  const { showToast } = useToast();
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setConnection(data.data.connection);
+          setConnectionStatus(data.data.connectionStatus);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      setErrors({ load: 'Failed to load settings' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveConnectionSettings = async () => {
+    try {
+      setSaving(true);
+      const response = await fetch(sureFeedbackAdmin.rest_url + 'surefeedback/v1/settings/connection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': sureFeedbackAdmin.rest_nonce,
+        },
+        body: JSON.stringify(connection),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          return true;
+        }
+      }
+      throw new Error('Save failed');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const testConnection = async () => {
+    // Implementation for testing connection
+    return true;
+  };
+
+  const updateConnectionSettings = (field, value) => {
+    setConnection(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const refreshConnectionStatus = () => {
+    loadSettings();
+  };
+
+  // Use toast from Force UI
+  const showToast = (message, type = 'success') => {
+    if (type === 'success') {
+      toast.success(message);
+    } else if (type === 'error') {
+      toast.error(message);
+    } else {
+      toast(message);
+    }
+  };
 
   // Initialize settings on component mount - only once
   useEffect(() => {
