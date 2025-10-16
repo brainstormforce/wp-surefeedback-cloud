@@ -12,8 +12,7 @@ export default defineConfig(({ command }) => ({
     watch: null,
     rollupOptions: {
       input: {
-        admin: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/main.tsx'),
-        dashboard: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/dashboard.tsx')
+        admin: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/main.tsx')
       },
       external: [],
       output: {

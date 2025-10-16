@@ -95,7 +95,7 @@ const Settings = () => {
                     justify="start"
                     style={{ height: "100%" }}
                 >
-                    {/* <Container.Item
+                    <Container.Item
                         className="p-2 surefeedback-sticky-outer-wrapper"
                         alignSelf="auto"
                         order="none"
@@ -109,7 +109,7 @@ const Settings = () => {
                                 selectedItemId={selectedItem.id}
                             />
                         </div>
-                    </Container.Item> */}
+                    </Container.Item>
                     <Container.Item
                         className="p-2 flex w-full justify-start items-start surefeedback-hide-scrollbar"
                         alignSelf="auto"
