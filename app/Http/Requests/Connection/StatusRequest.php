@@ -1,0 +1,41 @@
+<?php
+
+namespace SureFeedback\App\Http\Requests\Connection;
+
+use SureFeedback\App\Http\Requests\Request;
+
+/**
+ * Connection Status Request
+ *
+ * Validates requests for checking connection status.
+ *
+ * @package SureFeedback\App\Http\Requests\Connection
+ */
+class StatusRequest extends Request
+{
+    /**
+     * Get validation rules
+     *
+     * @return array
+     */
+    public function rules(): array
+    {
+        return [
+            'force_refresh' => 'boolean',
+            'include_details' => 'boolean',
+        ];
+    }
+
+    /**
+     * Get custom error messages
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'force_refresh.boolean' => 'Force refresh must be true or false.',
+            'include_details.boolean' => 'Include details must be true or false.',
+        ];
+    }
+}

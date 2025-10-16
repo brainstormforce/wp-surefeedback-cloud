@@ -1,6 +1,11 @@
 {
   "name": "surefeedback/surefeedback",
-  "description": "Collect note-style feedback from your client’s websites and sync them with your SureFeedback parent project.",
+  "description": "Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.",
+  "autoload": {
+    "psr-4": {
+      "SureFeedback\\": ""
+    }
+  },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
     "phpcompatibility/phpcompatibility-wp": "*",

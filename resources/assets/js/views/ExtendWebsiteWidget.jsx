@@ -1,0 +1,346 @@
+import React, { useState } from "react";
+import { Container, Button, Badge, Dialog } from "@bsf/force-ui";
+import apiFetch from "@wordpress/api-fetch";
+import { __ } from "@wordpress/i18n";
+
+const ExtendWebsiteWidget = ({
+	plugin,
+	setUpdateCounter, // Receive setUpdateCounter as a prop
+	markPluginAsActivated, // Receive markPluginAsActivated as a prop
+}) => {
+	const {
+		path,
+		slug,
+		siteUrl,
+		icon,
+		type,
+		name,
+		zipUrl,
+		desc,
+		wporg,
+		isFree,
+		action,
+		status,
+		settings_url,
+	} = plugin;
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const [pluginData, setPluginData] = useState(null);
+
+	const getAction = (status) => {
+		if (status === "Activated") {
+			return "site_redirect";
+		} else if (status === "Installed") {
+			return "hfe_recommended_plugin_activate";
+		}
+		return "hfe_recommended_plugin_install";
+	};
+
+	const handlePluginAction = (e) => {
+		const action = e.currentTarget.dataset.action;
+		const formData = new window.FormData();
+		const currentPluginData = {
+			init: e.currentTarget.dataset.init,
+			type: e.currentTarget.dataset.type,
+			slug: e.currentTarget.dataset.slug,
+			name: e.currentTarget.dataset.pluginname,
+		};
+
+		switch (action) {
+			case "hfe_recommended_plugin_activate":
+				// Confirmation only for theme activation
+				if (currentPluginData.type === "theme") {
+					// Show dialog for confirmation
+					setPluginData(currentPluginData);
+					setIsDialogOpen(true);
+				} else {
+					// Directly activate for non-theme plugins
+					activatePlugin(currentPluginData);
+				}
+				break;
+
+			case "hfe_recommended_plugin_install":
+				// Installation process without any confirmation
+				formData.append(
+					"action",
+					currentPluginData.type === "theme"
+						? "hfe_recommended_theme_install"
+						: "hfe_recommended_plugin_install",
+				);
+				formData.append("_ajax_nonce", sureFeedbackAdmin.installer_nonce);
+				formData.append("slug", currentPluginData.slug);
+
+				if (e.target) {
+					e.target.innerText = __(
+						"Installing..",
+						"surefeedback",
+					);
+				}
+
+				apiFetch({
+					url: sureFeedbackAdmin.ajax_url,
+					method: "POST",
+					body: formData,
+				}).then((data) => {
+					if (data.success || data.errorCode === "folder_exists") {
+						if (e.target) {
+							e.target.innerText = __(
+								"Installed",
+								"surefeedback",
+							);
+						}
+						if (currentPluginData.type === "theme") {
+							// Change button state to "Activate" after successful installation
+							const buttonElement = document.querySelector(
+								`[data-slug="${currentPluginData.slug}"]`,
+							);
+							if (buttonElement) {
+								buttonElement.dataset.action =
+									"hfe_recommended_plugin_activate";
+								if (e.target) {
+									e.target.innerText = __(
+										"Activate",
+										"surefeedback",
+									);
+								}
+							}
+						} else {
+							activatePlugin(currentPluginData);
+							// Mark as activated immediately for faster UI update
+							if (markPluginAsActivated) {
+								markPluginAsActivated(currentPluginData.init);
+							}
+						}
+					} else {
+						if (e.target) {
+							e.target.innerText = __(
+								"Install",
+								"surefeedback",
+							);
+						}
+						alert(
+							currentPluginData.type === "theme"
+								? __(
+										"Theme Installation failed, Please try again later.",
+										"surefeedback",
+								  )
+								: __(
+										"Plugin Installation failed, Please try again later.",
+										"surefeedback",
+								  ),
+						);
+					}
+				}).catch((error) => {
+					console.error("Plugin installation failed:", error);
+					if (e.target) {
+						e.target.innerText = __(
+							"Install",
+							"surefeedback",
+						);
+					}
+				});
+				break;
+
+			case "site_redirect":
+				window.open(siteUrl, "_blank"); // Open siteUrl in a new tab
+				break;
+
+			default:
+				// Do nothing.
+				break;
+		}
+	};
+
+	const activatePlugin = (pluginData) => {
+		setIsDialogOpen(false);
+		const formData = new window.FormData();
+		formData.append("action", "hfe_recommended_plugin_activate");
+		formData.append("nonce", sureFeedbackAdmin.nonce);
+		formData.append("plugin", pluginData.init);
+		formData.append("type", pluginData.type);
+		formData.append("slug", pluginData.slug);
+
+		const buttonElement = document.querySelector(
+			`[data-slug="${pluginData.slug}"]`,
+		);
+		const spanElement = buttonElement ? buttonElement.querySelector("span") : null;
+
+		if (spanElement) {
+			spanElement.innerText = __("Activating..", "surefeedback");
+		}
+
+		apiFetch({
+			url: sureFeedbackAdmin.ajax_url,
+			method: "POST",
+			body: formData,
+		}).then((data) => {
+			if (data.success) {
+				if (spanElement && buttonElement) {
+					// Check if both elements are not null
+					buttonElement.style.color = "#16A34A";
+					buttonElement.dataset.action = "site_redirect";
+					buttonElement.classList.add("hfe-plugin-activated");
+					spanElement.innerText = __(
+						"Activated",
+						"surefeedback",
+					);
+					
+					// Mark plugin as activated in parent component
+					if (markPluginAsActivated) {
+						markPluginAsActivated(pluginData.init);
+					}
+					
+					window.open(settings_url, "_blank");
+				}
+			} else {
+				const buttonElement = document.querySelector(
+					`[data-slug="${pluginData.slug}"]`,
+				);
+				if (buttonElement) {
+					// Check if buttonElement is not null
+					const spanElement = buttonElement.querySelector("span");
+					if (spanElement) {
+						// Check if spanElement is not null
+						spanElement.innerText = __(
+							"Activate",
+							"surefeedback",
+						);
+					}
+				}
+			}
+		}).catch((error) => {
+			console.error("Plugin activation failed:", error);
+			// Reset button text on error
+			const buttonElement = document.querySelector(
+				`[data-slug="${pluginData.slug}"]`,
+			);
+			if (buttonElement) {
+				const spanElement = buttonElement.querySelector("span");
+				if (spanElement) {
+					spanElement.innerText = __(
+						"Activate",
+						"surefeedback",
+					);
+				}
+			}
+		});
+	};
+
+	return (
+		<Container
+			align="center"
+			containerType="flex"
+			direction="column"
+			justify="between"
+			gap="lg"
+		>
+			<div className="flex items-center justify-between w-full">
+				<div className="h-5 w-5">
+					<img
+						src={icon}
+						alt="Recommended Plugins/Themes"
+						className="w-full h-auto rounded cursor-pointer"
+						style={{
+							width: "140px",
+							height: "140px",
+							marginTop: "-55px",
+						}}
+					/>
+				</div>
+
+				<div className="flex items-center gap-x-2">
+					{/* {isFree && (
+						<Badge
+							label={__("Free", "surefeedback")}
+							size="xs"
+							type="pill"
+							variant="green"
+						/>
+					)} */}
+					<Dialog
+						design="simple"
+						open={isDialogOpen}
+						setOpen={setIsDialogOpen}
+					>
+						<Dialog.Backdrop />
+						<Dialog.Panel>
+							<Dialog.Header>
+								<div className="flex items-center justify-between">
+									<Dialog.Title>
+										{__(
+											"Activate Theme",
+											"surefeedback",
+										)}
+									</Dialog.Title>
+								</div>
+								<Dialog.Description>
+									{__(
+										"Are you sure you want to switch your current theme to Astra?",
+										"surefeedback",
+									)}
+								</Dialog.Description>
+							</Dialog.Header>
+							<Dialog.Footer>
+								<Button
+									onClick={() => activatePlugin(pluginData)}
+								>
+									{__("Yes", "surefeedback")}
+								</Button>
+								<Button
+									variant="outline"
+									onClick={() => setIsDialogOpen(false)}
+								>
+									{__("Close", "surefeedback")}
+								</Button>
+							</Dialog.Footer>
+						</Dialog.Panel>
+					</Dialog>
+				</div>
+			</div>
+
+			<div className="flex flex-col w-full pb-4">
+				<p
+					className="text-base font-medium text-text-primary pb-1 m-0 cursor-pointer"
+					onClick={() => window.open(plugin.siteurl, "_blank")}
+					style={{ marginTop: "-8px" }}
+				>
+					{__(name, "surefeedback")}
+				</p>
+				<p className="text-sm font-medium text-text-tertiary m-0">
+					{__(desc, "surefeedback")}
+				</p>
+				<div className="surefeedback-remove-ring">
+					<Button
+						size="sm"
+						className="cursor-pointer surefeedback-remove-ring bg-white hover:bg-gray-100 hover:text-gray-900 hover:shadow-md text-gray-800 rounded mt-4 px-2 py-2 transition-all duration-200 ease-in-out transform hover:scale-105 hover:border-gray-400"
+						onClick={handlePluginAction}
+						data-plugin={zipUrl}
+						data-type={type}
+						data-pluginname={name}
+						data-slug={slug}
+						data-site={siteUrl}
+						data-init={path}
+						data-action={getAction(status)}
+						style={{ outline: "none", border: "1px solid #ccc" }}
+						onMouseEnter={(e) =>
+							(e.currentTarget.style.color = "#5C2EDE")
+						}
+						onMouseLeave={(e) =>
+							(e.currentTarget.style.color = "black")
+						}
+					>
+						{status === "Activated"
+							? __("Visit Site", "surefeedback")
+							: "Installed" === status
+							? __("Activate", "surefeedback")
+							: __(
+									"Install & Activate",
+									"surefeedback",
+							  )}
+					</Button>
+				</div>
+			</div>
+		</Container>
+	);
+};
+
+export default ExtendWebsiteWidget;
