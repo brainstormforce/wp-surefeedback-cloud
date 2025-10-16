@@ -111,34 +111,22 @@ class AdminService
      */
     public function register_admin_menu(): void
     {
-        // Main menu page
-        $page_hook = add_menu_page(
+        // Connection as main menu page
+        $connection_hook = add_menu_page(
             __('SureFeedback', 'surefeedback'),
             __('SureFeedback', 'surefeedback'),
             'manage_options',
-            $this->menu_slug,
-            [$this, 'render_main_page'],
+            $this->menu_slug . '-connection',
+            [$this, 'render_connection_page'],
             $this->get_menu_icon(),
             30
         );
 
-        $this->menu_pages['main'] = $page_hook;
+        $this->menu_pages['connection'] = $connection_hook;
 
-        // Dashboard submenu
-        $dashboard_hook = add_submenu_page(
-            $this->menu_slug,
-            __('Dashboard', 'surefeedback'),
-            __('Dashboard', 'surefeedback'),
-            'manage_options',
-            $this->menu_slug,
-            [$this, 'render_main_page']
-        );
-
-        $this->menu_pages['dashboard'] = $dashboard_hook;
-
-        // Connection submenu
-        $connection_hook = add_submenu_page(
-            $this->menu_slug,
+        // Rename the first submenu to "Connection" to match
+        $connection_submenu_hook = add_submenu_page(
+            $this->menu_slug . '-connection',
             __('Connection', 'surefeedback'),
             __('Connection', 'surefeedback'),
             'manage_options',
@@ -146,11 +134,9 @@ class AdminService
             [$this, 'render_connection_page']
         );
 
-        $this->menu_pages['connection'] = $connection_hook;
-
         // Settings submenu
         $settings_hook = add_submenu_page(
-            $this->menu_slug,
+            $this->menu_slug . '-connection',
             __('Settings', 'surefeedback'),
             __('Settings', 'surefeedback'),
             'manage_options',
@@ -290,6 +276,10 @@ class AdminService
         
         echo '<div class="wrap" style="margin: 0; padding: 0; max-width: none;">';
         echo '<div id="surefeedback-admin-dashboard" style="margin: 0; padding: 0; width: 100%;"></div>';
+        echo '<script>';
+        echo 'console.log("SureFeedback Admin Debug:", window.sureFeedbackAdmin);';
+        echo 'console.log("Connection Data:", window.sureFeedbackAdmin?.connection);';
+        echo '</script>';
         echo '</div>';
     }
 
@@ -393,9 +383,9 @@ class AdminService
     public function add_plugin_action_links(array $links): array
     {
         $plugin_links = [
-            '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug)) . '">' . 
-            esc_html__('Dashboard', 'surefeedback') . '</a>',
-            '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-settings')) . '">' . 
+            '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-connection')) . '">' .
+            esc_html__('Connection', 'surefeedback') . '</a>',
+            '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-settings')) . '">' .
             esc_html__('Settings', 'surefeedback') . '</a>'
         ];
 
@@ -420,17 +410,10 @@ class AdminService
         $wp_admin_bar->add_node([
             'id' => 'surefeedback',
             'title' => '<span class="ab-icon dashicons-feedback"></span><span class="ab-label">SureFeedback</span>',
-            'href' => admin_url('admin.php?page=' . $this->menu_slug),
+            'href' => admin_url('admin.php?page=' . $this->menu_slug . '-connection'),
             'meta' => [
                 'class' => 'surefeedback-admin-bar ' . $status_class
             ]
-        ]);
-
-        $wp_admin_bar->add_node([
-            'parent' => 'surefeedback',
-            'id' => 'surefeedback-dashboard',
-            'title' => __('Dashboard', 'surefeedback'),
-            'href' => admin_url('admin.php?page=' . $this->menu_slug)
         ]);
 
         $wp_admin_bar->add_node([

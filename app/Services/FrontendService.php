@@ -92,22 +92,8 @@ class FrontendService
             return;
         }
 
-        // Enqueue widget styles
-        wp_enqueue_style(
-            'surefeedback-widget',
-            SUREFEEDBACK_PLUGIN_URL . 'assets/widget.css',
-            [],
-            SUREFEEDBACK_VERSION
-        );
-
-        // Enqueue widget script
-        wp_enqueue_script(
-            'surefeedback-widget',
-            SUREFEEDBACK_PLUGIN_URL . 'assets/widget.js',
-            ['jquery'],
-            SUREFEEDBACK_VERSION,
-            true
-        );
+        // Enqueue widget script from Laravel server
+    
 
         // Localize script with configuration
         wp_localize_script('surefeedback-widget', 'surefeedbackConfig', [

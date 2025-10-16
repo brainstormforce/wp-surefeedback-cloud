@@ -29,50 +29,62 @@ const NavMenu = () => {
     setIsDropdownOpen(false);
   };
 
-  const navItems = [
-    { label: __("Setup", "surefeedback"), path: "setup" },
-    { label: __("Connections", "surefeedback"), path: "connections" },
-    { label: __("Settings", "surefeedback"), path: "settings" },
+  // Check if website is connected
+  const isConnected = window.sureFeedbackAdmin?.connection?.connected || false;
+
+  // Filter nav items based on connection status
+  const allNavItems = [
+    { label: __("Setup", "surefeedback"), path: "setup", showWhenConnected: false },
+    { label: __("Connections", "surefeedback"), path: "connections", showWhenConnected: true },
+    { label: __("Settings", "surefeedback"), path: "settings", showWhenConnected: true },
   ];
+
+  const navItems = allNavItems.filter(item =>
+    isConnected ? item.showWhenConnected : true
+  );
 
   return (
     <div
-      className="surefeedback-nav-menu w-full px-4 py-2 flex items-center justify-between bg-white border-b"
+      className="surefeedback-nav-menu w-full px-6 py-4 grid grid-cols-3 items-center bg-white border-b"
       style={{ zIndex: 9 }}
     >
       {/* Left: Logo */}
-      <NavLink to="setup">
-        <img
-          src={window.sureFeedbackAdmin?.icon_url || ""}
-          alt="SureFeedback"
-          className="h-8 w-8 cursor-pointer"
-        />
-      </NavLink>
+      <div className="flex items-center justify-start">
+        <NavLink to="setup" className="focus:outline-none">
+          <img
+            src={window.sureFeedbackAdmin?.surefeedback_icon || window.sureFeedbackAdmin?.pluginUrl + 'assets/images/settings/surefeedback.svg'}
+            alt="SureFeedback"
+            className="h-[25px] w-22 cursor-pointer focus:outline-none"
+          />
+        </NavLink>
+      </div>
 
       {/* Center: Navigation Tabs */}
-      <NavigationMenu>
-        <NavigationMenuList className="flex gap-6">
-          {navItems.map(({ label, path }) => (
-            <NavigationMenuItem key={path}>
-              <NavLink to={path}>
-                <NavigationMenuLink
-                  className={cn(
-                    "px-3 py-2 text-sm font-medium transition-colors border-b-2",
-                    isActive(path)
-                      ? "text-black border-[#6005FF]"
-                      : "text-gray-500 border-transparent hover:text-gray-900"
-                  )}
-                >
-                  {label}
-                </NavigationMenuLink>
-              </NavLink>
-            </NavigationMenuItem>
-          ))}
-        </NavigationMenuList>
-      </NavigationMenu>
+      <div className="flex items-center justify-center">
+        <NavigationMenu>
+          <NavigationMenuList className="flex gap-6">
+            {navItems.map(({ label, path }) => (
+              <NavigationMenuItem key={path}>
+                <NavLink to={path} className="focus:outline-none">
+                  <NavigationMenuLink
+                    className={cn(
+                      "px-3 py-2 text-sm font-medium transition-colors border-b-2 focus:outline-none focus-visible:outline-none",
+                      isActive(path)
+                        ? "text-black border-[#6005FF]"
+                        : "text-gray-500 border-transparent hover:text-gray-900"
+                    )}
+                  >
+                    {label}
+                  </NavigationMenuLink>
+                </NavLink>
+              </NavigationMenuItem>
+            ))}
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-end gap-4">
         {/* Plan Badge */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -139,8 +151,8 @@ const NavMenu = () => {
         </DropdownMenu>
 
         {/* User Icon */}
-        <NavLink to="settings">
-          <User className="cursor-pointer text-black" />
+        <NavLink to="settings" className="focus:outline-none">
+          <User className="cursor-pointer text-black focus:outline-none" />
         </NavLink>
       </div>
     </div>

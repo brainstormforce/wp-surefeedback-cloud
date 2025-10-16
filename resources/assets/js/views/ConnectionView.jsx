@@ -21,6 +21,7 @@ const ConnectionView = () => {
     };
     
     const connectionStatus = getConnectionStatus();
+    console.log("Connection Status:", connectionStatus, connectionData);
     
     const renderConnectionStatus = () => {
         switch (connectionStatus) {
@@ -37,15 +38,15 @@ const ConnectionView = () => {
     };
     
     return (
-        <div className="surefeedback-connection-view">
+        <div className="surefeedback-connection-view p-4">
             {/* Centered Connection Content */}
             <div className="flex justify-center items-start">
                 <div className="w-full max-w-2xl">
-                    <div className="space-y-6">
+                    <div className="space-y-6 border">
                         {renderConnectionStatus()}
                         
                         {isConnected && (
-                            <div className="mt-8">
+                            <div className="mt-8 border-t">
                                 <ConnectionCard data={connectionData} />
                             </div>
                         )}

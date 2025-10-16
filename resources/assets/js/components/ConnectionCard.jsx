@@ -3,20 +3,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import {
-  LoaderCircle,
-  ArrowUpRight,
+  Loader2,
   CheckCircle,
   AlertCircle,
   ExternalLink,
+  Link as LinkIcon,
+  Unplug,
 } from "lucide-react";
 import { __ } from "@wordpress/i18n";
 
 const ConnectionCard = () => {
   const [manualConnectionData, setManualConnectionData] = useState("");
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState({});
+  const [connectionStatus, setConnectionStatus] = useState({ connected: false });
   const [connection, setConnection] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -184,7 +186,7 @@ const ConnectionCard = () => {
     if (loading && !hasInitiallyLoaded) {
       return (
         <div className="flex items-center gap-2 bg-muted px-4 py-2 rounded-md mt-2">
-          <LoaderCircle className="animate-spin h-4 w-4 text-muted-foreground" />
+          <Loader2 className="animate-spin h-4 w-4 text-muted-foreground" />
           <span className="text-foreground text-sm">
             {__("Loading connection status...", "surefeedback")}
           </span>
@@ -192,7 +194,7 @@ const ConnectionCard = () => {
       );
     }
 
-    if (connectionStatus.connected && connectionStatus.parent_url) {
+    if (connectionStatus?.connected && connectionStatus?.parent_url) {
       return (
         <div className="flex items-center gap-2 bg-green-50 border border-green-200 px-4 py-2 rounded-md mt-3">
           <CheckCircle className="text-green-600 h-4 w-4" />
@@ -217,124 +219,114 @@ const ConnectionCard = () => {
    * 🧭 Get Dashboard URL
    * ────────────────────────────── */
   const getDashboardUrl = () =>
-    connectionStatus.connected && connectionStatus.parent_url && connectionStatus.project_id
+    connectionStatus?.connected && connectionStatus?.parent_url && connectionStatus?.project_id
       ? `${connectionStatus.parent_url}/wp-admin/post.php?post=${connectionStatus.project_id}&action=edit`
       : null;
 
   /** ──────────────────────────────
    * 🧠 UI Rendering
    * ────────────────────────────── */
-  return (
-    <Card className="max-w-3xl">
-      <CardHeader>
-        <CardTitle>{__("Connection", "surefeedback")}</CardTitle>
-        <CardDescription>
-          {__("Connect your site to SureFeedback to enable feedback collection.", "surefeedback")}
-        </CardDescription>
-      </CardHeader>
+  if (loading && !hasInitiallyLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <span className="ml-3 text-sm text-muted-foreground">
+          {__("Loading connection status...", "surefeedback")}
+        </span>
+      </div>
+    );
+  }
 
-      <CardContent className="space-y-6">
-        <div>
-          <CardTitle className="text-base">{__("Connection Status", "surefeedback")}</CardTitle>
-          <CardDescription>
-            {__("Current connection status with your SureFeedback parent site.", "surefeedback")}
-          </CardDescription>
-
-          {getConnectionStatusDisplay()}
-
-          {connectionStatus.connected && (
-            <div className="flex flex-wrap gap-3 mt-4">
-              <Button
-                onClick={handleDisconnect}
-                disabled={isDisconnecting}
-              >
-                {isDisconnecting && <LoaderCircle className="animate-spin mr-2 h-4 w-4" />}
-                {isDisconnecting ? __("Disconnecting...", "surefeedback") : __("Disconnect", "surefeedback")}
-              </Button>
-
-              {getDashboardUrl() && (
-                <Button
-                  variant="outline"
-                  onClick={() => window.open(getDashboardUrl(), "_blank")}
-                >
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  {__("Visit Dashboard Site", "surefeedback")}
-                </Button>
-              )}
-
-              <Button
-                variant="secondary"
-                onClick={handleTestConnection}
-                disabled={loading}
-              >
-                {loading && <LoaderCircle className="animate-spin mr-2 h-4 w-4" />}
-                {loading ? __("Testing...", "surefeedback") : __("Test Connection", "surefeedback")}
-              </Button>
-            </div>
-          )}
-
-          {!connectionStatus.connected && (
-            <div className="flex justify-between items-center bg-blue-50 border border-blue-200 px-4 py-3 rounded-md mt-4">
-              <p className="text-sm text-foreground">
-                {__("Having trouble connecting? Please reach out.", "surefeedback")}
-              </p>
-              <Button
-                variant="link"
-                onClick={() =>
-                  window.open(
-                    "https://surefeedback.com/docs/adding-a-clients-wordpress-site#manual",
-                    "_blank"
-                  )
-                }
-              >
-                {__("Need Help?", "surefeedback")}
-                <ArrowUpRight className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
-          )}
+  // Connected State
+  if (connectionStatus?.connected) {
+    return (
+      <div className="max-w-7xl mx-auto pt-8 px-6 pb-8 space-y-6">
+        {/* Page Header */}
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold text-foreground">
+            {__("Connection", "surefeedback")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {__("Your site is now linked with SureFeedback. Start gathering client feedback without friction.", "surefeedback")}
+          </p>
         </div>
 
-        {!connectionStatus.connected && (
-          <>
-            <Separator />
+        <Separator />
 
-            <div>
-              <CardTitle className="text-base">
-                {__("Manual Connection Details", "surefeedback")}
-              </CardTitle>
-              <CardDescription>
-                {__(
-                  "If automatic connection fails, paste your connection details JSON below.",
-                  "surefeedback"
-                )}
-              </CardDescription>
+        {/* Connection Status Card */}
+        <Card className="border">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <div>
+                <CardTitle className="text-lg font-semibold text-green-700">
+                  {__("Website Connected Successfully", "surefeedback")}
+                </CardTitle>
+                <CardDescription className="mt-0.5">
+                  {__("This site is actively connected to your SureFeedback parent dashboard.", "surefeedback")}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-4">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-lg border">
+              <div className="flex items-start gap-3 flex-1">
+                <LinkIcon className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div className="space-y-0.5">
+                  <Label className="text-base font-semibold text-foreground">
+                    {__("Connected Site", "surefeedback")}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {connectionStatus.parent_url}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1.5 rounded-md flex-shrink-0">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">{__("Active", "surefeedback")}</span>
+              </div>
+            </div>
 
-              <Textarea
-                value={manualConnectionData}
-                onChange={(e) => setManualConnectionData(e.target.value)}
-                placeholder={__("Paste your connection JSON here...", "surefeedback")}
-                className="mt-2 font-mono text-xs"
-                rows={6}
-              />
-
-              {errors.connection && (
-                <p className="text-destructive text-sm mt-2">{errors.connection}</p>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-8">
+              {getDashboardUrl() && (
+                <Button
+                  size="lg"
+                  onClick={() => window.open(getDashboardUrl(), "_blank")}
+                  className="shadow-none"
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  {__("Go to Dashboard", "surefeedback")}
+                </Button>
               )}
-
               <Button
-                onClick={handleManualImport}
-                disabled={saving || !manualConnectionData.trim()}
-                className="mt-4"
+                variant="destructive"
+                size="lg"
+                onClick={handleDisconnect}
+                disabled={isDisconnecting}
+                className="shadow-none"
               >
-                {saving && <LoaderCircle className="animate-spin mr-2 h-4 w-4" />}
-                {saving ? __("Saving...", "surefeedback") : __("Save Changes", "surefeedback")}
+                {isDisconnecting ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                    {__("Disconnecting...", "surefeedback")}
+                  </>
+                ) : (
+                  <>
+                    <Unplug className="mr-2 h-4 w-4" />
+                    {__("Disconnect", "surefeedback")}
+                  </>
+                )}
               </Button>
             </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Disconnected State
+  return null;
 };
 
 export default ConnectionCard;

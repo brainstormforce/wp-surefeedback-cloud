@@ -440,3 +440,19 @@ input[type="checkbox"].role-checkbox:checked::after {
 #wpcontent, #wpfooter {
     margin-left: 140px !important;
 }
+
+/* Override WordPress default focus styles for SureFeedback navbar */
+.surefeedback-nav-menu a:focus,
+.surefeedback-nav-menu a:focus img,
+.surefeedback-nav-menu button:focus,
+.surefeedback-nav-menu [role="link"]:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.surefeedback-nav-menu a:focus-visible,
+.surefeedback-nav-menu button:focus-visible,
+.surefeedback-nav-menu [role="link"]:focus-visible {
+    box-shadow: none !important;
+    outline: none !important;
+}

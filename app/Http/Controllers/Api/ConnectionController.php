@@ -480,40 +480,70 @@ class ConnectionController extends Controller
             if (is_wp_error($nonce_result)) {
                 return $nonce_result;
             }
-            
+
             $capability_result = $this->validateCapability('manage_options');
             if (is_wp_error($capability_result)) {
                 return $capability_result;
             }
-            
+
             // Notify parent site about disconnection (if connected)
             if ($this->connectionRepository->isConnected()) {
                 $this->notifyParentSiteDisconnection();
             }
-            
-            // Clear all connection data
-            $this->connectionRepository->clearConnectionData();
-            
-            // Clear all plugin settings
-            $this->settingsRepository->resetSettings('all');
-            
+
+            // Delete all SureFeedback options from the database
+            $surefeedback_options = [
+                'surefeedback_access_token',
+                'surefeedback_admin_can_comment',
+                'surefeedback_api_url',
+                'surefeedback_connection_status',
+                'surefeedback_domain',
+                'surefeedback_id',
+                'surefeedback_installation_date',
+                'surefeedback_last_verification',
+                'surefeedback_organization_id',
+                'surefeedback_parent_url',
+                'surefeedback_role_can_comment',
+                'surefeedback_script_token',
+                'surefeedback_settings',
+                'surefeedback_site_name',
+                'surefeedback_verification_status',
+                'surefeedback_white_label_settings',
+                'surefeedback_widget_enabled',
+                'surefeedback_connected',
+                'surefeedback_signature',
+                'surefeedback_user_id',
+                'surefeedback_user_email',
+                'surefeedback_connection_time',
+                'surefeedback_last_check',
+                'surefeedback_guest_comments',
+                'surefeedback_connection_date',
+                'surefeedback_last_connection_check',
+                'surefeedback_site_token',
+            ];
+
+            // Delete each option
+            foreach ($surefeedback_options as $option) {
+                delete_option($option);
+            }
+
             // Clear any cached data
             wp_cache_delete('surefeedback_connection_status');
             wp_cache_delete('surefeedback_settings');
-            
+
             // Clear any transients
             delete_transient('surefeedback_connection_check');
             delete_transient('surefeedback_verification_status');
-            
+
             $this->logInfo('Site connection reset completely');
-            
+
             return $this->success([
                 'message' => 'Site connection reset successfully',
                 'connected' => false,
                 'reset_at' => current_time('mysql'),
                 'status' => 'reset'
             ]);
-            
+
         } catch (\Exception $e) {
             $this->logError('Reset error: ' . $e->getMessage());
             return $this->error('Failed to reset site connection', 500);

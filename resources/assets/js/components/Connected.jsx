@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "../components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
+import { Separator } from "../components/ui/separator";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { __ } from "@wordpress/i18n";
-import { CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { CheckCircle, AlertTriangle, Loader2, ExternalLink } from "lucide-react";
 import { disconnectSite } from "../helpers/auth";
 
 const Connected = () => {
@@ -50,104 +52,97 @@ const Connected = () => {
   };
 
   return (
-    <div className="flex justify-center items-start" style={{minHeight: 'calc(100vh - 56px)', padding: '24px'}}>
-      <div className="bg-white shadow-md rounded-2xl p-8 max-w-lg w-full text-center">
-        <div className="text-2xl mb-1">🎉</div>
-        <div className="flex flex-col items-center justify-center">
-          <h2 className="text-xl font-semibold m-0 text-gray-800">
+    <div className="w-full flex flex-col items-center bg-background py-10 pt-4">
+      <Card className="w-full max-w-3xl text-center border-none shadow-none">
+        <CardHeader>
+          <div className="text-6xl mb-4">🎉</div>
+          <CardTitle className="text-2xl font-semibold text-foreground">
             {__("Website Connected Successfully!", "surefeedback")}
-          </h2>
-          <p className="text-gray-500 mb-3 text-sm w-80 text-center flex items-center">
+          </CardTitle>
+          <CardDescription className="text-muted-foreground mt-2">
             {__(
               "Your site is now linked with SureFeedback. Start gathering client feedback without friction.",
               "surefeedback"
             )}
-          </p>
-        </div>
+          </CardDescription>
+        </CardHeader>
 
-        <div 
-          className="rounded-lg mb-6 px-4 py-3 mx-auto flex items-center text-center w-full justify-center" 
-          style={{
-            border: '2px solid #E5E7EB',
-            paddingTop: '20px',
-            paddingBottom: '20px',
-            width: '340px',
-            // marginRights: '10px',
-            // marginTop: '16px',
-            cursor: 'pointer',
-            borderRadius: '10px',
-            outline: 'none',
-            boxShadow: 'none',
-          }}
-        >
-          <div className="grid grid-cols-2 gap-y-3 text-left">
-            <span className="font-medium">Connection Site:</span>
-            <span className="text-gray-700">{window.sureFeedbackAdmin?.connection?.site_data?.site_url || 'Unknown'}</span>
-            <span className="font-medium">Status:</span>
-            <span className="flex items-center gap-1 text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium w-fit">
-              <CheckCircle size={14} />
-              Active
-            </span>
+        <CardContent className="flex flex-col items-center gap-6 mt-4">
+          {/* Disconnect Status Feedback */}
+          {disconnectStatus && (
+            <Card className={disconnectStatus === 'success'
+              ? 'bg-green-50 border-green-200 w-full max-w-md'
+              : 'bg-red-50 border-red-200 w-full max-w-md'
+            }>
+              <CardContent className="pt-6">
+                {disconnectStatus === 'success' ? (
+                  <div className="flex items-center justify-center gap-2 text-green-700">
+                    <CheckCircle className="h-5 w-5" />
+                    <span className="text-sm font-medium">
+                      {__("Site disconnected successfully! Redirecting...", "surefeedback")}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-red-700">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span className="text-sm font-medium">{errorMessage}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Connection Details Card */}
+          <Card className="w-full max-w-md bg-muted border-border">
+            <CardContent className="pt-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-foreground">
+                  {__("Connection Site:", "surefeedback")}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {window.sureFeedbackAdmin?.connection?.site_data?.site_url || 'Unknown'}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-foreground">
+                  {__("Status:", "surefeedback")}
+                </span>
+                <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                  <CheckCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">{__("Active", "surefeedback")}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 mt-2">
+            <Button
+              size="default"
+              onClick={handleGoToDashboard}
+            >
+              {__("Go to Dashboard", "surefeedback")}
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDisconnectClick}
+              disabled={isDisconnecting}
+            >
+              {isDisconnecting ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  {__("Disconnecting...", "surefeedback")}
+                </>
+              ) : (
+                __("Disconnect", "surefeedback")
+              )}
+            </Button>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Disconnect Status Feedback */}
-        {disconnectStatus && (
-          <div className={`mb-4 p-3 rounded-lg text-center ${
-            disconnectStatus === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-700' 
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
-            {disconnectStatus === 'success' ? (
-              <div className="flex items-center justify-center gap-2">
-                <CheckCircle size={16} />
-                {__("Site disconnected successfully! Redirecting...", "surefeedback")}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <AlertTriangle size={16} />
-                <span>{errorMessage}</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="flex justify-center gap-4">
-          <Button variant="ghost"  style={{
-            border: '2px solid #D1D5DB',
-            cursor: 'pointer',
-            borderRadius: '10px',
-            outline: 'none',
-            boxShadow: 'none',
-          }} 
-          onClick={handleGoToDashboard}>
-            {__("Go to Dashboard", "surefeedback")}
-          </Button>
-          <Button
-            variant="ghost"
-            style={{
-            border: '2px solid #D62626',
-            cursor: 'pointer',
-            borderRadius: '10px',
-            outline: 'none',
-            boxShadow: 'none',
-          }} 
-            className="!bg-white !text-red-600 !border rounded-lg !border-red-600 hover:!bg-red-100"
-            onClick={handleDisconnectClick}
-            disabled={isDisconnecting}
-          >
-            {isDisconnecting ? (
-              <div className="flex items-center gap-2">
-                <Loader2 size={16} className="animate-spin" />
-                {__("Disconnecting...", "surefeedback")}
-              </div>
-            ) : (
-              __("Disconnect", "surefeedback")
-            )}
-          </Button>
-        </div>
-      </div>
-      
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -159,14 +154,11 @@ const Connected = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={confirmDisconnect}>
-              {__("Yes, Disconnect", "surefeedback")}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setIsDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               {__("Cancel", "surefeedback")}
+            </Button>
+            <Button variant="destructive" onClick={confirmDisconnect}>
+              {__("Yes, Disconnect", "surefeedback")}
             </Button>
           </DialogFooter>
         </DialogContent>
