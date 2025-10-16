@@ -45,7 +45,7 @@ if ( ! defined( 'SUREFEEDBACK_PLUGIN_FILE' ) ) {
 
 // Plugin Version.
 if ( ! defined( 'SUREFEEDBACK_VERSION' ) ) {
-	define( 'SUREFEEDBACK_VERSION', '1.0.0' );
+	define( 'SUREFEEDBACK_VERSION', '1.0.1' );
 }
 
 // Plugin Basename.
@@ -133,7 +133,7 @@ add_action('init', function() {
 add_action('surefeedback_auto_verify', function() {
     global $app;
     try {
-        $saas_client = $app->make('SureFeedback\App\Services\SaasClientService');
+        $saas_client = $app->make('SureFeedback\Services\SaasClientService');
         $saas_client->verify_script_integration();
     } catch (Exception $e) {
         error_log('SureFeedback auto verification failed: ' . $e->getMessage());
@@ -146,7 +146,7 @@ add_action('surefeedback_auto_verify', function() {
 add_action('surefeedback_hourly_verify', function() {
     global $app;
     try {
-        $saas_client = $app->make('SureFeedback\App\Services\SaasClientService');
+        $saas_client = $app->make('SureFeedback\Services\SaasClientService');
         $saas_client->schedule_verification();
     } catch (Exception $e) {
         error_log('SureFeedback hourly verification failed: ' . $e->getMessage());

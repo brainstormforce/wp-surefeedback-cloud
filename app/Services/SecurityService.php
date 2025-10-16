@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Services;
+namespace SureFeedback\Services;
 
 /**
  * Security Service

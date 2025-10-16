@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SureFeedback Client 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
-"POT-Creation-Date: 2025-10-02 12:55:11+00:00\n"
+"POT-Creation-Date: 2025-10-16 10:23:58+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,66 +24,240 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Generator: grunt-wp-i18n 1.0.4\n"
 
-#: includes/admin/class-admin-menu.php:49
-#: includes/admin/class-admin-menu.php:53
+#: app/Application.php:509
+msgid "An error occurred. Please try again later."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:128
+msgid "Validation failed"
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:238
+msgid "The %s field is required."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:239
+msgid "The %s field must be a string."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:240
+msgid "The %s field must be numeric."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:241
+msgid "The %s field must be a valid email."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:242
+msgid "The %s field must be a valid URL."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:243
+msgid "The %s field must be true or false."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:244
+msgid "The %s field must be an array."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:247
+msgid "The %s field is invalid."
+msgstr ""
+
+#: app/Http/Controllers/Controller.php:426
+msgid "An error occurred while processing your request."
+msgstr ""
+
+#: app/Services/AdminService.php:116 app/Services/AdminService.php:117
 msgid "SureFeedback"
 msgstr ""
 
-#: includes/admin/class-admin-menu.php:65
-#: includes/admin/class-admin-menu.php:66 surefeedback.php:358
+#: app/Services/AdminService.php:130 app/Services/AdminService.php:131
+#: app/Services/AdminService.php:379 app/Services/AdminService.php:414
+#: surefeedback.php:160
 msgid "Dashboard"
 msgstr ""
 
-#: includes/admin/class-admin-menu.php:75
-#: includes/admin/class-admin-menu.php:76 surefeedback.php:359
+#: app/Services/AdminService.php:142 app/Services/AdminService.php:143
+#: app/Services/AdminService.php:381 app/Services/AdminService.php:421
+#: surefeedback.php:161
 msgid "Settings"
 msgstr ""
 
-#: includes/admin/class-admin-menu.php:85
-#: includes/admin/class-admin-menu.php:86
+#: app/Services/AdminService.php:154 app/Services/AdminService.php:155
+#: app/Services/AdminService.php:686
 msgid "Connection"
 msgstr ""
 
-#: includes/admin/class-admin-menu.php:94
-msgid "Feedback Connection"
+#: app/Services/AdminService.php:166 app/Services/AdminService.php:167
+msgid "Tools"
 msgstr ""
 
-#: includes/admin/class-surefeedback-admin-api.php:431
-#: includes/api/class-rest-controller.php:377
-msgid "Site disconnected successfully. All local data has been cleared."
+#: app/Services/AdminService.php:332
+msgid "SureFeedback is not connected to a parent site. "
 msgstr ""
 
-#: includes/admin/class-surefeedback-admin-api.php:443
-#: includes/api/class-rest-controller.php:389
-msgid "Failed to disconnect site. Please try again."
+#: app/Services/AdminService.php:334
+msgid "Connect now"
 msgstr ""
 
-#: includes/api/class-rest-controller.php:182
-msgid "Invalid nonce."
+#: app/Services/AdminService.php:344
+msgid "SureFeedback verification failed. Please check your connection settings."
 msgstr ""
 
-#: surefeedback.php:250
-msgid "Website project ID."
+#: app/Services/AdminService.php:355
+msgid "Settings saved successfully."
 msgstr ""
 
-#: surefeedback.php:254
-msgid "Public API key for the script loader."
+#: app/Services/AdminService.php:356
+msgid "Connection established successfully."
 msgstr ""
 
-#: surefeedback.php:258
-msgid "Access token to verify access to be able to register and leave comments."
+#: app/Services/AdminService.php:357
+msgid "Disconnected successfully."
 msgstr ""
 
-#: surefeedback.php:262
-msgid "Parent Site URL."
+#: app/Services/AdminService.php:358
+msgid "Plugin reset completed."
 msgstr ""
 
-#: surefeedback.php:266
-msgid "Secret signature to verify identity."
+#: app/Services/AdminService.php:431
+msgid "Open Parent Dashboard"
 msgstr ""
 
-#: surefeedback.php:270
-msgid "Is the plugin installed?"
+#: app/Services/AdminService.php:452
+msgid "SureFeedback Status"
+msgstr ""
+
+#: app/Services/AdminService.php:470
+msgid "Connection Status:"
+msgstr ""
+
+#: app/Services/AdminService.php:472 app/Services/AdminService.php:602
+msgid "Connected"
+msgstr ""
+
+#: app/Services/AdminService.php:474 app/Services/AdminService.php:603
+msgid "Disconnected"
+msgstr ""
+
+#: app/Services/AdminService.php:480
+msgid "Last Verification:"
+msgstr ""
+
+#: app/Services/AdminService.php:486
+msgid "Pending Feedback:"
+msgstr ""
+
+#: app/Services/AdminService.php:493
+msgid "View Dashboard"
+msgstr ""
+
+#: app/Services/AdminService.php:498
+msgid "Connect Now"
+msgstr ""
+
+#: app/Services/AdminService.php:601
+msgid "Connecting..."
+msgstr ""
+
+#: app/Services/AdminService.php:604
+msgid "Testing connection..."
+msgstr ""
+
+#: app/Services/AdminService.php:605
+msgid "Saving..."
+msgstr ""
+
+#: app/Services/AdminService.php:606
+msgid "Saved"
+msgstr ""
+
+#: app/Services/AdminService.php:607
+msgid "Error"
+msgstr ""
+
+#: app/Services/AdminService.php:608
+msgid "Success"
+msgstr ""
+
+#: app/Services/AdminService.php:609
+msgid "Are you sure you want to disconnect? This will disable the feedback widget."
+msgstr ""
+
+#: app/Services/AdminService.php:610
+msgid "Are you sure you want to reset all settings? This action cannot be undone."
+msgstr ""
+
+#: app/Services/AdminService.php:680
+msgid "Overview"
+msgstr ""
+
+#: app/Services/AdminService.php:692
+msgid "Troubleshooting"
+msgstr ""
+
+#: app/Services/AdminService.php:706
+msgid ""
+"SureFeedback allows clients to provide feedback directly on your website "
+"using a sticky note-style interface. The feedback is then synced with your "
+"parent SureFeedback dashboard for centralized management."
+msgstr ""
+
+#: app/Services/AdminService.php:716
+msgid ""
+"To connect this site to your SureFeedback parent dashboard, you need the "
+"parent site URL and a site token. These are provided when you add a new "
+"site in your parent dashboard."
+msgstr ""
+
+#: app/Services/AdminService.php:726
+msgid ""
+"If you are experiencing connection issues, please check that your parent "
+"site URL is correct and that the site token matches what was provided in "
+"your parent dashboard."
+msgstr ""
+
+#: app/Services/AdminService.php:736
+msgid "For more information:"
+msgstr ""
+
+#: app/Services/AdminService.php:737
+msgid "Documentation"
+msgstr ""
+
+#: app/Services/AdminService.php:738
+msgid "Support"
+msgstr ""
+
+#: app/Services/AdminService.php:751 app/Services/AdminService.php:784
+#: app/Services/AdminService.php:814 app/Services/AdminService.php:866
+#: app/Services/AdminService.php:896
+msgid "Insufficient permissions"
+msgstr ""
+
+#: app/Services/AdminService.php:763
+msgid "Settings saved successfully"
+msgstr ""
+
+#: app/Services/AdminService.php:768
+msgid "Failed to save settings"
+msgstr ""
+
+#: app/Services/AdminService.php:852
+msgid "Plugin reset successfully"
+msgstr ""
+
+#: app/Services/AdminService.php:903
+msgid "No settings provided"
+msgstr ""
+
+#: app/Services/AdminService.php:928
+msgid "Settings imported successfully"
+msgstr ""
+
+#: app/Services/AdminService.php:933
+msgid "Failed to import settings"
 msgstr ""
 
 #. Plugin Name of the plugin/theme

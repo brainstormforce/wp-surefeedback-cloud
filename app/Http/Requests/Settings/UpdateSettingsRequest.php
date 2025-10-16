@@ -1,8 +1,8 @@
 <?php
 
-namespace SureFeedback\App\Http\Requests\Settings;
+namespace SureFeedback\Http\Requests\Settings;
 
-use SureFeedback\App\Http\Requests\Request;
+use SureFeedback\Http\Requests\Request;
 
 /**
  * Settings Update Request

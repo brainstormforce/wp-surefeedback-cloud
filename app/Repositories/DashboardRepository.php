@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Repositories;
+namespace SureFeedback\Repositories;
 
 /**
  * Dashboard Repository
@@ -377,5 +377,19 @@ class DashboardRepository extends BaseRepository
         $this->deleteTransient('recent_activity_all_10_0');
         
         return true;
+    }
+
+    /**
+     * Get dashboard data (combining stats and activity)
+     *
+     * @return array
+     */
+    public function getDashboardData(): array
+    {
+        return [
+            'stats' => $this->getStats(),
+            'recent_activity' => $this->getRecentActivity(5),
+            'quick_access' => $this->getQuickAccessData(),
+        ];
     }
 }

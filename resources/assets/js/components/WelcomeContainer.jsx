@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Container, Title, Button } from "@bsf/force-ui";
 import { ExternalLink, Plus } from "lucide-react";
 import { __ } from "@wordpress/i18n";

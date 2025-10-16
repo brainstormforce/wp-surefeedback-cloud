@@ -1,11 +1,11 @@
 <?php
 
-namespace SureFeedback\App\Http\Controllers\Api;
+namespace SureFeedback\Http\Controllers\Api;
 
-use SureFeedback\App\Http\Controllers\Controller;
-use SureFeedback\App\Http\Requests\Settings\UpdateSettingsRequest;
-use SureFeedback\App\Http\Requests\Settings\WhiteLabelRequest;
-use SureFeedback\App\Repositories\SettingsRepository;
+use SureFeedback\Http\Controllers\Controller;
+use SureFeedback\Http\Requests\Settings\UpdateSettingsRequest;
+use SureFeedback\Http\Requests\Settings\WhiteLabelRequest;
+use SureFeedback\Repositories\SettingsRepository;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

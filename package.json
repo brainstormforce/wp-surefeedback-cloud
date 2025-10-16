@@ -7,7 +7,10 @@
     "dev": "vite build --watch",
     "build": "vite build",
     "preview": "vite preview",
-    "release": "echo 'Release script not configured'"
+    "i18n": "grunt i18n",
+    "readme": "grunt readme",
+    "zip": "grunt release",
+    "release": "npm run build && grunt release"
   },
   "repository": {
     "type": "git",
@@ -27,9 +30,9 @@
   "homepage": "https://surefeedback.com",
   "dependencies": {
     "@bsf/force-ui": "git+https://github.com/brainstormforce/force-ui.git#1.7.4",
-    "@wordpress/api-fetch": "^7.29.0",
-    "@wordpress/element": "^6.29.0",
-    "@wordpress/i18n": "^6.2.0",
+    "@wordpress/api-fetch": "^7.9.0",
+    "@wordpress/element": "^6.9.0",
+    "@wordpress/i18n": "^5.9.0",
     "axios": "^1.6.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
@@ -54,6 +57,6 @@
     "grunt-wp-readme-to-markdown": "^2.1.0",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
-    "vite": "^5.0.2"
+    "vite": "^7.1.10"
   }
 }

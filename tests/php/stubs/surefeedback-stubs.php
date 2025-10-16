@@ -166,7 +166,7 @@ final class SureFeedback {
 /**
  * Functions used in the child plugin
  *
- * @package ProjectHuddle Child
+ * @package SureFeedback
  */
 /**
  * Is the current user allowed to comment?

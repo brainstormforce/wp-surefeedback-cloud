@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Http\Middleware;
+namespace SureFeedback\Http\Middleware;
 
 use WP_REST_Request;
 use WP_Error;

@@ -3,7 +3,7 @@
   "description": "Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.",
   "autoload": {
     "psr-4": {
-      "SureFeedback\\": ""
+      "SureFeedback\\": "app/"
     }
   },
   "require-dev": {
@@ -20,7 +20,11 @@
     "format": "phpcbf --standard=phpcs.xml.dist --report-summary --report-source",
     "lint": "phpcs --standard=phpcs.xml.dist --report-summary --report-source",
     "gen-stubs": "php -d memory_limit=-1 vendor/bin/generate-stubs artifact/phpstan/surefeedback/ --out=tests/php/stubs/surefeedback-stubs.php && rm -rf artifact/phpstan",
-    "phpstan": "vendor/bin/phpstan --memory-limit=2048M analyse"
+    "phpstan": "vendor/bin/phpstan --memory-limit=2048M analyse",
+    "test": "vendor/bin/phpunit",
+    "test-unit": "vendor/bin/phpunit --testsuite=\"Unit Tests\"",
+    "test-integration": "vendor/bin/phpunit --testsuite=\"Integration Tests\"",
+    "test-coverage": "vendor/bin/phpunit --coverage-html tests/coverage/html"
   },
   "config": {
     "allow-plugins": {

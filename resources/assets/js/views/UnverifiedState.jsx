@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Button } from "@bsf/force-ui";
 import { __ } from "@wordpress/i18n";
 

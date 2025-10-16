@@ -1,8 +1,8 @@
 <?php
 
-namespace SureFeedback\App\Http\Requests\Connection;
+namespace SureFeedback\Http\Requests\Connection;
 
-use SureFeedback\App\Http\Requests\Request;
+use SureFeedback\Http\Requests\Request;
 
 /**
  * Connection Connect Request

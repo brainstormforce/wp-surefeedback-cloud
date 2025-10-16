@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useConnection, useDashboard, useErrorHandler } from '../hooks/index.js';
 import QuickAccess from '../components/QuickAccess.jsx';
@@ -9,11 +10,11 @@ import ExtendWebsite from './ExtendWebsite.jsx';
  * Displays connection status and dashboard statistics
  * using the new API services and hooks
  */
-const Dashboard = () => {
+const Dashboard = ({ containerType = 'dashboard' }) => {
     const { isConnected, connectionData, isLoading: connectionLoading, error: connectionError, connect, disconnect } = useConnection();
     const { stats, isLoading: statsLoading, refreshAll } = useDashboard();
     const { errors, removeError, hasErrors } = useErrorHandler();
-    const [activeTab, setActiveTab] = React.useState('dashboard');
+    const [activeTab, setActiveTab] = React.useState(containerType);
 
     const handleConnect = async () => {
         try {
@@ -39,6 +40,34 @@ const Dashboard = () => {
         return (
             <div className="surefeedback-dashboard">
                 <div className="loading">Loading...</div>
+            </div>
+        );
+    }
+
+    // Render different content based on container type
+    if (containerType === 'settings') {
+        return (
+            <div className="surefeedback-dashboard">
+                <h1>SureFeedback Settings</h1>
+                <p>Settings panel will be implemented here</p>
+            </div>
+        );
+    }
+
+    if (containerType === 'connection') {
+        return (
+            <div className="surefeedback-dashboard">
+                <h1>SureFeedback Connection</h1>
+                <p>Connection panel will be implemented here</p>
+            </div>
+        );
+    }
+
+    if (containerType === 'tools') {
+        return (
+            <div className="surefeedback-dashboard">
+                <h1>SureFeedback Tools</h1>
+                <p>Tools panel will be implemented here</p>
             </div>
         );
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Http\Requests;
+namespace SureFeedback\Http\Requests;
 
 /**
  * Base Request Class

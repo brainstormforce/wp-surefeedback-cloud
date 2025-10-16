@@ -1,14 +1,14 @@
 <?php
 
-namespace SureFeedback\App\Http\Controllers\Api;
+namespace SureFeedback\Http\Controllers\Api;
 
-use SureFeedback\App\Http\Controllers\Controller;
-use SureFeedback\App\Http\Requests\UpdateSettingsRequest;
-use SureFeedback\App\Http\Requests\WhiteLabelRequest;
-use SureFeedback\App\Http\Requests\VerifyConnectionRequest;
-use SureFeedback\App\Repositories\SettingsRepository;
-use SureFeedback\App\Repositories\ConnectionRepository;
-use SureFeedback\App\Repositories\DashboardRepository;
+use SureFeedback\Http\Controllers\Controller;
+use SureFeedback\Http\Requests\UpdateSettingsRequest;
+use SureFeedback\Http\Requests\WhiteLabelRequest;
+use SureFeedback\Http\Requests\VerifyConnectionRequest;
+use SureFeedback\Repositories\SettingsRepository;
+use SureFeedback\Repositories\ConnectionRepository;
+use SureFeedback\Repositories\DashboardRepository;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -68,7 +68,7 @@ class AdminApiController extends Controller
 
             $settings = [
                 'general' => $this->settingsRepository->getSettings(),
-                'connection' => $this->connectionRepository->getConnectionData(),
+                'connection' => $this->connectionRepository->getConnectionStatus(),
                 'white_label' => $this->settingsRepository->getWhiteLabelSettings(),
                 'dashboard' => $this->dashboardRepository->getDashboardData()
             ];
@@ -221,7 +221,7 @@ class AdminApiController extends Controller
             }
 
             // Use SaaS client service for verification
-            $saas_client = new \SureFeedback\App\Services\SaasClientService();
+            $saas_client = new \SureFeedback\Services\SaasClientService();
             $verification_result = $saas_client->verify_script_integration();
 
             if ($verification_result['success']) {

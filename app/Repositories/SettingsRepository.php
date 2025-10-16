@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Repositories;
+namespace SureFeedback\Repositories;
 
 /**
  * Settings Repository
@@ -24,6 +24,8 @@ class SettingsRepository extends BaseRepository
         'auto_approve' => false,
         'notification_email' => '',
         'webhook_url' => '',
+        'widget_enabled' => true,
+        'debug_mode' => false,
     ];
 
     /**
@@ -379,5 +381,15 @@ class SettingsRepository extends BaseRepository
         }
 
         return true;
+    }
+
+    /**
+     * Get all settings (alias for getAllSettings)
+     *
+     * @return array
+     */
+    public function getSettings(): array
+    {
+        return $this->getAllSettings();
     }
 }

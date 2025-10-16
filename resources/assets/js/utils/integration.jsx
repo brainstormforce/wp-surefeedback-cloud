@@ -7,17 +7,17 @@
  * @package SureFeedback
  */
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-    initializeServices, 
-    cleanupServices, 
+import { createContext, useContext, useEffect, useState } from 'react';
+import {
+    initializeServices,
+    cleanupServices,
     apiServiceFactory,
     connectionService,
     settingsService,
     dashboardService,
     adminService,
     errorHandler
-} from './index.js';
+} from '../index.js';
 
 /**
  * API Context for React components

@@ -4,28 +4,27 @@ import { resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig(({ command }) => ({
-  plugins: [react()],
+  plugins: [react({
+    jsxRuntime: 'automatic'
+  })],
   define: {
     'process.env.NODE_ENV': JSON.stringify(command === 'serve' ? 'development' : 'production')
   },
   build: {
     watch: null,
     rollupOptions: {
-      input: {
-        admin: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/main.jsx'),
-        dashboard: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/dashboard.jsx')
-      },
+      input: resolve(fileURLToPath(new URL('.', import.meta.url)), 'resources/assets/js/main.jsx'),
       external: [],
       output: {
-        entryFileNames: '[name].js',
+        format: 'iife',
+        entryFileNames: 'admin.js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'tailwind.css') {
             return 'admin.css'
           }
           return '[name].[ext]'
         },
-        chunkFileNames: '[name].js',
-        globals: {}
+        chunkFileNames: '[name].js'
       }
     },
     outDir: 'assets/dist',

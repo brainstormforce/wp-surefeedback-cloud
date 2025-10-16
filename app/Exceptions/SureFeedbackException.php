@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Exceptions;
+namespace SureFeedback\Exceptions;
 
 use Exception;
 

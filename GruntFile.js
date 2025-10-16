@@ -61,11 +61,32 @@ module.exports = function (grunt) {
               "!node_modules/**",
               "!tests/**",
               "!.git/**",
+              "!.gitignore",
               "!bin/**",
               "!vendor/**",
               "!src/**",
+              "!resources/assets/**",
+              "!vite.config.js",
+              "!postcss.config.cjs",
+              "!tailwind.config.cjs",
+              "!package.json",
+              "!package-lock.json",
+              "!composer.json",
+              "!composer.lock",
+              "!phpcs.xml.dist",
+              "!phpstan.neon",
+              "!phpstan-baseline.neon",
+              "!stubs-generator.php",
+              "!GruntFile.js",
+              "!CLAUDE.md",
+              "!GithubCopilot.md",
+              "!README.md",
+              "!*.log",
+              "!*.tmp",
+              "!.DS_Store",
+              "!Thumbs.db",
             ],
-            dest: "/",
+            dest: "surefeedback/",
           },
         ],
       },
@@ -76,24 +97,24 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-wp-readme-to-markdown");
   grunt.loadNpmTasks("grunt-contrib-compress");
 
-  // Custom task to build Vue.js assets
-  grunt.registerTask("build-vue", "Build Vue.js assets", function() {
+  // Custom task to build Vite assets
+  grunt.registerTask("build-assets", "Build Vite assets", function() {
     var done = this.async();
     var spawn = require('child_process').spawn;
-    grunt.log.writeln("Building Vue.js assets...");
+    grunt.log.writeln("Building Vite assets...");
     var build = spawn('npm', ['run', 'build'], { stdio: 'inherit' });
     build.on('close', function(code) {
       if (code !== 0) {
-        grunt.fail.fatal('Vue.js build failed with code ' + code);
+        grunt.fail.fatal('Vite build failed with code ' + code);
       }
-      grunt.log.writeln("Vue.js assets built successfully.");
+      grunt.log.writeln("Vite assets built successfully.");
       done();
     });
   });
 
   grunt.registerTask("i18n", ["addtextdomain", "makepot"]);
   grunt.registerTask("readme", ["wp_readme_to_markdown"]);
-  grunt.registerTask("build", ["build-vue", "i18n"]);
+  grunt.registerTask("build", ["build-assets", "i18n"]);
   grunt.registerTask("release", ["build", "compress"]);
 
   grunt.util.linefeed = "\n";

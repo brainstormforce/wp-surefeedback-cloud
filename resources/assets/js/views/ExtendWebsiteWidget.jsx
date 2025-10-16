@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import { Container, Button, Badge, Dialog } from "@bsf/force-ui";
 import apiFetch from "@wordpress/api-fetch";
 import { __ } from "@wordpress/i18n";

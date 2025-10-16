@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Title, Container, Button, Badge } from "@bsf/force-ui";
 import { Headphones, HelpCircle, StarIcon, NotepadText, BookOpenText } from "lucide-react";
 import { __ } from "@wordpress/i18n";

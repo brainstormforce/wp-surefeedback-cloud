@@ -1,8 +1,8 @@
 <?php
 
-namespace SureFeedback\App\Http\Requests\Dashboard;
+namespace SureFeedback\Http\Requests\Dashboard;
 
-use SureFeedback\App\Http\Requests\Request;
+use SureFeedback\Http\Requests\Request;
 
 /**
  * Dashboard Stats Request

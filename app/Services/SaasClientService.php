@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Services;
+namespace SureFeedback\Services;
 
 use SureFeedback\Exceptions\API_Exception;
 use WP_Error;

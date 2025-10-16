@@ -1,12 +1,12 @@
 <?php
 
-namespace SureFeedback\App\Http\Controllers\Api;
+namespace SureFeedback\Http\Controllers\Api;
 
-use SureFeedback\App\Http\Controllers\Controller;
-use SureFeedback\App\Http\Requests\DashboardStatsRequest;
-use SureFeedback\App\Repositories\DashboardRepository;
-use SureFeedback\App\Repositories\ConnectionRepository;
-use SureFeedback\App\Repositories\SettingsRepository;
+use SureFeedback\Http\Controllers\Controller;
+use SureFeedback\Http\Requests\DashboardStatsRequest;
+use SureFeedback\Repositories\DashboardRepository;
+use SureFeedback\Repositories\ConnectionRepository;
+use SureFeedback\Repositories\SettingsRepository;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;

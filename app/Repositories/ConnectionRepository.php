@@ -1,6 +1,6 @@
 <?php
 
-namespace SureFeedback\App\Repositories;
+namespace SureFeedback\Repositories;
 
 /**
  * Connection Repository

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import ExtendWebsiteWidget from './ExtendWebsiteWidget';
 import { Container, Skeleton } from "@bsf/force-ui";
 import { __ } from '@wordpress/i18n';

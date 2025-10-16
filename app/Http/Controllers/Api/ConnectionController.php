@@ -1,12 +1,12 @@
 <?php
 
-namespace SureFeedback\App\Http\Controllers\Api;
+namespace SureFeedback\Http\Controllers\Api;
 
-use SureFeedback\App\Http\Controllers\Controller;
-use SureFeedback\App\Http\Requests\ConnectionRequest;
-use SureFeedback\App\Http\Requests\VerifyConnectionRequest;
-use SureFeedback\App\Repositories\ConnectionRepository;
-use SureFeedback\App\Repositories\SettingsRepository;
+use SureFeedback\Http\Controllers\Controller;
+use SureFeedback\Http\Requests\ConnectionRequest;
+use SureFeedback\Http\Requests\VerifyConnectionRequest;
+use SureFeedback\Repositories\ConnectionRepository;
+use SureFeedback\Repositories\SettingsRepository;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -55,14 +55,14 @@ class ConnectionController extends Controller
         try {
             $this->validateNonce($request);
             
-            $connectionData = $this->connectionRepository->getConnectionData();
+            $connectionData = $this->connectionRepository->getConnectionStatus();
             
             $connection_data = [
                 'connected' => $this->isConnected(),
                 'parent_url' => $connectionData['parent_url'],
                 'access_token' => !empty($connectionData['access_token']),
                 'last_check' => $connectionData['last_check'],
-                'status' => $connectionData['status'],
+                'status' => $connectionData['connected'] ? 'connected' : 'disconnected',
                 'health_score' => $this->calculateHealthScore()
             ];
             
@@ -258,8 +258,8 @@ class ConnectionController extends Controller
      */
     private function isConnected(): bool
     {
-        $connectionData = $this->connectionRepository->getConnectionData();
-        return $connectionData['status'] === 'connected' &&
+        $connectionData = $this->connectionRepository->getConnectionStatus();
+        return $connectionData['connected'] &&
                !empty($connectionData['parent_url']) &&
                !empty($connectionData['access_token']);
     }

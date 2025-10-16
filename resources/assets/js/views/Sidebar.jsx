@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 const Sidebar = ({ items, onSelectItem }) => {
   const [selectedItemId, setSelectedItemId] = useState(null); // State to track selected item

@@ -6,7 +6,7 @@
  * @package SureFeedback\App\Http\Controllers
  */
 
-namespace SureFeedback\App\Http\Controllers;
+namespace SureFeedback\Http\Controllers;
 
 use SureFeedback\Application;
 use SureFeedback\Contracts\Config_Interface;

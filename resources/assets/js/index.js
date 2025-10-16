@@ -8,79 +8,96 @@
  */
 
 // Core API Gateway
-export { apiGateway, ApiGateway } from './api/gateway.js';
+import { apiGateway as _apiGateway, ApiGateway as _ApiGateway } from './api/gateway.js';
+export const apiGateway = _apiGateway;
+export const ApiGateway = _ApiGateway;
 
 // Services
-export { 
-    connectionService, 
-    getConnectionStatus, 
-    verifyConnection, 
-    connectToParent, 
-    disconnectFromParent, 
-    getConnectionHealth, 
-    testConnection 
+import {
+    connectionService as _connectionService,
+    getConnectionStatus,
+    verifyConnection,
+    connectToParent,
+    disconnectFromParent,
+    getConnectionHealth,
+    testConnection
 } from './services/connection.js';
+export const connectionService = _connectionService;
+export { getConnectionStatus, verifyConnection, connectToParent, disconnectFromParent, getConnectionHealth, testConnection };
 
-export { 
-    settingsService, 
-    getSettings, 
-    updateSettings, 
-    getGeneralSettings, 
-    updateGeneralSettings, 
-    getWhiteLabelSettings, 
-    updateWhiteLabelSettings, 
-    resetSettings, 
-    importSettings, 
-    exportSettings 
+import {
+    settingsService as _settingsService,
+    getSettings,
+    updateSettings,
+    getGeneralSettings,
+    updateGeneralSettings,
+    getWhiteLabelSettings,
+    updateWhiteLabelSettings,
+    resetSettings,
+    importSettings,
+    exportSettings
 } from './services/settings.js';
+export const settingsService = _settingsService;
+export { getSettings, updateSettings, getGeneralSettings, updateGeneralSettings, getWhiteLabelSettings, updateWhiteLabelSettings, resetSettings, importSettings, exportSettings };
 
-export { 
-    dashboardService, 
-    getDashboardStats, 
-    getDashboardQuickAccess, 
-    getDashboardRecentActivity, 
-    refreshDashboard, 
-    getDashboardOverview, 
-    getDashboardWidgetData 
+import {
+    dashboardService as _dashboardService,
+    getDashboardStats,
+    getDashboardQuickAccess,
+    getDashboardRecentActivity,
+    refreshDashboard,
+    getDashboardOverview,
+    getDashboardWidgetData
 } from './services/dashboard.js';
+export const dashboardService = _dashboardService;
+export { getDashboardStats, getDashboardQuickAccess, getDashboardRecentActivity, refreshDashboard, getDashboardOverview, getDashboardWidgetData };
 
-export { 
-    adminService, 
-    getAdminSettings, 
-    saveGeneralSettings, 
-    saveWhiteLabelSettings, 
-    verifyIntegration, 
-    disconnectSite, 
-    getAdminConnectionStatus, 
-    testParentSite, 
-    generateAccessToken, 
-    resetAdminSettings, 
-    getSystemInfo 
+import {
+    adminService as _adminService,
+    getAdminSettings,
+    saveGeneralSettings,
+    saveWhiteLabelSettings,
+    verifyIntegration,
+    disconnectSite,
+    getAdminConnectionStatus,
+    testParentSite,
+    generateAccessToken,
+    resetAdminSettings,
+    getSystemInfo
 } from './services/admin.js';
+export const adminService = _adminService;
+export { getAdminSettings, saveGeneralSettings, saveWhiteLabelSettings, verifyIntegration, disconnectSite, getAdminConnectionStatus, testParentSite, generateAccessToken, resetAdminSettings, getSystemInfo };
 
 // Utilities
-export { 
-    ApiError, 
-    ValidationError, 
-    ConnectionError, 
-    errorHandler, 
-    withErrorHandling, 
-    safeAsync 
+import {
+    ApiError,
+    ValidationError,
+    ConnectionError,
+    errorHandler as _errorHandler,
+    withErrorHandling,
+    safeAsync
 } from './utils/errors.js';
+export const errorHandler = _errorHandler;
+export { ApiError, ValidationError, ConnectionError, withErrorHandling, safeAsync };
 
-export { 
-    tokenManager, 
-    authManager, 
-    authUtils, 
-    TokenManager, 
-    AuthManager 
+import {
+    tokenManager as _tokenManager,
+    authManager as _authManager,
+    authUtils,
+    TokenManager,
+    AuthManager
 } from './utils/auth.js';
+export const tokenManager = _tokenManager;
+export const authManager = _authManager;
+export { authUtils, TokenManager, AuthManager };
 
-export { 
-    cacheManager, 
-    CacheManager, 
-    MemoryStorage 
+import {
+    cacheManager as _cacheManager,
+    CacheManager,
+    MemoryStorage
 } from './utils/cache.js';
+export const cacheManager = _cacheManager;
+export { CacheManager, MemoryStorage };
 
 // Constants
 export { 
@@ -268,15 +285,15 @@ export const api = {
 
 // Export default for easy importing
 export default {
-    apiGateway,
-    connectionService,
-    settingsService,
-    dashboardService,
-    adminService,
-    tokenManager,
-    authManager,
-    cacheManager,
-    errorHandler,
+    apiGateway: _apiGateway,
+    connectionService: _connectionService,
+    settingsService: _settingsService,
+    dashboardService: _dashboardService,
+    adminService: _adminService,
+    tokenManager: _tokenManager,
+    authManager: _authManager,
+    cacheManager: _cacheManager,
+    errorHandler: _errorHandler,
     apiServiceFactory,
     api,
     initializeServices,

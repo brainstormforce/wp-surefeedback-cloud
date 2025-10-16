@@ -1,11 +1,11 @@
 <?php
 
-namespace SureFeedback\App\Services;
+namespace SureFeedback\Services;
 
-use SureFeedback\App\Repositories\SettingsRepository;
-use SureFeedback\App\Repositories\ConnectionRepository;
-use SureFeedback\App\Repositories\DashboardRepository;
-use SureFeedback\App\Http\Requests\UpdateSettingsRequest;
+use SureFeedback\Repositories\SettingsRepository;
+use SureFeedback\Repositories\ConnectionRepository;
+use SureFeedback\Repositories\DashboardRepository;
+use SureFeedback\Http\Requests\UpdateSettingsRequest;
 
 /**
  * Admin Service
@@ -208,7 +208,7 @@ class AdminService
         // Enqueue admin styles
         wp_enqueue_style(
             'surefeedback-admin',
-            SUREFEEDBACK_PLUGIN_URL . 'assets/admin-dashboard.css',
+            SUREFEEDBACK_PLUGIN_URL . 'assets/dist/admin.css',
             [],
             SUREFEEDBACK_VERSION
         );
@@ -216,7 +216,7 @@ class AdminService
         // Enqueue admin scripts
         wp_enqueue_script(
             'surefeedback-admin',
-            SUREFEEDBACK_PLUGIN_URL . 'dist/admin.js',
+            SUREFEEDBACK_PLUGIN_URL . 'assets/dist/admin.js',
             ['wp-element', 'wp-api', 'wp-i18n'],
             SUREFEEDBACK_VERSION,
             true
@@ -323,10 +323,10 @@ class AdminService
     public function display_admin_notices(): void
     {
         // Get connection data from repository
-        $connectionData = $this->connectionRepository->getConnectionData();
+        $connectionData = $this->connectionRepository->getConnectionStatus();
         
         // Connection status notice
-        if ($connectionData['status'] === 'disconnected' && $this->is_plugin_page()) {
+        if (!$connectionData['connected'] && $this->is_plugin_page()) {
             echo '<div class="notice notice-warning is-dismissible">';
             echo '<p>';
             echo esc_html__('SureFeedback is not connected to a parent site. ', 'surefeedback');
@@ -337,7 +337,8 @@ class AdminService
             echo '</div>';
         }
 
-        // Verification status notice
+        // Verification status notice (disabled for now - verification_status not in ConnectionRepository)
+        /*
         if ($connectionData['verification_status'] === 'failed' && $this->is_plugin_page()) {
             echo '<div class="notice notice-error is-dismissible">';
             echo '<p>';
@@ -345,6 +346,7 @@ class AdminService
             echo '</p>';
             echo '</div>';
         }
+        */
 
         // Show success notices
         if (isset($_GET['message'])) {
@@ -396,8 +398,8 @@ class AdminService
             return;
         }
 
-        $connectionData = $this->connectionRepository->getConnectionData();
-        $status_class = $connectionData['status'] === 'connected' ? 'connected' : 'disconnected';
+        $connectionData = $this->connectionRepository->getConnectionStatus();
+        $status_class = $connectionData['connected'] ? 'connected' : 'disconnected';
 
         $wp_admin_bar->add_node([
             'id' => 'surefeedback',
@@ -422,7 +424,7 @@ class AdminService
             'href' => admin_url('admin.php?page=' . $this->menu_slug . '-settings')
         ]);
 
-        if ($connectionData['status'] === 'connected') {
+        if ($connectionData['connected']) {
             $parent_url = $connectionData['parent_url'];
             if (!empty($parent_url)) {
                 $wp_admin_bar->add_node([
@@ -461,14 +463,14 @@ class AdminService
      */
     public function render_dashboard_widget(): void
     {
-        $connectionData = $this->connectionRepository->getConnectionData();
+        $connectionData = $this->connectionRepository->getConnectionStatus();
         $dashboardData = $this->dashboardRepository->getDashboardData();
 
         echo '<div class="surefeedback-dashboard-widget">';
         
         // Connection status
         echo '<p><strong>' . esc_html__('Connection Status:', 'surefeedback') . '</strong> ';
-        if ($connectionData['status'] === 'connected') {
+        if ($connectionData['connected']) {
             echo '<span style="color: green;">' . esc_html__('Connected', 'surefeedback') . '</span>';
         } else {
             echo '<span style="color: red;">' . esc_html__('Disconnected', 'surefeedback') . '</span>';
@@ -476,13 +478,14 @@ class AdminService
         echo '</p>';
 
         // Last verification
-        if (!empty($connectionData['last_verification'])) {
+        if (!empty($connectionData['last_check'])) {
             echo '<p><strong>' . esc_html__('Last Verification:', 'surefeedback') . '</strong> ';
-            echo esc_html(human_time_diff(strtotime($connectionData['last_verification']), time()) . ' ago');
+            echo esc_html(human_time_diff(strtotime($connectionData['last_check']), time()) . ' ago');
             echo '</p>';
         }
 
         // Pending feedback count
+        $pending_feedback = $dashboardData['stats']['pending_reviews'] ?? 0;
         echo '<p><strong>' . esc_html__('Pending Feedback:', 'surefeedback') . '</strong> ';
         echo esc_html($pending_feedback);
         echo '</p>';
@@ -493,7 +496,7 @@ class AdminService
         echo esc_html__('View Dashboard', 'surefeedback');
         echo '</a> ';
         
-        if ($connection_status !== 'connected') {
+        if (!$connectionData['connected']) {
             echo '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-connection')) . '" class="button-primary">';
             echo esc_html__('Connect Now', 'surefeedback');
             echo '</a>';
@@ -576,17 +579,17 @@ class AdminService
      */
     private function get_admin_settings(): array
     {
-        $connectionData = $this->connectionRepository->getConnectionData();
+        $connectionData = $this->connectionRepository->getConnectionStatus();
         $settingsData = $this->settingsRepository->getSettings();
         
         return [
-            'connected' => $connectionData['status'] === 'connected',
+            'connected' => $connectionData['connected'] === true,
             'parentUrl' => $connectionData['parent_url'],
-            'siteId' => $connectionData['site_id'],
-            'verificationStatus' => $connectionData['verification_status'],
-            'lastVerification' => $connectionData['last_verification'],
-            'widgetEnabled' => $settingsData['widget_enabled'],
-            'debugMode' => $settingsData['debug_mode']
+            'siteId' => $connectionData['site_id'] ?? null,
+            'verificationStatus' => $connectionData['verification_status'] ?? null,
+            'lastVerification' => $connectionData['last_check'],
+            'widgetEnabled' => $settingsData['general']['widget_enabled'] ?? true,
+            'debugMode' => $settingsData['general']['debug_mode'] ?? false
         ];
     }
 
@@ -868,11 +871,11 @@ class AdminService
 
         // Get all settings through repositories
         $settings = $this->settingsRepository->getSettings();
-        $connectionData = $this->connectionRepository->getConnectionData();
+        $connectionData = $this->connectionRepository->getConnectionStatus();
 
         // Combine settings for export
         $exportData = array_merge($settings, [
-            'connection_status' => $connectionData['status'],
+            'connection_status' => $connectionData['connected'] ? 'connected' : 'disconnected',
             'parent_url' => $connectionData['parent_url'],
             'site_id' => $connectionData['site_id']
         ]);

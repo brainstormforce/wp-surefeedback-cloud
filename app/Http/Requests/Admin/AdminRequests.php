@@ -1,8 +1,8 @@
 <?php
 
-namespace SureFeedback\App\Http\Requests\Admin;
+namespace SureFeedback\Http\Requests\Admin;
 
-use SureFeedback\App\Http\Requests\Request;
+use SureFeedback\Http\Requests\Request;
 
 /**
  * Admin Verification Request
