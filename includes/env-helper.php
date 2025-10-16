@@ -84,7 +84,7 @@ function surefeedback_get_app_url() {
 }
 
 /**
- * Get SureFeedback API URL
+ * Get SureFeedback API URL (with /api/v1 suffix)
  */
 function surefeedback_get_api_url() {
     // Check for custom API URL first
@@ -111,6 +111,36 @@ function surefeedback_get_api_url() {
     }
     
     return 'https://api.surefeedback.com/api/v1'; // Production default
+}
+
+/**
+ * Get SureFeedback Base API URL (without /api/v1 suffix)
+ */
+function surefeedback_get_base_api_url() {
+    // Check for custom API URL first
+    $custom_url = get_option('surefeedback_api_url', '');
+    if (!empty($custom_url)) {
+        return str_replace('/api/v1', '', $custom_url);
+    }
+    
+    // Check environment variable
+    $env_url = surefeedback_env('SUREFEEDBACK_API_URL');
+    if ($env_url) {
+        return str_replace('/api/v1', '', $env_url);
+    }
+    
+    // Auto-detect based on current site URL
+    $site_url = home_url();
+    
+    if (strpos($site_url, 'localhost') !== false || strpos($site_url, '.local') !== false) {
+        return 'http://localhost:8000';
+    }
+    
+    if (strpos($site_url, 'staging') !== false) {
+        return 'https://api-staging.surefeedback.com';
+    }
+    
+    return 'https://api.surefeedback.com'; // Production default
 }
 
 /**

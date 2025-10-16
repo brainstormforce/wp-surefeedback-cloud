@@ -211,7 +211,7 @@ class ConnectionService {
                 try {
                     await this.getStatus(true);
                 } catch (error) {
-                    console.warn('Status check failed:', error);
+                    // Error handled silently
                 }
             }
         }, 30000);
@@ -283,7 +283,7 @@ class ConnectionService {
             try {
                 listener(event, data);
             } catch (error) {
-                console.error('Error in connection listener:', error);
+                // Error handled silently
             }
         });
     }

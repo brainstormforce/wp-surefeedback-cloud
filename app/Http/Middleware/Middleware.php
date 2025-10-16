@@ -105,13 +105,6 @@ abstract class Middleware
      */
     protected function log(string $action, string $message, array $context = []): void
     {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf(
-                '[SureFeedback Middleware] %s: %s %s',
-                $action,
-                $message,
-                !empty($context) ? json_encode($context) : ''
-            ));
-        }
+        // Logging disabled
     }
 }

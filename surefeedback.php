@@ -162,7 +162,7 @@ add_action('surefeedback_auto_verify', function() {
         $saas_client = $app->make('SureFeedback\Services\SaasClientService');
         $saas_client->verify_script_integration();
     } catch (Exception $e) {
-        error_log('SureFeedback auto verification failed: ' . $e->getMessage());
+        // Error handled silently
     }
 });
 
@@ -175,7 +175,7 @@ add_action('surefeedback_hourly_verify', function() {
         $saas_client = $app->make('SureFeedback\Services\SaasClientService');
         $saas_client->schedule_verification();
     } catch (Exception $e) {
-        error_log('SureFeedback hourly verification failed: ' . $e->getMessage());
+        // Error handled silently
     }
 });
 

@@ -140,26 +140,7 @@ class SureFeedbackException extends Exception
      */
     protected function logException(): void
     {
-        if (!defined('WP_DEBUG') || !WP_DEBUG) {
-            return;
-        }
-
-        $log_data = [
-            'exception' => get_class($this),
-            'message' => $this->getMessage(),
-            'code' => $this->getCode(),
-            'file' => $this->getFile(),
-            'line' => $this->getLine(),
-            'severity' => $this->severity,
-            'context' => $this->context,
-            'trace' => $this->getTraceAsString(),
-            'timestamp' => current_time('mysql'),
-            'user_id' => get_current_user_id(),
-            'request_uri' => $_SERVER['REQUEST_URI'] ?? '',
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
-        ];
-
-        error_log('SureFeedback Exception: ' . wp_json_encode($log_data));
+        // Exception logging disabled
     }
 
     /**

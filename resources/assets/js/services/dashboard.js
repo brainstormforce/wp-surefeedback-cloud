@@ -247,7 +247,7 @@ class DashboardService {
         this.refreshTimer = setInterval(() => {
             if (!this.isRefreshing) {
                 this.refreshAll().catch(error => {
-                    console.warn('Auto dashboard refresh failed:', error);
+                    // Error handled silently
                 });
             }
         }, UI_CONFIG.POLLING.DASHBOARD_REFRESH);
@@ -310,7 +310,7 @@ class DashboardService {
             try {
                 listener(event, data);
             } catch (error) {
-                console.error('Error in dashboard listener:', error);
+                // Error handled silently
             }
         });
     }

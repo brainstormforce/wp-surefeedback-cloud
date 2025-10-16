@@ -45,7 +45,6 @@ const ConnectionCard = () => {
         setConnectionStatus(data.data.connectionStatus);
       }
     } catch (error) {
-      console.error(error);
       setErrors({ load: __("Failed to load settings", "surefeedback") });
     } finally {
       setLoading(false);
@@ -72,7 +71,6 @@ const ConnectionCard = () => {
       const data = await response.json();
       return data.success;
     } catch (error) {
-      console.error(error);
       return false;
     } finally {
       setSaving(false);

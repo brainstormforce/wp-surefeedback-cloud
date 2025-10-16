@@ -57,7 +57,6 @@ const WhiteLabel = () => {
         }
       }
     } catch (error) {
-      console.error('Error loading settings:', error);
       setErrors({ load: 'Failed to load settings' });
     } finally {
       setLoading(false);
@@ -85,7 +84,6 @@ const WhiteLabel = () => {
       }
       throw new Error('Save failed');
     } catch (error) {
-      console.error('Error saving settings:', error);
       toast.error(__('Failed to save white label settings', 'surefeedback'));
       return false;
     } finally {

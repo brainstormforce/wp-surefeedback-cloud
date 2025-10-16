@@ -14,7 +14,7 @@ import { initializeServices } from './index.js'
 try {
   initializeServices()
 } catch (error) {
-  console.error('Failed to initialize SureFeedback services:', error);
+  // Error handled silently
 }
 
 function App({ containerType }) {
@@ -52,21 +52,19 @@ function initApp() {
           const root = createRoot(element)
           root.render(<App containerType={container.type} />)
           appInitialized = true;
-          console.log(`SureFeedback initialized in container: ${container.id}`)
           break
         } catch (error) {
-          console.error(`Failed to initialize SureFeedback in ${container.id}:`, error)
           // Continue to try other containers
         }
       }
     }
     
     if (!appInitialized) {
-      console.warn('SureFeedback: No valid container element found')
+      // No valid container element found
     }
-    
+
   } catch (error) {
-    console.error('SureFeedback: Critical initialization error:', error)
+    // Critical initialization error
     
     // Try to show a basic error message if possible
     const errorContainer = document.querySelector('[id*="surefeedback"]')

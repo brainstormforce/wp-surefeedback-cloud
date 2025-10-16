@@ -115,13 +115,10 @@ class SaasClientService
      */
     public function auto_verify_script(): void
     {
-        error_log('SureFeedback: SaaS Client auto_verify_script() called');
-
         $retry_count = get_option('surefeedback_retry_count', 0);
         $max_retries = 5;
 
         if ($retry_count >= $max_retries) {
-            error_log('SureFeedback: Max retries reached, stopping auto-verification');
             update_option('surefeedback_verification_status', 'failed');
             return;
         }
@@ -129,18 +126,15 @@ class SaasClientService
         $result = $this->verify_script_integration();
 
         if ($result['success']) {
-            error_log('SureFeedback: Auto-verification successful');
             delete_option('surefeedback_retry_count');
             update_option('surefeedback_verification_status', 'verified');
         } else {
             $retry_count++;
             update_option('surefeedback_retry_count', $retry_count);
-            
+
             // Schedule next retry with exponential backoff
             $delay = min(300 * pow(2, $retry_count - 1), 3600); // Max 1 hour delay
             wp_schedule_single_event(time() + $delay, 'surefeedback_auto_verify');
-            
-            error_log("SureFeedback: Auto-verification failed, retry {$retry_count}/{$max_retries} scheduled in {$delay} seconds");
         }
     }
 
@@ -151,13 +145,10 @@ class SaasClientService
      */
     public function perform_auto_verification(): void
     {
-        error_log('SureFeedback: SaaS Client perform_auto_verification() called');
-        
         $site_id = get_option('surefeedback_id');
         $access_token = get_option('surefeedback_access_token');
 
         if (empty($site_id) || empty($access_token)) {
-            error_log('SureFeedback: Missing site ID or access token, cannot verify');
             return;
         }
 
@@ -172,10 +163,8 @@ class SaasClientService
         $response = $this->make_api_request('verify-connection', $verification_data, 'POST');
 
         if (is_wp_error($response)) {
-            error_log('SureFeedback: Auto-verification failed: ' . $response->get_error_message());
             $this->handle_verification_failure();
         } else {
-            error_log('SureFeedback: Auto-verification successful');
             $this->handle_verification_success($response);
         }
     }
@@ -187,18 +176,14 @@ class SaasClientService
      */
     public function perform_hourly_verification_update(): void
     {
-        error_log('SureFeedback: Performing hourly verification update');
-
         $connection_status = get_option('surefeedback_connection_status', 'disconnected');
         
         if ($connection_status !== 'connected') {
-            error_log('SureFeedback: Site not connected, skipping hourly verification');
             return;
         }
 
         $site_id = get_option('surefeedback_id');
         if (empty($site_id)) {
-            error_log('SureFeedback: No site ID found, skipping hourly verification');
             return;
         }
 
@@ -214,9 +199,8 @@ class SaasClientService
         $response = $this->make_api_request('heartbeat', $heartbeat_data, 'POST');
 
         if (is_wp_error($response)) {
-            error_log('SureFeedback: Hourly verification failed: ' . $response->get_error_message());
+            // Error handled silently
         } else {
-            error_log('SureFeedback: Hourly verification successful');
             update_option('surefeedback_last_heartbeat', time());
         }
     }
@@ -228,13 +212,10 @@ class SaasClientService
      */
     public function verify_script_integration(): array
     {
-        error_log('SureFeedback: SaaS Client verify_script_integration() called');
-
         $site_id = get_option('surefeedback_id');
         $parent_url = get_option('surefeedback_parent_url');
 
         if (empty($site_id) || empty($parent_url)) {
-            error_log('SureFeedback: Missing site ID or parent URL');
             return [
                 'success' => false,
                 'message' => 'Missing site configuration'
@@ -252,19 +233,14 @@ class SaasClientService
             'admin_email' => get_option('admin_email')
         ];
 
-        error_log('SureFeedback: Sending verification data: ' . print_r($verification_data, true));
-
         $response = $this->make_api_request('verify-script-integration', $verification_data, 'POST');
 
         if (is_wp_error($response)) {
-            error_log('SureFeedback: Script verification failed: ' . $response->get_error_message());
             return [
                 'success' => false,
                 'message' => $response->get_error_message()
             ];
         }
-
-        error_log('SureFeedback: Script verification successful: ' . print_r($response, true));
 
         // Update local options based on response
         if (isset($response['access_token'])) {
@@ -354,7 +330,6 @@ class SaasClientService
             ];
 
         } catch (\Exception $e) {
-            error_log('SureFeedback: Connection error: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => $e->getMessage()
@@ -412,7 +387,6 @@ class SaasClientService
             ];
 
         } catch (\Exception $e) {
-            error_log('SureFeedback: Disconnection error: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => $e->getMessage()
@@ -450,8 +424,6 @@ class SaasClientService
         } elseif (!empty($data) && $method === 'GET') {
             $url = add_query_arg($data, $url);
         }
-
-        error_log("SureFeedback: Making {$method} request to {$url}");
 
         $response = wp_remote_request($url, $args);
 
@@ -508,7 +480,6 @@ class SaasClientService
 
         if ($retry_count >= $this->max_retries) {
             update_option('surefeedback_verification_status', 'failed');
-            error_log('SureFeedback: Max verification retries reached');
         } else {
             // Schedule retry with exponential backoff
             $delay = min(300 * pow(2, $retry_count - 1), 3600);

@@ -37,7 +37,6 @@ const Connected = () => {
         setErrorMessage(result.error || __('Failed to disconnect site. Please try again.', 'surefeedback'));
       }
     } catch (error) {
-      console.error('Disconnect error:', error);
       setDisconnectStatus('error');
       setErrorMessage(__('Network error occurred. Please try again.', 'surefeedback'));
     } finally {
@@ -83,7 +82,7 @@ const Connected = () => {
         >
           <div className="grid grid-cols-2 gap-y-3 text-left">
             <span className="font-medium">Connection Site:</span>
-            <span className="text-gray-700">{window.sureFeedbackAdmin.connection.site_data.site_url}</span>
+            <span className="text-gray-700">{window.sureFeedbackAdmin?.connection?.site_data?.site_url || 'Unknown'}</span>
             <span className="font-medium">Status:</span>
             <span className="flex items-center gap-1 text-green-600 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium w-fit">
               <CheckCircle size={14} />

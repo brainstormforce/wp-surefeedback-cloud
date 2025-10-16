@@ -465,4 +465,151 @@ class ConnectionController extends Controller
             'limit' => ini_get('memory_limit')
         ];
     }
+
+    /**
+     * Reset site connection completely
+     * This removes all SureFeedback data from the WordPress database
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function reset(WP_REST_Request $request)
+    {
+        try {
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
+            
+            // Notify parent site about disconnection (if connected)
+            if ($this->connectionRepository->isConnected()) {
+                $this->notifyParentSiteDisconnection();
+            }
+            
+            // Clear all connection data
+            $this->connectionRepository->clearConnectionData();
+            
+            // Clear all plugin settings
+            $this->settingsRepository->resetSettings('all');
+            
+            // Clear any cached data
+            wp_cache_delete('surefeedback_connection_status');
+            wp_cache_delete('surefeedback_settings');
+            
+            // Clear any transients
+            delete_transient('surefeedback_connection_check');
+            delete_transient('surefeedback_verification_status');
+            
+            $this->logInfo('Site connection reset completely');
+            
+            return $this->success([
+                'message' => 'Site connection reset successfully',
+                'connected' => false,
+                'reset_at' => current_time('mysql'),
+                'status' => 'reset'
+            ]);
+            
+        } catch (\Exception $e) {
+            $this->logError('Reset error: ' . $e->getMessage());
+            return $this->error('Failed to reset site connection', 500);
+        }
+    }
+
+    /**
+     * Handle webhook from SureFeedback API
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public function webhook(WP_REST_Request $request): WP_REST_Response
+    {
+        try {
+            $data = $request->get_json_params();
+            
+            if (empty($data)) {
+                $data = $request->get_params();
+            }
+
+            $this->logInfo('Webhook received', ['data' => $data]);
+
+            // Validate required fields
+            if (empty($data['success']) || empty($data['site_token']) || empty($data['site_id'])) {
+                $this->logError('Webhook missing required fields', ['received_data' => $data]);
+                return $this->error('Missing required webhook data', 400);
+            }
+
+            // Check if this is a successful connection
+            if ($data['success'] === '1' || $data['success'] === 1 || $data['success'] === true) {
+                // Save connection data
+                update_option('surefeedback_connection_status', 'connected');
+                update_option('surefeedback_id', sanitize_text_field($data['site_id']));
+                update_option('surefeedback_access_token', sanitize_text_field($data['site_token']));
+                
+                // Save additional fields from the API response
+                if (!empty($data['script_token'])) {
+                    update_option('surefeedback_script_token', sanitize_text_field($data['script_token']));
+                }
+                
+                if (!empty($data['parent_url'])) {
+                    update_option('surefeedback_parent_url', esc_url_raw($data['parent_url']));
+                }
+                
+                if (!empty($data['organization_id'])) {
+                    update_option('surefeedback_organization_id', sanitize_text_field($data['organization_id']));
+                }
+                
+                if (!empty($data['site_name'])) {
+                    update_option('surefeedback_site_name', sanitize_text_field($data['site_name']));
+                }
+                
+                if (!empty($data['domain'])) {
+                    update_option('surefeedback_domain', esc_url_raw($data['domain']));
+                }
+
+                // Save API URL from environment
+                $base_api_url = surefeedback_get_base_api_url();
+                update_option('surefeedback_api_url', $base_api_url);
+
+                // Enable widget by default
+                update_option('surefeedback_widget_enabled', true);
+                
+                // Update last verification time
+                update_option('surefeedback_last_verification', current_time('mysql'));
+                update_option('surefeedback_verification_status', 'verified');
+
+                // Clear any cached data
+                wp_cache_delete('surefeedback_connection_status');
+                wp_cache_delete('surefeedback_settings');
+                delete_transient('surefeedback_connection_check');
+
+                $this->logInfo('Webhook processed successfully - site connected', [
+                    'site_id' => $data['site_id'],
+                    'organization_id' => $data['organization_id'] ?? null,
+                    'domain' => $data['domain'] ?? null
+                ]);
+
+                return $this->success([
+                    'message' => 'Webhook processed successfully',
+                    'connected' => true,
+                    'site_id' => $data['site_id'],
+                    'processed_at' => current_time('mysql')
+                ]);
+            } else {
+                $this->logError('Webhook indicated failure', ['webhook_data' => $data]);
+                return $this->error('Webhook indicated connection failure', 400);
+            }
+
+        } catch (\Exception $e) {
+            $this->logError('Webhook processing error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->get_params()
+            ]);
+            return $this->error('Failed to process webhook', 500);
+        }
+    }
 }

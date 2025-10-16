@@ -375,8 +375,6 @@ abstract class Controller
     {
         if ($this->logger) {
             $this->logger->log('error', $message, $context);
-        } else {
-            error_log('[SureFeedback] ' . $message);
         }
     }
 
@@ -393,10 +391,6 @@ abstract class Controller
             $nonce = $request->get_param('_wpnonce');
         }
 
-        // Debug logging
-        error_log('SureFeedback: Nonce validation - Nonce: ' . ($nonce ?: 'not provided'));
-        error_log('SureFeedback: User authenticated: ' . (is_user_logged_in() ? 'yes' : 'no'));
-        
         if (!$nonce) {
             return $this->error(__('Nonce not provided', 'surefeedback'), null, 403);
         }
@@ -408,9 +402,7 @@ abstract class Controller
         if (!$nonce_valid) {
             $nonce_valid = wp_verify_nonce($nonce, 'wp_json');
         }
-        
-        error_log('SureFeedback: Nonce valid: ' . ($nonce_valid ? 'yes' : 'no'));
-        
+
         if (!$nonce_valid) {
             return $this->error(__('Invalid nonce', 'surefeedback'), null, 403);
         }

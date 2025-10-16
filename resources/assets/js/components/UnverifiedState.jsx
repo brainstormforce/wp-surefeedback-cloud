@@ -1,5 +1,7 @@
 import React from "react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
 import { __ } from "@wordpress/i18n";
 
 const UnverifiedState = () => {
@@ -39,26 +41,24 @@ const UnverifiedState = () => {
   };
 
   return (
-    <div className="flex justify-center items-start min-h-screen">
-      <div className="bg-white shadow-md rounded-2xl p-8 max-w-lg w-full text-center">
-        <div className="text-3xl mb-3">⚠️</div>
-        <div className="flex flex-col items-center justify-center">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+    <div className="flex justify-center items-center min-h-screen bg-background p-4">
+      <Card className="shadow-sm text-center max-w-md w-full">
+        <CardContent className="space-y-4 p-6">
+          <AlertTriangle className="mx-auto text-yellow-600 h-8 w-8" />
+          <h2 className="text-xl font-semibold text-foreground">
             {getTitle()}
           </h2>
-          <p className="text-gray-500 mb-6 text-sm w-80 text-center">
+          <p className="text-sm text-muted-foreground">
             {getDescription()}
           </p>
-        </div>
-        <div className="flex justify-center">
-          <Button 
-            variant="primary"
+          <Button
+            size="default"
             onClick={handleAction}
           >
             {getButtonText()}
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

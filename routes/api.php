@@ -36,8 +36,12 @@ $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($rout
     $router->post('verify', [ConnectionController::class, 'verify']);
     $router->post('connect', [ConnectionController::class, 'connect']);
     $router->delete('disconnect', [ConnectionController::class, 'disconnect']);
+    $router->post('reset', [ConnectionController::class, 'reset']);
     $router->get('health', [ConnectionController::class, 'health']);
 });
+
+// Webhook endpoint for SureFeedback API callbacks
+$router->post('webhook', [ConnectionController::class, 'webhook']);
 
 // Settings management endpoints
 $router->group(['prefix' => 'settings', 'namespace' => 'Api'], function ($router) {

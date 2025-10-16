@@ -7,14 +7,14 @@ import { authenticateRedirect } from "@/helpers/auth";
 
 const NotConnected = ({ setIsStarted }) => {
   return (
-    <div className="flex justify-center items-start bg-muted/10" style={{minHeight: 'calc(100vh - 46px)', padding: '18px'}}>
-      <Card className="w-full max-w-[38rem] text-center shadow border border-gray-200 flex flex-col justify-center items-center" style={{minHeight: '350px'}}>
+    <div className="flex justify-center items-center min-h-screen bg-background p-4">
+      <Card className="shadow-sm text-center max-w-xl w-full">
         <CardHeader>
-          <XCircle className="mx-auto text-destructive w-10 h-10 mb-2" />
-          <CardTitle className="text-xl font-semibold text-gray-900">
+          <XCircle className="mx-auto text-destructive h-10 w-10" />
+          <CardTitle className="text-xl font-semibold text-foreground mt-3">
             {__("SureFeedback Not Connected!", "surefeedback")}
           </CardTitle>
-          <CardDescription className="text-gray-500 mt-1">
+          <CardDescription className="text-muted-foreground mt-2">
             {__(
               'Click "Connect Website" to authorize this website with SureFeedback.',
               "surefeedback"
@@ -22,10 +22,9 @@ const NotConnected = ({ setIsStarted }) => {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="flex justify-center mt-2">
+        <CardContent className="flex justify-center pb-6">
           <Button
             onClick={() => authenticateRedirect()}
-            className="px-6"
             size="default"
           >
             {__("Connect Website", "surefeedback")}

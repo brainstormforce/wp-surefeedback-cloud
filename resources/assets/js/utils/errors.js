@@ -185,13 +185,11 @@ export class ErrorHandler {
     setupGlobalErrorHandling() {
         // Handle unhandled promise rejections
         window.addEventListener('unhandledrejection', (event) => {
-            console.error('Unhandled promise rejection:', event.reason);
             this.handleError(event.reason);
         });
 
         // Handle general JavaScript errors
         window.addEventListener('error', (event) => {
-            console.error('JavaScript error:', event.error);
             this.handleError(event.error);
         });
     }
@@ -229,7 +227,7 @@ export class ErrorHandler {
             try {
                 listener(error, context);
             } catch (listenerError) {
-                console.error('Error in error listener:', listenerError);
+                // Error handled silently
             }
         });
     }
@@ -259,8 +257,6 @@ export class ErrorHandler {
             Object.assign(errorDetails, error.toObject());
         }
 
-        console.error('SureFeedback Error:', errorDetails);
-
         // Send to logging service if available
         this.sendToLoggingService(errorDetails);
     }
@@ -288,7 +284,7 @@ export class ErrorHandler {
                 });
             }
         } catch (loggingError) {
-            console.error('Failed to send error to logging service:', loggingError);
+            // Error handled silently
         }
     }
 

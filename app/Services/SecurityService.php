@@ -463,11 +463,6 @@ class SecurityService
             'data' => $data
         ];
 
-        // Log to WordPress debug.log if WP_DEBUG is enabled
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('SureFeedback Security Event: ' . wp_json_encode($log_data));
-        }
-
         // Store in database for audit trail
         $this->storeSecurityLog($log_data);
     }

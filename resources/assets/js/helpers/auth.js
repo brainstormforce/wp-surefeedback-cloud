@@ -6,15 +6,14 @@ export const authenticateRedirect = () => {
   const { sureFeedbackAdmin } = window;
   
   if (!sureFeedbackAdmin || !sureFeedbackAdmin.connection) {
-    console.error('SureFeedback admin data or connection info not available');
     return;
   }
 
   const { connection } = sureFeedbackAdmin;
-  
+
   // Generate a state token for security
   const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  
+
   // Build connection URL parameters following the PHP pattern
   const params = new URLSearchParams({
     source: 'wordpress',
@@ -46,7 +45,6 @@ export const reconnectSite = () => {
   const { sureFeedbackAdmin } = window;
   
   if (!sureFeedbackAdmin || !sureFeedbackAdmin.connection) {
-    console.error('SureFeedback admin data or connection info not available');
     return;
   }
 
@@ -88,7 +86,6 @@ export const disconnectSite = async () => {
   const { sureFeedbackAdmin } = window;
   
   if (!sureFeedbackAdmin) {
-    console.error('SureFeedback admin data not available');
     return { success: false, error: 'Admin data not available' };
   }
 
@@ -98,7 +95,6 @@ export const disconnectSite = async () => {
   const apiUrl = sureFeedbackAdmin.api_url || 'https://app.surefeedback.com/api/v1';
 
   if (!siteToken) {
-    console.error('No site token found for disconnection');
     return { success: false, error: 'No site token found' };
   }
 
@@ -141,21 +137,15 @@ export const disconnectSite = async () => {
         });
 
         const wpResult = await wpDisconnectResponse.json();
-        
-        if (!wpResult.success) {
-          console.warn('WordPress local data clearing failed:', wpResult.message);
-        }
       } catch (error) {
-        console.warn('Failed to clear WordPress local data:', error);
+        // Failed to clear WordPress local data
       }
 
       return { success: true, data: result.data };
     } else {
-      console.error('Failed to disconnect site:', result.message);
       return { success: false, error: result.message };
     }
   } catch (error) {
-    console.error('Disconnect request failed:', error);
     return { success: false, error: 'Network error occurred' };
   }
 };

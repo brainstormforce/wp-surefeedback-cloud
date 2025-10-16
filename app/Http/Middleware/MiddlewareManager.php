@@ -166,23 +166,20 @@ class MiddlewareManager
         }
 
         if (!class_exists($middlewareClass)) {
-            error_log("SureFeedback: Middleware class not found: {$middlewareClass}");
             return null;
         }
 
         try {
             $instance = new $middlewareClass();
-            
+
             if (!$instance instanceof Middleware) {
-                error_log("SureFeedback: Invalid middleware class: {$middlewareClass}");
                 return null;
             }
 
             $this->instances[$middlewareClass] = $instance;
             return $instance;
-            
+
         } catch (\Exception $e) {
-            error_log("SureFeedback: Failed to instantiate middleware {$middlewareClass}: " . $e->getMessage());
             return null;
         }
     }

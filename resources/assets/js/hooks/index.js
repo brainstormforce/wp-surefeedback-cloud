@@ -156,7 +156,7 @@ export function useConnection(options = {}) {
         }
 
         const interval = setInterval(() => {
-            getStatus(true).catch(console.warn);
+            getStatus(true).catch(() => {});
         }, refreshInterval);
 
         return () => clearInterval(interval);
@@ -424,7 +424,7 @@ export function useDashboard(options = {}) {
         }
 
         const interval = setInterval(() => {
-            refreshAll().catch(console.warn);
+            refreshAll().catch(() => {});
         }, refreshInterval);
 
         return () => clearInterval(interval);

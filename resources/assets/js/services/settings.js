@@ -66,7 +66,6 @@ class SettingsService {
             
             return response;
         } catch (error) {
-            console.error('Settings API error:', error);
             this.handleSettingsError(error, 'Failed to get settings');
             
             // Return fallback settings to prevent UI crashes
@@ -441,25 +440,6 @@ class SettingsService {
             message: error.message || 'Unknown error'
         };
 
-        console.group('SureFeedback Settings Error');
-        console.error('Context:', context);
-        console.error('Error:', error);
-        console.error('Status:', error.status);
-        console.error('Message:', error.message);
-        
-        if (error.status === 403) {
-            console.warn('Authentication issue detected. This may be due to:');
-            console.warn('1. Missing or invalid nonce token');
-            console.warn('2. User not logged in');
-            console.warn('3. Insufficient permissions');
-            
-            // Check if nonce is available
-            const nonce = window.wpApiSettings?.nonce || window.sureFeedbackAdmin?.nonce;
-            console.warn('Available nonce:', nonce ? 'Yes' : 'No');
-        }
-        
-        console.groupEnd();
-        
         this.notifyListeners('settings_error', errorInfo);
     }
 
@@ -492,7 +472,7 @@ class SettingsService {
             try {
                 listener(event, data);
             } catch (error) {
-                console.error('Error in settings listener:', error);
+                // Error handled silently
             }
         });
     }

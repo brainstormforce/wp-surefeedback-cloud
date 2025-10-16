@@ -32,7 +32,6 @@ class CacheManager {
                 localStorage.removeItem(testKey);
                 this.storage = localStorage;
             } catch (error) {
-                console.warn('localStorage not available, using memory cache');
                 this.storage = new MemoryStorage();
             }
         } else {
@@ -68,7 +67,7 @@ class CacheManager {
                 JSON.stringify(item)
             );
         } catch (error) {
-            console.warn('Failed to set cache item:', error);
+            // Error handled silently
         }
     }
 
@@ -94,7 +93,6 @@ class CacheManager {
 
             return item.value;
         } catch (error) {
-            console.warn('Failed to get cache item:', error);
             this.delete(key);
             return null;
         }
@@ -108,7 +106,7 @@ class CacheManager {
         try {
             this.storage.removeItem(this.generateKey(key));
         } catch (error) {
-            console.warn('Failed to delete cache item:', error);
+            // Error handled silently
         }
     }
 
@@ -139,7 +137,7 @@ class CacheManager {
                 this.storage.clear();
             }
         } catch (error) {
-            console.warn('Failed to clear cache:', error);
+            // Error handled silently
         }
     }
 
@@ -181,7 +179,7 @@ class CacheManager {
                 totalSize = this.storage.getStats().totalSize;
             }
         } catch (error) {
-            console.warn('Failed to get cache stats:', error);
+            // Error handled silently
         }
 
         return {
@@ -220,7 +218,7 @@ class CacheManager {
                 this.storage.cleanup();
             }
         } catch (error) {
-            console.warn('Failed to cleanup cache:', error);
+            // Error handled silently
         }
     }
 
@@ -239,7 +237,6 @@ class CacheManager {
                 value = await callback();
                 this.set(key, value, duration);
             } catch (error) {
-                console.warn('Failed to generate cache value:', error);
                 throw error;
             }
         }
@@ -266,7 +263,7 @@ class CacheManager {
                 this.storage.invalidatePattern(pattern);
             }
         } catch (error) {
-            console.warn('Failed to invalidate cache pattern:', error);
+            // Error handled silently
         }
     }
 }

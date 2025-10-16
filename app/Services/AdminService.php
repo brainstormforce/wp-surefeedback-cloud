@@ -222,6 +222,9 @@ class AdminService
             true
         );
 
+        // Get connection data for use in multiple places
+        $connection_data = $this->get_connection_data();
+        
         // Localize script with admin data
         wp_localize_script('surefeedback-admin', 'sureFeedbackAdmin', [
             'apiUrl' => rest_url('surefeedback/v1/'),
@@ -264,7 +267,10 @@ class AdminService
             'presto_player_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/pplayer.svg',
             'suretriggers_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/rocket.svg',
             // Connection data
-            'connection' => $this->get_connection_data()
+            'connection' => $connection_data,
+            // Backward compatibility - add status fields at root level
+            'connection_status' => $connection_data['connected'] ? 'connected' : 'not_connected',
+            'verification_status' => $connection_data['verification_status']
         ]);
 
         // Enqueue WordPress media uploader on settings page
@@ -297,7 +303,6 @@ class AdminService
         $this->current_page = 'settings';
         
         echo '<div class="wrap">';
-        echo '<h1>' . esc_html(get_admin_page_title()) . '</h1>';
         echo '<div id="surefeedback-admin-settings"></div>';
         echo '</div>';
     }
@@ -870,35 +875,79 @@ class AdminService
      */
     private function get_connection_data(): array
     {
-        // Get connection settings from database
+        // Get connection settings from database (use the correct option names saved by webhook)
         $connection_status = get_option('surefeedback_connection_status', 'disconnected');
         $parent_url = get_option('surefeedback_parent_url', '');
-        $site_id = get_option('surefeedback_site_id', '');
+        $site_id = get_option('surefeedback_id', ''); // Use 'surefeedback_id' not 'surefeedback_site_id'
         $access_token = get_option('surefeedback_access_token', '');
+        $verification_status = get_option('surefeedback_verification_status', 'unverified');
         
         // Use environment-aware URLs
         $app_url = surefeedback_get_app_url();
         $api_url = surefeedback_get_api_url();
         
-        $connection_data = [
-            'status' => $connection_status,
-            'app_url' => $app_url,
-            'api_url' => $api_url,
-            'callback_url' => admin_url('admin.php?page=surefeedback'),
-            'environment' => surefeedback_get_environment(),
+        // Build site data (needed for both connected and initial connection states)
+        $site_data = [
+            'site_name' => get_bloginfo('name'),
+            'domain' => home_url(),
+            'site_url' => home_url(), // Always include site_url to match Next.js types
+            'wp_version' => get_bloginfo('version'),
+            'plugin_version' => SUREFEEDBACK_VERSION,
+            'admin_email' => get_option('admin_email'),
+            'language' => get_locale(),
+            'timezone' => get_option('timezone_string') ?: 'UTC',
+            'theme' => get_option('current_theme') ?: wp_get_theme()->get('Name'),
+            'active_plugins' => $this->get_active_plugins_list()
         ];
 
-        // If connected, add site data
+        // Add site_id if connected (for internal use)
         if ($connection_status === 'connected' && !empty($site_id)) {
-            $connection_data['site_data'] = [
-                'site_url' => home_url(),
-                'site_name' => get_bloginfo('name'),
-                'site_id' => $site_id,
-                'plugin_version' => SUREFEEDBACK_VERSION,
-                'wp_version' => get_bloginfo('version'),
-            ];
+            $site_data['site_id'] = $site_id;
         }
 
+        // Determine if connected (for JavaScript compatibility)
+        $is_connected = ($connection_status === 'connected');
+        $is_verified = ($verification_status === 'verified');
+
+        $connection_data = [
+            'connected' => $is_connected, // Add this for JavaScript compatibility
+            'status' => $connection_status,
+            'verified' => $is_verified,
+            'verification_status' => $verification_status,
+            'app_url' => $app_url,
+            'api_url' => $api_url,
+            'parent_url' => $parent_url,
+            'callback_url' => admin_url('admin.php?page=surefeedback'),
+            'environment' => surefeedback_get_environment(),
+            'site_data' => $site_data,
+            'site_id' => $site_id,
+            'access_token' => $access_token ? substr($access_token, 0, 10) . '...' : null, // Partial token for debugging
+        ];
+
         return $connection_data;
+    }
+
+    /**
+     * Get list of active plugins
+     *
+     * @return array
+     */
+    private function get_active_plugins_list(): array
+    {
+        // Get active plugins
+        $active_plugins = get_option('active_plugins', []);
+        
+        // Extract plugin folder/file names
+        $plugin_names = [];
+        foreach ($active_plugins as $plugin) {
+            // Extract plugin folder name (e.g., "surefeedback/surefeedback.php" -> "surefeedback")
+            $plugin_parts = explode('/', $plugin);
+            if (isset($plugin_parts[0])) {
+                $plugin_names[] = $plugin_parts[0];
+            }
+        }
+        
+        // Remove duplicates and return
+        return array_unique($plugin_names);
     }
 }

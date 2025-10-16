@@ -474,7 +474,7 @@ class AdminService {
             try {
                 listener(event, data);
             } catch (error) {
-                console.error('Error in admin listener:', error);
+                // Error handled silently
             }
         });
     }

@@ -33,9 +33,6 @@ const PermissionsView = () => {
             ...prev,
             [key]: value
         }));
-        
-        // Save to WordPress options (you can implement the API call here)
-        console.log('Saving permission:', key, value);
     };
     
     const renderUserRoles = () => (

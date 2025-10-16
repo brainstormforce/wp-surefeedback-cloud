@@ -241,15 +241,10 @@ class Application
         $routesFile = $this->basePath . '/routes/api.php';
         if (file_exists($routesFile)) {
             require $routesFile;
-        } else {
-            error_log('SureFeedback: Routes file not found at ' . $routesFile);
         }
 
         // Register all routes with WordPress
         $router->register();
-
-        // Debug: Log that routes were registered
-        error_log('SureFeedback: Registered ' . count($router->routes) . ' routes');
     }
 
     /**

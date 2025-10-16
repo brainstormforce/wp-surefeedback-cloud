@@ -50,18 +50,8 @@ class ApiGateway {
                      window.sureFeedbackAdmin?.nonce ||
                      window.sureFeedbackAdmin?.rest_nonce || '';
 
-        console.log('SureFeedback: Initializing auth with nonce:', nonce ? 'Found' : 'Not found');
-        console.log('Available nonce sources:', {
-            wpApiSettings: window.wpApiSettings?.nonce ? 'Available' : 'Missing',
-            adminNonce: window.sureFeedbackAdmin?.nonce ? 'Available' : 'Missing',
-            restNonce: window.sureFeedbackAdmin?.rest_nonce ? 'Available' : 'Missing'
-        });
-        console.log('Dev server mode:', this.isDevServer());
-
         if (nonce) {
             this.setAuthToken(nonce);
-        } else {
-            console.warn('SureFeedback: No valid nonce found for API authentication');
         }
     }
 

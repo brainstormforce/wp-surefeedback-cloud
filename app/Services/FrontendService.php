@@ -130,37 +130,78 @@ class FrontendService
     {
         $site_id = get_option('surefeedback_id');
         $access_token = get_option('surefeedback_access_token');
-        $parent_url = get_option('surefeedback_parent_url');
-        $script_url = get_option('surefeedback_script_url');
+        $api_url = get_option('surefeedback_api_url');
+        $script_token = get_option('surefeedback_script_token', $access_token);
 
-        // Use script URL if available, otherwise construct from parent URL
-        if (empty($script_url) && !empty($parent_url)) {
-            $script_url = trailingslashit($parent_url) . 'assets/widget.js';
+        // Get environment-aware base API URL
+        if (empty($api_url)) {
+            $api_url = surefeedback_get_base_api_url();
         }
 
-        if (empty($script_url)) {
-            error_log('SureFeedback: No script URL available for widget injection');
+        if (empty($script_token)) {
             return;
         }
 
-        $widget_config = [
-            'siteId' => $site_id,
-            'accessToken' => $access_token,
-            'apiUrl' => rest_url('surefeedback/v1/'),
-            'parentUrl' => $parent_url,
-            'currentUrl' => get_permalink(),
-            'pageTitle' => get_the_title(),
-            'pageId' => get_the_ID(),
-            'settings' => $this->get_widget_settings(),
-            'user' => $this->get_current_user_data(),
-            'nonce' => wp_create_nonce('wp_rest')
-        ];
+        // Construct widget loader URL
+        $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
+
+        // Get debug mode setting
+        $debug_mode = get_option('surefeedback_debug_mode', false) ? 'true' : 'false';
+
+        // Get restricted URL and required token if needed
+        $restricted_url = null;
+        $required_token = null;
+
+        // Check if user is logged in and has permission
+        $user_allowed = $this->user_can_leave_feedback();
+        $current_user = $this->get_current_user_data();
 
         echo "\n<!-- SureFeedback Widget -->\n";
-        echo '<script type="text/javascript">';
-        echo 'window.SureFeedbackConfig = ' . wp_json_encode($widget_config) . ';';
-        echo '</script>';
-        echo '<script type="text/javascript" src="' . esc_url($script_url) . '" async defer></script>';
+        echo "<!-- Site ID: " . esc_html($site_id) . ", Token: " . esc_html(substr($script_token, 0, 10)) . "..., API: " . esc_html($api_url) . " -->\n";
+        ?>
+        <script>
+        // SureFeedback Integration Script
+        (function (d, t, g, defaultToken, baseUrl, debug, restrictedUrl, requiredToken) {
+          'use strict';
+          var sf = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+          
+          sf.type = 'text/javascript';
+          sf.async = true;
+          sf.defer = true;
+          sf.charset = 'UTF-8';
+          sf.src = g + '?v=' + (new Date()).getTime();
+          sf.setAttribute('data-default-token', defaultToken);
+          sf.setAttribute('data-base-url', baseUrl || '<?php echo esc_js($api_url); ?>');
+          sf.setAttribute('data-debug', debug || 'false');
+          sf.setAttribute('data-mode', 'wordpress');
+          sf.setAttribute('data-platform', 'wordpress');
+          
+          // Add WordPress-specific configuration
+          sf.setAttribute('data-site-id', '<?php echo esc_js($site_id); ?>');
+          sf.setAttribute('data-current-url', '<?php echo esc_js(get_permalink()); ?>');
+          sf.setAttribute('data-page-title', '<?php echo esc_js(get_the_title()); ?>');
+          sf.setAttribute('data-page-id', '<?php echo esc_js(get_the_ID()); ?>');
+          
+          <?php if ($user_allowed && $current_user): ?>
+          // Add user data if authenticated
+          sf.setAttribute('data-user-name', '<?php echo esc_js($current_user['name']); ?>');
+          sf.setAttribute('data-user-email', '<?php echo esc_js($current_user['email']); ?>');
+          sf.setAttribute('data-user-id', '<?php echo esc_js($current_user['id']); ?>');
+          <?php endif; ?>
+          
+          // Optional: Add restricted URL and required token if provided
+          if (restrictedUrl) {
+            sf.setAttribute('data-restricted-url', restrictedUrl);
+          }
+          if (requiredToken) {
+            sf.setAttribute('data-required-token', requiredToken);
+          }
+          
+          s.parentNode.insertBefore(sf, s);
+        })(document, 'script', '<?php echo esc_js($widget_loader_url); ?>', '<?php echo esc_js($script_token); ?>', '<?php echo esc_js($api_url); ?>', '<?php echo esc_js($debug_mode); ?>', <?php echo $restricted_url ? "'" . esc_js($restricted_url) . "'" : 'null'; ?>, <?php echo $required_token ? "'" . esc_js($required_token) . "'" : 'null'; ?>);
+        </script>
+        <?php
         echo "\n<!-- /SureFeedback Widget -->\n";
     }
 

@@ -109,10 +109,9 @@ class TokenManager {
                     return this.token;
                 }
             }
-            
+
             throw new Error('Failed to refresh token');
         } catch (error) {
-            console.error('Token refresh failed:', error);
             this.clearToken();
             throw error;
         }
@@ -128,7 +127,7 @@ class TokenManager {
         this.refreshTimer = setInterval(() => {
             if (this.hasToken()) {
                 this.refreshToken().catch(error => {
-                    console.error('Auto token refresh failed:', error);
+                    // Error handled silently
                 });
             }
         }, refreshInterval);
@@ -173,7 +172,7 @@ class TokenManager {
             try {
                 listener(event, data);
             } catch (error) {
-                console.error('Error in token listener:', error);
+                // Error handled silently
             }
         });
     }
@@ -323,7 +322,7 @@ class AuthManager {
             try {
                 listener(event, data);
             } catch (error) {
-                console.error('Error in auth listener:', error);
+                // Error handled silently
             }
         });
     }
@@ -399,7 +398,6 @@ export const authUtils = {
      */
     showUnauthorized() {
         // Implementation depends on your notification system
-        console.error('You are not authorized to perform this action');
     }
 };
 

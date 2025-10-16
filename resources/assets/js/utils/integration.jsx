@@ -39,7 +39,6 @@ export function ApiProvider({ children }) {
             setIsInitialized(true);
         } catch (err) {
             setError(err);
-            console.error('Failed to initialize API services:', err);
         }
 
         // Cleanup on unmount
