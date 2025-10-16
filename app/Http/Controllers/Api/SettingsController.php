@@ -44,12 +44,25 @@ class SettingsController extends Controller
     public function index(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            // First check for admin capability - this handles cookie-based auth
+            if (current_user_can('manage_options')) {
+                // User is authenticated via WordPress cookies and has admin rights
+                // No additional nonce validation needed for GET requests
+                $this->logInfo('Settings access granted via cookie authentication');
+            } else {
+                // Fallback: Check if user is logged in at all
+                if (!is_user_logged_in()) {
+                    return $this->error(__('Authentication required', 'surefeedback'), null, 401);
+                }
+                
+                // User is logged in but doesn't have manage_options capability
+                return $this->error(__('Insufficient permissions. Administrator access required.', 'surefeedback'), null, 403);
+            }
             
             $settings = [
                 'general' => $this->settingsRepository->getGeneralSettings(),
                 'white_label' => $this->settingsRepository->getWhiteLabelSettings(),
+                'availableRoles' => $this->getAvailableRoles(),
             ];
             
             $this->logInfo('Settings retrieved');
@@ -71,8 +84,15 @@ class SettingsController extends Controller
     public function update(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             // Create and validate request
             $updateRequest = UpdateSettingsRequest::createFromWpRequest($request);
@@ -112,8 +132,15 @@ class SettingsController extends Controller
     public function general(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             $settings = $this->settingsRepository->getGeneralSettings();
             
@@ -134,8 +161,15 @@ class SettingsController extends Controller
     public function updateGeneral(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             // Create and validate request
             $updateRequest = UpdateSettingsRequest::createFromWpRequest($request);
@@ -169,8 +203,15 @@ class SettingsController extends Controller
     public function whiteLabel(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             $settings = $this->settingsRepository->getWhiteLabelSettings();
             
@@ -191,8 +232,15 @@ class SettingsController extends Controller
     public function updateWhiteLabel(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             // Create and validate request
             $whiteLabelRequest = WhiteLabelRequest::createFromWpRequest($request);
@@ -215,5 +263,29 @@ class SettingsController extends Controller
             $this->logError('White label settings update error: ' . $e->getMessage());
             return $this->error('Failed to update white label settings', 500);
         }
+    }
+    
+    /**
+     * Get available WordPress roles
+     *
+     * @return array
+     */
+    private function getAvailableRoles(): array
+    {
+        global $wp_roles;
+        
+        if (!isset($wp_roles)) {
+            $wp_roles = new \WP_Roles();
+        }
+        
+        $roles = [];
+        foreach ($wp_roles->roles as $role_key => $role_data) {
+            $roles[] = [
+                'name' => $role_key,
+                'label' => $role_data['name']
+            ];
+        }
+        
+        return $roles;
     }
 }

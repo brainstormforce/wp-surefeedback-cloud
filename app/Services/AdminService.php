@@ -136,18 +136,6 @@ class AdminService
 
         $this->menu_pages['dashboard'] = $dashboard_hook;
 
-        // Settings submenu
-        $settings_hook = add_submenu_page(
-            $this->menu_slug,
-            __('Settings', 'surefeedback'),
-            __('Settings', 'surefeedback'),
-            'manage_options',
-            $this->menu_slug . '-settings',
-            [$this, 'render_settings_page']
-        );
-
-        $this->menu_pages['settings'] = $settings_hook;
-
         // Connection submenu
         $connection_hook = add_submenu_page(
             $this->menu_slug,
@@ -160,17 +148,17 @@ class AdminService
 
         $this->menu_pages['connection'] = $connection_hook;
 
-        // Tools submenu
-        $tools_hook = add_submenu_page(
+        // Settings submenu
+        $settings_hook = add_submenu_page(
             $this->menu_slug,
-            __('Tools', 'surefeedback'),
-            __('Tools', 'surefeedback'),
+            __('Settings', 'surefeedback'),
+            __('Settings', 'surefeedback'),
             'manage_options',
-            $this->menu_slug . '-tools',
-            [$this, 'render_tools_page']
+            $this->menu_slug . '-settings',
+            [$this, 'render_settings_page']
         );
 
-        $this->menu_pages['tools'] = $tools_hook;
+        $this->menu_pages['settings'] = $settings_hook;
 
         // Add page-specific hooks
         foreach ($this->menu_pages as $page => $hook) {
@@ -213,28 +201,70 @@ class AdminService
             SUREFEEDBACK_VERSION
         );
 
+        // Enqueue pre-init script first
+        wp_enqueue_script(
+            'surefeedback-pre-init',
+            SUREFEEDBACK_PLUGIN_URL . 'resources/assets/js/pre-init.js',
+            [],
+            SUREFEEDBACK_VERSION,
+            false // Load in head to run early
+        );
+
+        // Ensure wp-api script is loaded (provides wpApiSettings)
+        wp_enqueue_script('wp-api');
+
         // Enqueue admin scripts
         wp_enqueue_script(
             'surefeedback-admin',
             SUREFEEDBACK_PLUGIN_URL . 'assets/dist/admin.js',
-            ['wp-element', 'wp-api', 'wp-i18n'],
+            ['wp-element', 'wp-api', 'wp-i18n', 'surefeedback-pre-init'],
             SUREFEEDBACK_VERSION,
             true
         );
 
         // Localize script with admin data
-        wp_localize_script('surefeedback-admin', 'surefeedbackAdmin', [
+        wp_localize_script('surefeedback-admin', 'sureFeedbackAdmin', [
             'apiUrl' => rest_url('surefeedback/v1/'),
+            'rest_url' => rest_url(),
+            'rest_nonce' => wp_create_nonce('wp_rest'),
             'nonce' => wp_create_nonce('wp_rest'),
+            'ajax_url' => admin_url('admin-ajax.php'),
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'ajaxNonce' => wp_create_nonce('surefeedback_admin'),
+            'installer_nonce' => wp_create_nonce('surefeedback_installer'),
             'currentUser' => wp_get_current_user(),
             'pluginUrl' => SUREFEEDBACK_PLUGIN_URL,
+            'admin_url' => admin_url(),
             'adminUrl' => admin_url('admin.php?page=' . $this->menu_slug),
             'settings' => $this->get_admin_settings(),
             'strings' => $this->get_localized_strings(),
             'capabilities' => $this->get_user_capabilities(),
-            'environment' => $this->get_environment_info()
+            'environment' => $this->get_environment_info(),
+            // Add image URLs for components
+            'icon_url' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/cropped-projecthuddle-favicon-1-192x192.svg',
+            'welcome_url' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/welcome.png',
+            'welcome_background' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/welcome_background.png',
+            'surefeedback_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/surefeedback.svg',
+            'welcome' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/welcome.png',
+            'thumbs' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/thumbs.svg',
+            'rocket' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/rocket.svg',
+            'admin' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/admin.svg',
+            'docs' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/docs.svg',
+            'footer' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/footer.png',
+            'connection_url' => SUREFEEDBACK_PLUGIN_URL . 'assets/connection.svg',
+            'configure' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/configure_banner.png',
+            'settings_url' => SUREFEEDBACK_PLUGIN_URL . 'assets/settings.svg',
+            'settings_selected_url' => SUREFEEDBACK_PLUGIN_URL . 'assets/settings_unselected.svg',
+            'label_url' => SUREFEEDBACK_PLUGIN_URL . 'assets/label.svg',
+            'label_selected_url' => SUREFEEDBACK_PLUGIN_URL . 'assets/label_selected.svg',
+            // Plugin icons for ExtendWebsite
+            'surerank_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/surerank.svg',
+            'surecart_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/surecart.svg',
+            'sureforms_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/sureforms.svg',
+            'presto_player_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/pplayer.svg',
+            'suretriggers_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/rocket.svg',
+            // Connection data
+            'connection' => $this->get_connection_data()
         ]);
 
         // Enqueue WordPress media uploader on settings page
@@ -252,9 +282,8 @@ class AdminService
     {
         $this->current_page = 'dashboard';
         
-        echo '<div class="wrap">';
-        echo '<h1>' . esc_html(get_admin_page_title()) . '</h1>';
-        echo '<div id="surefeedback-admin-dashboard"></div>';
+        echo '<div class="wrap" style="margin: 0; padding: 0; max-width: none;">';
+        echo '<div id="surefeedback-admin-dashboard" style="margin: 0; padding: 0; width: 100%;"></div>';
         echo '</div>';
     }
 
@@ -283,23 +312,7 @@ class AdminService
         $this->current_page = 'connection';
         
         echo '<div class="wrap">';
-        echo '<h1>' . esc_html(get_admin_page_title()) . '</h1>';
         echo '<div id="surefeedback-admin-connection"></div>';
-        echo '</div>';
-    }
-
-    /**
-     * Render tools page
-     *
-     * @return void
-     */
-    public function render_tools_page(): void
-    {
-        $this->current_page = 'tools';
-        
-        echo '<div class="wrap">';
-        echo '<h1>' . esc_html(get_admin_page_title()) . '</h1>';
-        echo '<div id="surefeedback-admin-tools"></div>';
         echo '</div>';
     }
 
@@ -310,9 +323,7 @@ class AdminService
      */
     public function admin_page_load(): void
     {
-        // Add screen options, help tabs, etc.
-        $this->add_screen_options();
-        $this->add_help_tabs();
+        // Admin page loaded - ready for customizations
     }
 
     /**
@@ -569,7 +580,7 @@ class AdminService
      */
     private function get_menu_icon(): string
     {
-        return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDJDNS41ODEyIDIgMiA1LjU4MTIgMiAxMEMyIDEyLjc2MjYgMy40NDU3NSAxNS4xOTQ2IDUuNjI1IDE2LjU2MjVMNSAxOEg3TDcuNSAxNkg5VjE0SDExVjE2SDEyLjVMMTMgMThIMTVMMTQuMzc1IDE2LjU2MjVDMTYuNTU0MiAxNS4xOTQ2IDE4IDEyLjc2MjYgMTggMTBDMTggNS41ODEyIDE0LjQxODggMiAxMCAyWk03IDhDNy41NTIyOCA4IDggNy41NTIyOCA4IDdDOCA2LjQ0NzcyIDcuNTUyMjggNiA3IDZDNi40NDc3MiA2IDYgNi40NDc3MiA2IDdDNiA3LjU1MjI4IDYuNDQ3NzIgOCA3IDhaTTEzIDhDMTMuNTUyMyA4IDE0IDcuNTUyMjggMTQgN0MxNCA2LjQ0NzcyIDEzLjU1MjMgNiAxMyA2QzEyLjQ0NzcgNiAxMiA2LjQ0NzcyIDEyIDdDMTIgNy41NTIyOCAxMi40NDc3IDggMTMgOFpNMTAgMTJDMTEuMTA0NiAxMiAxMiAxMS4xMDQ2IDEyIDEwSDhDOCAxMS4xMDQ2IDguODk1NDMgMTIgMTAgMTJaIiBmaWxsPSIjOWNhM2FmIi8+Cjwvc3ZnPgo=';
+        return 'data:image/svg+xml;base64,' . base64_encode('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 192 192"><path d="M0 0 C1.31319717 -0.00511093 2.62639435 -0.01022186 3.97938538 -0.01548767 C7.56207495 -0.02881203 11.14465861 -0.02946377 14.72736812 -0.02692437 C17.72672093 -0.02585031 20.7260527 -0.03074906 23.72540098 -0.03552979 C30.80523144 -0.04660201 37.88500883 -0.04707511 44.96484375 -0.04101562 C52.25055248 -0.03497552 59.53606811 -0.04729294 66.82174391 -0.06858569 C73.09461788 -0.08623935 79.36743059 -0.09219718 85.64032847 -0.08894795 C89.37912254 -0.08714113 93.11777881 -0.08971094 96.85655022 -0.10366249 C101.02819101 -0.11864879 105.19944209 -0.10923791 109.37109375 -0.09765625 C110.59786835 -0.10529999 111.82464294 -0.11294373 113.08859253 -0.12081909 C121.50955746 -0.06923806 129.5753935 0.64467483 136.12524414 6.4621582 C136.75172852 6.99196289 137.37821289 7.52176758 138.02368164 8.06762695 C142.7432565 14.10056767 143.19487578 20.66872706 143.17016602 28.02026367 C143.17863556 28.96121887 143.1871051 29.90217407 143.1958313 30.87164307 C143.2191043 33.96185061 143.22022574 37.05155739 143.21899414 40.1418457 C143.22610159 42.30364173 143.23380144 44.46543587 143.24206543 46.62722778 C143.25548803 51.15119678 143.25708897 55.67499132 143.2512207 60.19897461 C143.24532707 65.97798476 143.27591342 71.75615411 143.31633759 77.53500175 C143.34226749 81.99789896 143.34508717 86.46059514 143.34144592 90.92355728 C143.34313223 93.05328611 143.35272726 95.18302471 143.37059021 97.31267929 C143.53279216 119.04047805 143.53279216 119.04047805 137.75024414 126.2746582 C135.39868164 128.52856445 135.39868164 128.52856445 133.12524414 129.8371582 C132.36985352 130.29219727 131.61446289 130.74723633 130.83618164 131.21606445 C127.4764353 132.92110426 124.88638545 133.39284305 121.17599487 133.34539795 C120.23722504 133.33639969 119.2984552 133.32740143 118.33123779 133.31813049 C117.30274719 133.30346237 116.27425659 133.28879425 115.21459961 133.27368164 C112.96483892 133.2509107 110.7150725 133.22870028 108.46530151 133.20697021 C107.26906033 133.19418785 106.07281914 133.18140549 104.84032822 133.16823578 C97.15823235 133.09765969 89.47576179 133.09141761 81.79339409 133.07438278 C75.05286669 133.05684296 68.31390107 133.01556925 61.57397461 132.92163086 C55.04702792 132.83330063 48.52257562 132.80954031 41.99509048 132.82801056 C39.51934288 132.82373724 37.04351638 132.79673466 34.56829453 132.7455368 C19.56799067 132.45058168 9.51592626 133.46996311 -1.76657104 143.92047119 C-2.6278039 144.75891445 -2.6278039 144.75891445 -3.50643539 145.61429596 C-6.30502903 148.27971479 -9.34496355 150.6305367 -12.37475586 153.0246582 C-13.83268555 154.22348633 -13.83268555 154.22348633 -15.32006836 155.4465332 C-18.74780585 157.5854414 -21.23461046 158.08681514 -25.24975586 158.2746582 C-29.26494649 156.75949193 -30.85343939 155.86913291 -33.24975586 152.2746582 C-33.50423145 149.83513355 -33.50423145 149.83513355 -33.51045227 146.88056946 C-33.51753708 145.7605101 -33.52462189 144.64045074 -33.53192139 143.4864502 C-33.52944397 142.25680542 -33.52696655 141.02716064 -33.52441406 139.76025391 C-33.52952499 138.46568771 -33.53463593 137.17112152 -33.53990173 135.83732605 C-33.55330794 132.28333225 -33.55386823 128.7294447 -33.55133843 125.17543054 C-33.55026902 122.20605812 -33.55515174 119.23670722 -33.55994385 116.26733941 C-33.57104634 109.25714873 -33.57147342 102.24701163 -33.56542969 95.23681641 C-33.55939919 88.01537946 -33.57167556 80.7941378 -33.59299976 73.57273418 C-33.61064792 67.36706723 -33.61661174 61.16146225 -33.61336201 54.95577115 C-33.61155287 51.25214566 -33.61414759 47.54865922 -33.62807655 43.84505653 C-33.64305008 39.70858853 -33.63365673 35.57251405 -33.62207031 31.43603516 C-33.62971405 30.21651154 -33.63735779 28.99698792 -33.64523315 27.74050903 C-33.59843974 20.17438663 -33.18326517 13.91984729 -28.26928711 7.8137207 C-27.5409668 7.18208008 -26.81264648 6.55043945 -26.06225586 5.8996582 C-25.34682617 5.25254883 -24.63139648 4.60543945 -23.89428711 3.9387207 C-16.65669055 -0.61551288 -8.24981533 -0.01663269 0 0 Z M5.81274414 55.7746582 C3.70947907 58.32407041 2.8806229 59.82734416 3.14477539 63.16137695 C6.35452435 74.36443621 16.78565764 83.97114648 26.36743164 89.99731445 C40.28346515 97.45722094 55.13067315 99.36013686 70.31640625 95.03417969 C85.53134976 90.38772336 96.5563142 80.82513781 104.75024414 67.2746582 C106.31454662 64.14605325 106.10651698 61.71862896 105.75024414 58.2746582 C103.08746412 55.04704605 101.52616553 54.36087169 97.37524414 53.8996582 C91.80703014 56.01173937 89.84943932 60.38272015 86.75024414 65.2746582 C81.25650842 73.22896852 73.01961553 77.78167323 63.75024414 80.2746582 C50.88814403 81.81140788 40.16939345 79.86791854 29.37524414 72.4621582 C24.3816814 68.43208371 20.94110528 63.38747635 17.81274414 57.8371582 C15.89331471 54.97557904 15.89331471 54.97557904 12.31274414 54.1496582 C8.72998473 54.02374465 8.72998473 54.02374465 5.81274414 55.7746582 Z " fill="#7C818C" transform="translate(41.249755859375,16.725341796875)"/></svg>');
     }
 
     /**
@@ -652,93 +663,6 @@ class AdminService
     {
         $screen = get_current_screen();
         return $screen && strpos($screen->id, $this->menu_slug) !== false;
-    }
-
-    /**
-     * Add screen options
-     *
-     * @return void
-     */
-    private function add_screen_options(): void
-    {
-        // Add screen options for plugin pages
-        add_screen_option('layout_columns', ['max' => 2, 'default' => 2]);
-    }
-
-    /**
-     * Add help tabs
-     *
-     * @return void
-     */
-    private function add_help_tabs(): void
-    {
-        $screen = get_current_screen();
-        
-        if (!$screen || strpos($screen->id, $this->menu_slug) === false) {
-            return;
-        }
-
-        $screen->add_help_tab([
-            'id' => 'surefeedback_overview',
-            'title' => __('Overview', 'surefeedback'),
-            'content' => $this->get_help_overview()
-        ]);
-
-        $screen->add_help_tab([
-            'id' => 'surefeedback_connection',
-            'title' => __('Connection', 'surefeedback'),
-            'content' => $this->get_help_connection()
-        ]);
-
-        $screen->add_help_tab([
-            'id' => 'surefeedback_troubleshooting',
-            'title' => __('Troubleshooting', 'surefeedback'),
-            'content' => $this->get_help_troubleshooting()
-        ]);
-
-        $screen->set_help_sidebar($this->get_help_sidebar());
-    }
-
-    /**
-     * Get help overview content
-     *
-     * @return string
-     */
-    private function get_help_overview(): string
-    {
-        return '<p>' . esc_html__('SureFeedback allows clients to provide feedback directly on your website using a sticky note-style interface. The feedback is then synced with your parent SureFeedback dashboard for centralized management.', 'surefeedback') . '</p>';
-    }
-
-    /**
-     * Get help connection content
-     *
-     * @return string
-     */
-    private function get_help_connection(): string
-    {
-        return '<p>' . esc_html__('To connect this site to your SureFeedback parent dashboard, you need the parent site URL and a site token. These are provided when you add a new site in your parent dashboard.', 'surefeedback') . '</p>';
-    }
-
-    /**
-     * Get help troubleshooting content
-     *
-     * @return string
-     */
-    private function get_help_troubleshooting(): string
-    {
-        return '<p>' . esc_html__('If you are experiencing connection issues, please check that your parent site URL is correct and that the site token matches what was provided in your parent dashboard.', 'surefeedback') . '</p>';
-    }
-
-    /**
-     * Get help sidebar content
-     *
-     * @return string
-     */
-    private function get_help_sidebar(): string
-    {
-        return '<p><strong>' . esc_html__('For more information:', 'surefeedback') . '</strong></p>' .
-               '<p><a href="https://surefeedback.com/docs" target="_blank">' . esc_html__('Documentation', 'surefeedback') . '</a></p>' .
-               '<p><a href="https://surefeedback.com/support" target="_blank">' . esc_html__('Support', 'surefeedback') . '</a></p>';
     }
 
     /**
@@ -937,5 +861,44 @@ class AdminService
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Get connection data for frontend
+     *
+     * @return array
+     */
+    private function get_connection_data(): array
+    {
+        // Get connection settings from database
+        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
+        $parent_url = get_option('surefeedback_parent_url', '');
+        $site_id = get_option('surefeedback_site_id', '');
+        $access_token = get_option('surefeedback_access_token', '');
+        
+        // Use environment-aware URLs
+        $app_url = surefeedback_get_app_url();
+        $api_url = surefeedback_get_api_url();
+        
+        $connection_data = [
+            'status' => $connection_status,
+            'app_url' => $app_url,
+            'api_url' => $api_url,
+            'callback_url' => admin_url('admin.php?page=surefeedback'),
+            'environment' => surefeedback_get_environment(),
+        ];
+
+        // If connected, add site data
+        if ($connection_status === 'connected' && !empty($site_id)) {
+            $connection_data['site_data'] = [
+                'site_url' => home_url(),
+                'site_name' => get_bloginfo('name'),
+                'site_id' => $site_id,
+                'plugin_version' => SUREFEEDBACK_VERSION,
+                'wp_version' => get_bloginfo('version'),
+            ];
+        }
+
+        return $connection_data;
     }
 }

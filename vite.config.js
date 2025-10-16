@@ -12,6 +12,7 @@ export default defineConfig(({ command }) => ({
   },
   build: {
     watch: null,
+    cssCodeSplit: false,
     rollupOptions: {
       input: resolve(fileURLToPath(new URL('.', import.meta.url)), 'resources/assets/js/main.jsx'),
       external: [],
@@ -19,7 +20,7 @@ export default defineConfig(({ command }) => ({
         format: 'iife',
         entryFileNames: 'admin.js',
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'tailwind.css') {
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
             return 'admin.css'
           }
           return '[name].[ext]'
@@ -35,7 +36,7 @@ export default defineConfig(({ command }) => ({
   },
   resolve: {
     alias: {
-      '@': resolve(fileURLToPath(new URL('.', import.meta.url)), 'src')
+      '@': resolve(fileURLToPath(new URL('.', import.meta.url)), 'resources/assets/js')
     }
   }
 }))

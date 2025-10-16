@@ -283,7 +283,6 @@ export const api = {
     }
 };
 
-// Export default for easy importing
 export default {
     apiGateway: _apiGateway,
     connectionService: _connectionService,

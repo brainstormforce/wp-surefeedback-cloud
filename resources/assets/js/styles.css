@@ -1,0 +1,442 @@
+@import url("https://fonts.googleapis.com/css?family=Josefin+Sans");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add to your main CSS file (e.g., index.css) */
+
+.toplevel_page_surefeedback #wpcontent,
+.post-type-elementor-hf #wpcontent {
+    padding-left: 0;
+}
+.post-type-elementor-hf #wpbody-content .wrap {
+	padding-left: 20px;
+}
+.post-type-elementor-hf .wp-heading-inline {
+	font-size: 18px;
+}
+.post-type-elementor-hf #adminmenu .wp-submenu a[href ="edit.php?post_type=elementor-hf" ] {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+:is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps span.absolute {
+	font-size: 13px;
+}
+:is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps .ring-border-subtle {
+	--tw-ring-color: #64748B;
+}
+:is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps .border-border-subtle {
+	border-color: #64748B;
+}
+:is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps .min-w-10.border-y {
+	min-width: 9rem;
+	border-bottom-width: 0.5px;
+}
+
+#surefeedback-dashboard-app .loader {
+	border: 4px solid #f3f3f3;
+	border-radius: 50%;
+	border-top: 4px solid #3498db;
+	width: 40px;
+	height: 40px;
+	animation: spin 2s linear infinite;
+}
+.surefeedback-custom-scrollbar::-webkit-scrollbar {
+	width: 4px;
+}  
+/* Track */
+.surefeedback-custom-scrollbar::-webkit-scrollbar-track {
+	background: #f1f1f1; 
+}
+   
+/* Handle */
+.surefeedback-custom-scrollbar::-webkit-scrollbar-thumb {
+	background: #888; 
+}
+  
+/* Handle on hover */
+.surefeedback-custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: #555; 
+}
+
+.surefeedback-subheading h2 {
+	font-size: 1.1rem !important;
+}
+.surefeedback-subheading .text-text-secondary {
+	font-size: 0.98rem !important;
+}
+.surefeedback-loader-icon {
+	top: -15%;
+}
+.surefeedback-remove-ring.surefeedback-span span {
+	padding-left: 0px;
+}
+#surefeedback-dashboard-app .gap-2 {
+	gap: 1.2rem;
+}
+.surefeedback-remove-ring input[type="checkbox"],
+.surefeedback-remove-ring a,
+.surefeedback-remove-ring {
+	outline: none;
+	--tw-ring-inset: auto;
+	box-shadow: unset;
+}
+.surefeedback-settings-page h2 {
+	margin-bottom: 0.3rem !important;
+}
+:is(#surefeedback-dashboard-app) .surefeedback-remove-ring svg.lucide-arrow-right {
+	width: 1rem;
+	height: 1rem;
+}
+.surefeedback-popup-button,
+.surefeedback-popup-button svg {
+	padding: 0;
+}
+.surefeedback-popup-button span {
+	padding-left: 0;
+}
+.surefeedback-link-color,
+.surefeedback-link-color span {
+	color: rgb(96, 5, 255);
+}
+#surefeedback-dashboard-app .surefeedback-header-title h6 {
+	color: #858484;
+	font-size: 14px;
+}
+.surefeedback-settings-content-wrapper {
+	padding: 15px 25px;
+}
+button.surefeedback-plugin-activated {
+	color: #16a34a;
+}
+button.surefeedback-bulk-action-button {
+	width: 160px;
+}
+.surefeedback-subtitle h2 {
+	font-size: 0.9rem;
+}
+.surefeedback-65-width {
+	width: 65%;
+}
+.surefeedback-35-width {
+	width: 35%;
+}
+.surefeedback-78-width {
+	width: 78%;
+}
+.surefeedback-88-width {
+	width: 88%;
+}
+#surefeedback-dashboard-app .subject-cell {
+	max-width: 200px; /* Adjust this width based on your layout */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.surefeedback-tooltip-wrap {
+	width: 100%;
+    text-align: right;
+}
+.toplevel_page_surefeedback #wpcontent {
+	padding-left: 0;
+}
+div#surefeedback-dashboard-app {
+	font-size: 15px;
+	font-weight: 500;
+	line-height: normal;
+}
+
+input[type="radio"].surefeedback-radio-field:checked::before {
+	content: "";
+    border-radius: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin: 0.1875rem;
+    background-color: #6005FF;
+    line-height: 1.14285714;
+}
+input[type="radio"].surefeedback-radio-field:focus {
+	border-color: #6005ff;
+	box-shadow: 0 0 0 1px #6005ff;
+}
+.surefeedback-compare-section h6 {
+	font-size: 0.9rem !important;
+	font-weight: 500 !important;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+@media (min-width: 769px) {
+	.surefeedback-sticky-outer-wrapper {
+		width: 23%;
+		border-right: 1px solid #e5e7eb;
+	}
+	.surefeedback-sticky-sidebar {
+		position: sticky;
+		top: 0;
+	}
+	.surefeedback-settings-page:before {
+		animation-fill-mode: both;
+		background: #fff;
+		content: " ";
+		height: 100%;
+		position: fixed;
+		left: 0;
+		top: 0;
+		transform-origin: right;
+		border-right: 1px solid #e5e7eb;
+		width: 30%;
+	}
+	.surefeedback-nav-menu {
+		border-bottom: 1px solid #e5e7eb;
+	}
+}
+
+@media (max-width: 768px) {
+	#toplevel_page_surefeedback .container {
+		padding: 0 1rem;
+	}
+
+	#toplevel_page_surefeedback .fixed {
+		justify-content: flex-start !important;
+	}
+
+	#toplevel_page_surefeedback .bg-white {
+		width: 100% !important;
+		height: 100% !important;
+		border-radius: 0 !important;
+	}
+}
+:is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps .text-xs {
+	font-size: 0.77rem;
+}
+.surefeedback-min-700 {
+	min-width: 700px;
+}
+#surefeedback-dashboard-app .subject-cell {
+	max-width: 200px; /* Adjust this width based on your layout */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* .surefeedback-menu-page-wrapper {
+	width: calc( 100% - 25px);
+} */
+#surefeedback-dashboard-app .gap-2 {
+    gap: 1.2rem;
+}
+div#surefeedback-dashboard-app {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: normal;
+}
+/* #surefeedback-dashboard-app .p-5 {
+    padding: 0.5rem 1.25rem;
+} */
+#surefeedback-dashboard-app .surefeedback-header-title h6 {
+	color: #858484;
+	font-size: 14px;
+}
+.surefeedback-settings-content-wrapper {
+	padding: 15px 25px;
+}
+@media (max-width: 1024px) {
+	.surefeedback-65-width,
+	.surefeedback-35-width,
+	.surefeedback-78-width,
+	.surefeedback-88-width {
+		width: 100%;
+	}
+}
+@media screen and (max-width: 782px) {
+	:is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .surefeedback-display-flex {
+		display: block;
+	}
+	.surefeedback-radio-option {
+		width: 1rem !important;
+		height: 1rem !important;
+	}
+	.surefeedback-radio-option:checked:before {
+		width: 0.5rem !important;
+		height: 0.5rem !important;
+		margin: 0.18rem !important;
+	}
+	:is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps,
+	#surefeedback-dashboard-app img {
+		display: none;
+	}
+	.surefeedback-onboarding-customize {
+		margin-left: 20px;
+    	margin-right: 20px;
+	}
+	.surefeedback-min-700 {
+		min-width: unset;
+	}
+	.surefeedback-onboarding-customize .surefeedback-custom-scrollbar {
+		overflow: scroll;
+		max-width: fit-content;
+	}
+        .surefeedback-onboarding-bottom {
+                display: grid !important;
+                max-width: fit-content;
+        }
+}
+
+body.surefeedback-onboarding-fullscreen #wpadminbar,
+body.surefeedback-onboarding-fullscreen #adminmenuback,
+body.surefeedback-onboarding-fullscreen #adminmenuwrap,
+body.surefeedback-onboarding-fullscreen #adminmenu,
+body.surefeedback-onboarding-fullscreen #wpfooter {
+       display: none;
+}
+body.surefeedback-onboarding-fullscreen #wpcontent {
+       margin-left: 0;
+       padding-left: 0;
+}
+body.surefeedback-onboarding-fullscreen.admin-bar {
+       margin-top: 0 !important;
+}
+
+
+input[type="checkbox"].uae-role-checkbox:focus{
+	border-color:rgb(92, 46, 222);
+	box-shadow:0 0 0 1px rgb(92, 46, 222);
+}
+
+input[type="checkbox"].role-checkbox {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #d1d5db;
+	border-radius: 4px;
+	background-color: white;
+	position: relative;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+input[type="checkbox"].role-checkbox:checked {
+	background-color: #4353FF;
+	border-color: #4353FF;
+}
+
+input[type="checkbox"].role-checkbox:checked::after {
+	content: '✓';
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 1;
+}
+
+#wpfooter{
+    background-color: white;
+}
+.uae-rating{
+    color: #6005FF;
+}
+
+.uae-rating:hover{
+	color: #4B00CC;
+}
+
+
+
+@layer base {
+  :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 3.9%;
+        --primary: 234 100% 63%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 96.1%;
+        --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --accent: 0 0% 96.1%;
+        --accent-foreground: 0 0% 9%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 89.8%;
+        --input: 0 0% 89.8%;
+        --ring: 234 100% 63%;
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+        --radius: 0.375rem;
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+  .dark {
+        --background: 0 0% 3.9%;
+        --foreground: 0 0% 98%;
+        --card: 0 0% 3.9%;
+        --card-foreground: 0 0% 98%;
+        --popover: 0 0% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 234 100% 63%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 14.9%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 0 0% 14.9%;
+        --muted-foreground: 0 0% 63.9%;
+        --accent: 0 0% 14.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 14.9%;
+        --input: 0 0% 14.9%;
+        --ring: 234 100% 63%;
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}
+
+
+#wpcontent, #wpfooter {
+    margin-left: 140px !important;
+}

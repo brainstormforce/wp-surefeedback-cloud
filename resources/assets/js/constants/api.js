@@ -10,8 +10,11 @@
 // Get WordPress REST API settings
 const wpApiSettings = window.wpApiSettings || {
     root: window.location.origin + '/wp-json/',
-    nonce: '',
+    nonce: window.sureFeedbackAdmin?.rest_nonce || window.sureFeedbackAdmin?.nonce || '',
 };
+
+// Get SureFeedback API settings from admin data
+const sureFeedbackApiSettings = window.sureFeedbackAdmin || {};
 
 // API Configuration
 export const API_CONFIG = {

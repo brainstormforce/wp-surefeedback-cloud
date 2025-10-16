@@ -66,9 +66,48 @@ class SettingsService {
             
             return response;
         } catch (error) {
+            console.error('Settings API error:', error);
             this.handleSettingsError(error, 'Failed to get settings');
-            throw error;
+            
+            // Return fallback settings to prevent UI crashes
+            const fallbackSettings = this.getFallbackSettings();
+            this.updateSettingsState(fallbackSettings);
+            return fallbackSettings;
         }
+    }
+
+    /**
+     * Get fallback settings when API fails
+     * @returns {Object}
+     */
+    getFallbackSettings() {
+        return {
+            success: false,
+            data: {
+                general: {
+                    enabled: false,
+                    site_url: window.location.origin,
+                    display_name: 'SureFeedback',
+                    description: '',
+                    roles: ['administrator'],
+                    guest_comments: false,
+                    admin_comments: true
+                },
+                white_label: {
+                    enabled: false,
+                    company_name: '',
+                    company_logo: '',
+                    primary_color: '#0073aa',
+                    hide_branding: false
+                },
+                availableRoles: [
+                    { value: 'administrator', label: 'Administrator' },
+                    { value: 'editor', label: 'Editor' },
+                    { value: 'author', label: 'Author' }
+                ]
+            },
+            message: 'Settings loaded from fallback (API unavailable)'
+        };
     }
 
     /**
@@ -394,7 +433,34 @@ class SettingsService {
      * @param {string} context 
      */
     handleSettingsError(error, context) {
-        this.notifyListeners('settings_error', { error, context });
+        const errorInfo = {
+            error,
+            context,
+            timestamp: new Date().toISOString(),
+            status: error.status || 'unknown',
+            message: error.message || 'Unknown error'
+        };
+
+        console.group('SureFeedback Settings Error');
+        console.error('Context:', context);
+        console.error('Error:', error);
+        console.error('Status:', error.status);
+        console.error('Message:', error.message);
+        
+        if (error.status === 403) {
+            console.warn('Authentication issue detected. This may be due to:');
+            console.warn('1. Missing or invalid nonce token');
+            console.warn('2. User not logged in');
+            console.warn('3. Insufficient permissions');
+            
+            // Check if nonce is available
+            const nonce = window.wpApiSettings?.nonce || window.sureFeedbackAdmin?.nonce;
+            console.warn('Available nonce:', nonce ? 'Yes' : 'No');
+        }
+        
+        console.groupEnd();
+        
+        this.notifyListeners('settings_error', errorInfo);
     }
 
     /**

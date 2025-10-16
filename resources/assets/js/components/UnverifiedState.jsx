@@ -1,5 +1,5 @@
-
-import { Button } from "@bsf/force-ui";
+import React from "react";
+import { Button } from "../components/ui/button";
 import { __ } from "@wordpress/i18n";
 
 const UnverifiedState = () => {

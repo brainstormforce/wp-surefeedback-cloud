@@ -53,6 +53,9 @@ if ( ! defined( 'SUREFEEDBACK_PLUGIN_BASENAME' ) ) {
 	define( 'SUREFEEDBACK_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 }
 
+// Include Environment Helper
+require_once SUREFEEDBACK_PLUGIN_DIR . 'includes/env-helper.php';
+
 /*
 |--------------------------------------------------------------------------
 | Bootstrap The Application
@@ -78,7 +81,10 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 |
 */
 
-$app->boot();
+// Boot the application when plugins are loaded
+add_action('plugins_loaded', function() use ($app) {
+    $app->boot();
+});
 
 /**
  * Plugin activation hook
@@ -103,6 +109,26 @@ register_activation_hook(SUREFEEDBACK_PLUGIN_FILE, function() {
     foreach ($defaults as $option => $value) {
         if (get_option($option) === false) {
             update_option($option, $value);
+        }
+    }
+    
+    // Set activation redirect flag
+    update_option('surefeedback_activation_redirect', true);
+});
+
+/**
+ * Redirect to welcome page after activation
+ */
+add_action('admin_init', function() {
+    // Check if we should redirect to welcome page
+    if (get_option('surefeedback_activation_redirect', false)) {
+        // Clear the redirect flag
+        delete_option('surefeedback_activation_redirect');
+        
+        // Only redirect if this is a single plugin activation (not bulk)
+        if (!isset($_GET['activate-multi']) && !wp_doing_ajax() && !wp_doing_cron()) {
+            wp_safe_redirect(admin_url('admin.php?page=surefeedback#welcome'));
+            exit;
         }
     }
 });

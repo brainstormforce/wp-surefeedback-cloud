@@ -53,7 +53,10 @@ class ConnectionController extends Controller
     public function status(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
             
             $connectionData = $this->connectionRepository->getConnectionStatus();
             
@@ -85,8 +88,15 @@ class ConnectionController extends Controller
     public function verify(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             $validation = $this->validate($request, [
                 'parent_url' => 'required|url',
@@ -141,8 +151,15 @@ class ConnectionController extends Controller
     public function connect(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             $validation = $this->validate($request, [
                 'parent_url' => 'required|url',
@@ -201,8 +218,15 @@ class ConnectionController extends Controller
     public function disconnect(WP_REST_Request $request)
     {
         try {
-            $this->validateNonce($request);
-            $this->validateCapability('manage_options');
+            $nonce_result = $this->validateNonce($request);
+            if (is_wp_error($nonce_result)) {
+                return $nonce_result;
+            }
+            
+            $capability_result = $this->validateCapability('manage_options');
+            if (is_wp_error($capability_result)) {
+                return $capability_result;
+            }
             
             // Notify parent site about disconnection
             $this->notifyParentSiteDisconnection();

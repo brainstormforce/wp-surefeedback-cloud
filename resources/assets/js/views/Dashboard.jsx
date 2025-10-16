@@ -1,189 +1,76 @@
-
 import React from 'react';
-import { useConnection, useDashboard, useErrorHandler } from '../hooks/index.js';
-import QuickAccess from '../components/QuickAccess.jsx';
-import ExtendWebsite from './ExtendWebsite.jsx';
+import { RouterProvider, Route, useRouter } from '../utils/Router';
+
+// Import main views
+import SetupView from './SetupView';
+import ConnectionView from './ConnectionView';
+import PermissionsView from './PermissionsView';
+import SettingsView from './SettingsView';
+
+// Import navigation
+import NavMenu from '../components/NavMenu';
+
+/**
+ * Dashboard Content Component
+ * This component needs to be inside RouterProvider to access useRouter
+ */
+const DashboardContent = () => {
+    const { currentRoute } = useRouter();
+    const isSetupRoute = currentRoute === 'setup';
+
+    return (
+        <div className="surefeedback-dashboard flex flex-col min-h-screen bg-gray-50 w-full overflow-x-hidden" style={{ margin: 0, padding: 0, width: "100%", minHeight: "100vh", maxWidth: "100vw" }}>
+            {/* Conditionally render Top Navigation - hide on setup route */}
+            {!isSetupRoute && (
+                <div className="bg-white shadow-sm w-full" style={{ margin: 0, padding: 0, width: "100%" }}>
+                    <NavMenu />
+                </div>
+            )}
+
+            {/* Main Content Area */}
+            <div className={`flex-1 ${isSetupRoute ? '' : 'overflow-auto'}`}>
+                <main className={isSetupRoute ? '' : 'p-2'}>
+                    <Route path="setup" exact>
+                        <SetupView />
+                    </Route>
+                    <Route path="connections" exact>
+                        <ConnectionView />
+                    </Route>
+                    <Route path="permissions" exact>
+                        <PermissionsView />
+                    </Route>
+                    <Route path="settings" exact>
+                        <SettingsView />
+                    </Route>
+                </main>
+            </div>
+        </div>
+    );
+};
 
 /**
  * Main Dashboard Component
- * 
- * Displays connection status and dashboard statistics
- * using the new API services and hooks
+ *
+ * Acts as the main router and layout container for the application
+ * Routes between different views based on URL hash
  */
 const Dashboard = ({ containerType = 'dashboard' }) => {
-    const { isConnected, connectionData, isLoading: connectionLoading, error: connectionError, connect, disconnect } = useConnection();
-    const { stats, isLoading: statsLoading, refreshAll } = useDashboard();
-    const { errors, removeError, hasErrors } = useErrorHandler();
-    const [activeTab, setActiveTab] = React.useState(containerType);
-
-    const handleConnect = async () => {
-        try {
-            await connect({
-                parentUrl: 'https://parent.example.com', // This would come from user input
-                accessToken: 'sample-token', // This would come from user input
-                signature: 'sample-signature' // This would be generated
-            });
-        } catch (error) {
-            console.error('Connection failed:', error);
-        }
+    // Determine default route based on container type and connection status
+    const getDefaultRoute = () => {
+        // If we're on a specific page (settings, connection, tools), set that as default
+        if (containerType === 'settings') return 'settings';
+        if (containerType === 'connection') return 'connections';
+        if (containerType === 'tools') return 'tools';
+        
+        // For dashboard, check connection status
+        const isConnected = window.sureFeedbackAdmin?.connection?.site_data?.site_url;
+        return isConnected ? 'connections' : 'setup';
     };
-
-    const handleDisconnect = async () => {
-        try {
-            await disconnect();
-        } catch (error) {
-            console.error('Disconnect failed:', error);
-        }
-    };
-
-    if (connectionLoading) {
-        return (
-            <div className="surefeedback-dashboard">
-                <div className="loading">Loading...</div>
-            </div>
-        );
-    }
-
-    // Render different content based on container type
-    if (containerType === 'settings') {
-        return (
-            <div className="surefeedback-dashboard">
-                <h1>SureFeedback Settings</h1>
-                <p>Settings panel will be implemented here</p>
-            </div>
-        );
-    }
-
-    if (containerType === 'connection') {
-        return (
-            <div className="surefeedback-dashboard">
-                <h1>SureFeedback Connection</h1>
-                <p>Connection panel will be implemented here</p>
-            </div>
-        );
-    }
-
-    if (containerType === 'tools') {
-        return (
-            <div className="surefeedback-dashboard">
-                <h1>SureFeedback Tools</h1>
-                <p>Tools panel will be implemented here</p>
-            </div>
-        );
-    }
 
     return (
-        <div className="surefeedback-dashboard">
-            {/* Navigation Tabs */}
-            <div className="dashboard-tabs">
-                <button 
-                    className={`tab ${activeTab === 'dashboard' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('dashboard')}
-                >
-                    Dashboard
-                </button>
-                <button 
-                    className={`tab ${activeTab === 'extend' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('extend')}
-                >
-                    Extend Website
-                </button>
-            </div>
-
-            {/* Error Display */}
-            {hasErrors && (
-                <div className="error-container">
-                    {errors.map(({ id, error }) => (
-                        <div key={id} className="error-message">
-                            <strong>Error:</strong> {error.message}
-                            <button onClick={() => removeError(id)} className="error-close">×</button>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* Tab Content */}
-            {activeTab === 'dashboard' && (
-                <div className="dashboard-content">
-                    <h1>SureFeedback Dashboard</h1>
-                    
-                    {connectionLoading && (
-                        <div className="loading">Loading...</div>
-                    )}
-
-                    {/* Connection Status */}
-                    <div className="connection-status">
-                        <h2>Connection Status</h2>
-                        <p>Status: {isConnected ? 'Connected' : 'Disconnected'}</p>
-                        
-                        {connectionData && (
-                            <div className="connection-details">
-                                <p><strong>Parent URL:</strong> {connectionData.parent_url}</p>
-                                <p><strong>Last Check:</strong> {connectionData.last_check}</p>
-                            </div>
-                        )}
-
-                        <div className="connection-actions">
-                            {isConnected ? (
-                                <button onClick={handleDisconnect} className="btn btn-secondary">
-                                    Disconnect
-                                </button>
-                            ) : (
-                                <button onClick={handleConnect} className="btn btn-primary">
-                                    Connect
-                                </button>
-                            )}
-                            <button onClick={() => window.location.reload()} className="btn btn-tertiary">
-                                Refresh
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Dashboard Stats */}
-                    {isConnected && (
-                        <div className="dashboard-stats">
-                            <h2>Dashboard Statistics</h2>
-                            {statsLoading ? (
-                                <p>Loading statistics...</p>
-                            ) : stats ? (
-                                <div className="stats-grid">
-                                    <div className="stat-item">
-                                        <h3>Total Comments</h3>
-                                        <p>{stats.total_comments || 0}</p>
-                                    </div>
-                                    <div className="stat-item">
-                                        <h3>Active Projects</h3>
-                                        <p>{stats.active_projects || 0}</p>
-                                    </div>
-                                    <div className="stat-item">
-                                        <h3>Pending Reviews</h3>
-                                        <p>{stats.pending_reviews || 0}</p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <p>No statistics available</p>
-                            )}
-                            
-                            <button onClick={refreshAll} className="btn btn-secondary">
-                                Refresh Stats
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Quick Access Component */}
-                    <div className="quick-access-section">
-                        <QuickAccess />
-                    </div>
-                </div>
-            )}
-
-            {/* Extend Website Tab */}
-            {activeTab === 'extend' && (
-                <div className="extend-content">
-                    <ExtendWebsite />
-                </div>
-            )}
-        </div>
+        <RouterProvider defaultRoute={getDefaultRoute()}>
+            <DashboardContent />
+        </RouterProvider>
     );
 };
 

@@ -49,11 +49,11 @@ abstract class Controller
     /**
      * Create a new controller instance
      *
-     * @param Application      $app    Application instance.
-     * @param Config_Interface $config Configuration instance.
-     * @param Logger_Interface $logger Logger instance.
+     * @param Application|null      $app    Application instance.
+     * @param Config_Interface|null $config Configuration instance.
+     * @param Logger_Interface|null $logger Logger instance.
      */
-    public function __construct(Application $app, Config_Interface $config, Logger_Interface $logger)
+    public function __construct(?Application $app = null, ?Config_Interface $config = null, ?Logger_Interface $logger = null)
     {
         $this->app = $app;
         $this->config = $config;
@@ -347,7 +347,90 @@ abstract class Controller
      */
     protected function log(string $message, array $context = [], string $level = 'info'): void
     {
-        $this->logger->log($level, $message, $context);
+        if ($this->logger) {
+            $this->logger->log($level, $message, $context);
+        }
+    }
+
+    /**
+     * Log info message
+     *
+     * @param string $message Log message.
+     * @param array  $context Log context.
+     * @return void
+     */
+    protected function logInfo(string $message, array $context = []): void
+    {
+        $this->log($message, $context, 'info');
+    }
+
+    /**
+     * Log error message
+     *
+     * @param string $message Log message.
+     * @param array  $context Log context.
+     * @return void
+     */
+    protected function logError(string $message, array $context = []): void
+    {
+        if ($this->logger) {
+            $this->logger->log('error', $message, $context);
+        } else {
+            error_log('[SureFeedback] ' . $message);
+        }
+    }
+
+    /**
+     * Validate WordPress nonce
+     *
+     * @param \WP_REST_Request $request Request object.
+     * @return bool|WP_Error
+     */
+    protected function validateNonce(\WP_REST_Request $request)
+    {
+        $nonce = $request->get_header('X-WP-Nonce');
+        if (!$nonce) {
+            $nonce = $request->get_param('_wpnonce');
+        }
+
+        // Debug logging
+        error_log('SureFeedback: Nonce validation - Nonce: ' . ($nonce ?: 'not provided'));
+        error_log('SureFeedback: User authenticated: ' . (is_user_logged_in() ? 'yes' : 'no'));
+        
+        if (!$nonce) {
+            return $this->error(__('Nonce not provided', 'surefeedback'), null, 403);
+        }
+        
+        // Try verifying with different nonce actions
+        $nonce_valid = wp_verify_nonce($nonce, 'wp_rest');
+        
+        // If wp_rest fails, try other common nonce actions
+        if (!$nonce_valid) {
+            $nonce_valid = wp_verify_nonce($nonce, 'wp_json');
+        }
+        
+        error_log('SureFeedback: Nonce valid: ' . ($nonce_valid ? 'yes' : 'no'));
+        
+        if (!$nonce_valid) {
+            return $this->error(__('Invalid nonce', 'surefeedback'), null, 403);
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate user capability
+     *
+     * @param string $capability Capability to check.
+     * @return bool|WP_Error
+     */
+    protected function validateCapability(string $capability)
+    {
+        if (!current_user_can($capability)) {
+            return $this->error(__('Insufficient permissions', 'surefeedback'), null, 403);
+        }
+
+        return true;
     }
 
     /**

@@ -19,6 +19,9 @@ class ApiGateway {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         };
+        
+        // Initialize authentication
+        this.initAuth();
     }
 
     /**
@@ -27,11 +30,53 @@ class ApiGateway {
      */
     setAuthToken(token) {
         if (token) {
+            // Set the nonce header for WordPress REST API
+            this.defaultHeaders['X-WP-Nonce'] = token;
+            
+            // Also set authorization header for good measure
             this.defaultHeaders['Authorization'] = `Bearer ${token}`;
-            this.defaultHeaders['X-WP-Nonce'] = window.wpApiSettings?.nonce || '';
         } else {
             delete this.defaultHeaders['Authorization'];
             delete this.defaultHeaders['X-WP-Nonce'];
+        }
+    }
+
+    /**
+     * Initialize authentication from WordPress
+     */
+    initAuth() {
+        // Try multiple sources for the nonce
+        const nonce = window.wpApiSettings?.nonce ||
+                     window.sureFeedbackAdmin?.nonce ||
+                     window.sureFeedbackAdmin?.rest_nonce || '';
+
+        console.log('SureFeedback: Initializing auth with nonce:', nonce ? 'Found' : 'Not found');
+        console.log('Available nonce sources:', {
+            wpApiSettings: window.wpApiSettings?.nonce ? 'Available' : 'Missing',
+            adminNonce: window.sureFeedbackAdmin?.nonce ? 'Available' : 'Missing',
+            restNonce: window.sureFeedbackAdmin?.rest_nonce ? 'Available' : 'Missing'
+        });
+        console.log('Dev server mode:', this.isDevServer());
+
+        if (nonce) {
+            this.setAuthToken(nonce);
+        } else {
+            console.warn('SureFeedback: No valid nonce found for API authentication');
+        }
+    }
+
+    /**
+     * Check if running from dev server (different origin)
+     * @returns {boolean}
+     */
+    isDevServer() {
+        // Check if current origin is different from API base URL origin
+        try {
+            const currentOrigin = window.location.origin;
+            const apiOrigin = new URL(this.baseURL).origin;
+            return currentOrigin !== apiOrigin;
+        } catch (e) {
+            return false;
         }
     }
 
@@ -47,12 +92,15 @@ class ApiGateway {
 
     /**
      * Build request options
-     * @param {string} method 
-     * @param {Object} options 
+     * @param {string} method
+     * @param {Object} options
      * @returns {Object}
      */
     buildRequestOptions(method, options = {}) {
         const { headers = {}, body, ...restOptions } = options;
+
+        // Use 'include' for cross-origin requests (dev server), 'same-origin' otherwise
+        const credentials = this.isDevServer() ? 'include' : 'same-origin';
 
         const requestOptions = {
             method: method.toUpperCase(),
@@ -60,7 +108,7 @@ class ApiGateway {
                 ...this.defaultHeaders,
                 ...headers,
             },
-            credentials: 'same-origin',
+            credentials: credentials,
             ...restOptions,
         };
 
@@ -235,8 +283,5 @@ class ApiGateway {
     }
 }
 
-// Create singleton instance
 export const apiGateway = new ApiGateway();
-
-// Export the class for testing or custom instances
 export { ApiGateway };

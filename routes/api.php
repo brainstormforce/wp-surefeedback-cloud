@@ -26,9 +26,9 @@ if (! defined('ABSPATH')) {
 |
 */
 
-use SureFeedback\App\Http\Controllers\Api\ConnectionController;
-use SureFeedback\App\Http\Controllers\Api\SettingsController;
-use SureFeedback\App\Http\Controllers\Api\DashboardController;
+use SureFeedback\Http\Controllers\Api\ConnectionController;
+use SureFeedback\Http\Controllers\Api\SettingsController;
+use SureFeedback\Http\Controllers\Api\DashboardController;
 
 // Connection management endpoints
 $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($router) {

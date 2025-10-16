@@ -55,8 +55,11 @@ class SettingsRepository extends BaseRepository
      */
     public function getGeneralSettings(): array
     {
-        $settings = $this->getOption('settings', []);
-        return array_merge($this->defaultSettings, $settings);
+        return [
+            'surefeedback_role_can_comment' => get_option('surefeedback_role_can_comment', ['administrator']),
+            'surefeedback_guest_comments_enabled' => (bool) get_option('surefeedback_guest_comments', false),
+            'surefeedback_admin' => (bool) get_option('surefeedback_admin_can_comment', true),
+        ];
     }
 
     /**
@@ -76,14 +79,36 @@ class SettingsRepository extends BaseRepository
      * Update general settings
      *
      * @param array $settings
-     * @return bool
+     * @return array Updated settings
      */
-    public function updateGeneralSettings(array $settings): bool
+    public function updateGeneralSettings(array $settings): array
     {
-        $currentSettings = $this->getGeneralSettings();
-        $newSettings = array_merge($currentSettings, $this->sanitizeData($settings));
+        $updated = [];
         
-        return $this->setOption('settings', $newSettings);
+        // Update surefeedback_role_can_comment
+        if (isset($settings['surefeedback_role_can_comment'])) {
+            $roles = is_array($settings['surefeedback_role_can_comment']) 
+                ? array_map('sanitize_text_field', $settings['surefeedback_role_can_comment'])
+                : [];
+            update_option('surefeedback_role_can_comment', $roles);
+            $updated['surefeedback_role_can_comment'] = $roles;
+        }
+        
+        // Update surefeedback_guest_comments_enabled
+        if (isset($settings['surefeedback_guest_comments_enabled'])) {
+            $guest_comments = (bool) $settings['surefeedback_guest_comments_enabled'];
+            update_option('surefeedback_guest_comments', $guest_comments);
+            $updated['surefeedback_guest_comments_enabled'] = $guest_comments;
+        }
+        
+        // Update surefeedback_admin
+        if (isset($settings['surefeedback_admin'])) {
+            $admin_comments = (bool) $settings['surefeedback_admin'];
+            update_option('surefeedback_admin_can_comment', $admin_comments);
+            $updated['surefeedback_admin'] = $admin_comments;
+        }
+        
+        return $updated;
     }
 
     /**
