@@ -124,10 +124,10 @@ add_action('admin_init', function() {
     if (get_option('surefeedback_activation_redirect', false)) {
         // Clear the redirect flag
         delete_option('surefeedback_activation_redirect');
-        
+
         // Only redirect if this is a single plugin activation (not bulk)
         if (!isset($_GET['activate-multi']) && !wp_doing_ajax() && !wp_doing_cron()) {
-            wp_safe_redirect(admin_url('admin.php?page=surefeedback#welcome'));
+            wp_safe_redirect(admin_url('admin.php?page=surefeedback-connection#setup'));
             exit;
         }
     }
@@ -183,7 +183,7 @@ add_action('surefeedback_hourly_verify', function() {
  * Add settings link to plugin list table
  */
 add_filter('plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME, function($links) {
-    $dashboard_link = '<a href="' . admin_url('admin.php?page=surefeedback') . '">' . __('Dashboard', 'surefeedback') . '</a>';
+    $dashboard_link = '<a href="' . admin_url('admin.php?page=surefeedback-connection') . '">' . __('Dashboard', 'surefeedback') . '</a>';
     $settings_link = '<a href="' . admin_url('admin.php?page=surefeedback-settings') . '">' . __('Settings', 'surefeedback') . '</a>';
     array_unshift($links, $dashboard_link, $settings_link);
     return $links;
@@ -227,18 +227,3 @@ add_action('admin_init', function() {
     }
 });
 
-/**
- * Redirect to plugin page after activation
- */
-add_action('activated_plugin', function($plugin) {
-    if (plugin_basename(__FILE__) === $plugin) {
-        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
-        
-        if ($connection_status !== 'connected') {
-            wp_redirect(admin_url('admin.php?page=surefeedback-connection'));
-        } else {
-            wp_redirect(admin_url('admin.php?page=surefeedback'));
-        }
-        exit;
-    }
-});

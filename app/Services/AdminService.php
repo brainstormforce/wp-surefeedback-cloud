@@ -943,7 +943,7 @@ class AdminService
             'app_url' => $app_url,
             'api_url' => $api_url,
             'parent_url' => $parent_url,
-            'callback_url' => admin_url('admin.php?page=surefeedback'),
+            'callback_url' => admin_url('admin.php?page=surefeedback-connection'),
             'environment' => surefeedback_get_environment(),
             'site_data' => $site_data,
             'site_id' => $site_id,

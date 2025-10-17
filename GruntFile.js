@@ -65,7 +65,6 @@ module.exports = function (grunt) {
               "!.gitignore",
               "!.claude/**",
               "!bin/**",
-              "!vendor/**",
               "!src/**",
               "!resources/assets/**",
               "!release/**",
@@ -115,7 +114,6 @@ module.exports = function (grunt) {
               "!.gitignore",
               "!.claude/**",
               "!bin/**",
-              "!vendor/**",
               "!src/**",
               "!resources/assets/**",
               "!release/**",
@@ -165,7 +163,6 @@ module.exports = function (grunt) {
               "!.gitignore",
               "!.claude/**",
               "!bin/**",
-              "!vendor/**",
               "!src/**",
               "!resources/assets/**",
               "!release/**",
@@ -246,6 +243,21 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-copy");
+
+  // Custom task to install production composer dependencies
+  grunt.registerTask("composer-install", "Install production Composer dependencies", function() {
+    var done = this.async();
+    var spawn = require('child_process').spawn;
+    grunt.log.writeln("Installing production Composer dependencies...");
+    var composer = spawn('composer', ['install', '--no-dev', '--optimize-autoloader'], { stdio: 'inherit' });
+    composer.on('close', function(code) {
+      if (code !== 0) {
+        grunt.fail.fatal('Composer install failed with code ' + code);
+      }
+      grunt.log.writeln("Composer dependencies installed successfully.");
+      done();
+    });
+  });
 
   // Custom task to build Vite assets
   grunt.registerTask("build-assets", "Build Vite assets", function() {
@@ -333,7 +345,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask("i18n", ["addtextdomain", "makepot"]);
   grunt.registerTask("readme", ["wp_readme_to_markdown"]);
-  grunt.registerTask("build", ["build-assets", "i18n"]);
+  grunt.registerTask("build", ["composer-install", "build-assets", "i18n"]);
 
   // Release tasks for different environments
   grunt.registerTask("release:local", [
