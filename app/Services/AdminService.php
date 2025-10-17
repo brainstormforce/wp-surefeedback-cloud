@@ -6,6 +6,7 @@ use SureFeedback\Repositories\SettingsRepository;
 use SureFeedback\Repositories\ConnectionRepository;
 use SureFeedback\Repositories\DashboardRepository;
 use SureFeedback\Http\Requests\UpdateSettingsRequest;
+use SureFeedback\Http\Controllers\VerificationController;
 
 /**
  * Admin Service
@@ -87,6 +88,7 @@ class AdminService
         // AJAX handlers
         add_action('wp_ajax_surefeedback_save_settings', [$this, 'ajax_save_settings']);
         add_action('wp_ajax_surefeedback_test_connection', [$this, 'ajax_test_connection']);
+        add_action('wp_ajax_surefeedback_verify_connection', [$this, 'ajax_verify_connection']);
         add_action('wp_ajax_surefeedback_reset_plugin', [$this, 'ajax_reset_plugin']);
         add_action('wp_ajax_surefeedback_export_settings', [$this, 'ajax_export_settings']);
         add_action('wp_ajax_surefeedback_import_settings', [$this, 'ajax_import_settings']);
@@ -276,10 +278,6 @@ class AdminService
         
         echo '<div class="wrap" style="margin: 0; padding: 0; max-width: none;">';
         echo '<div id="surefeedback-admin-dashboard" style="margin: 0; padding: 0; width: 100%;"></div>';
-        echo '<script>';
-        echo 'console.log("SureFeedback Admin Debug:", window.sureFeedbackAdmin);';
-        echo 'console.log("Connection Data:", window.sureFeedbackAdmin?.connection);';
-        echo '</script>';
         echo '</div>';
     }
 
@@ -291,7 +289,6 @@ class AdminService
     public function render_settings_page(): void
     {
         $this->current_page = 'settings';
-        
         echo '<div class="wrap">';
         echo '<div id="surefeedback-admin-settings"></div>';
         echo '</div>';
@@ -305,7 +302,6 @@ class AdminService
     public function render_connection_page(): void
     {
         $this->current_page = 'connection';
-        
         echo '<div class="wrap">';
         echo '<div id="surefeedback-admin-connection"></div>';
         echo '</div>';
@@ -717,6 +713,46 @@ class AdminService
     }
 
     /**
+     * AJAX handler for verifying connection with API
+     *
+     * @return void
+     */
+    public function ajax_verify_connection(): void
+    {
+        check_ajax_referer('surefeedback_admin', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Insufficient permissions', 'surefeedback'));
+        }
+
+        try {
+            // Use the verification controller
+            $verification_controller = new \SureFeedback\Http\Controllers\VerificationController();
+            $request = new \WP_REST_Request();
+            
+            $result = $verification_controller->verify_connection($request);
+            
+            if (is_wp_error($result)) {
+                wp_send_json_error([
+                    'message' => $result->get_error_message(),
+                    'code' => $result->get_error_code()
+                ]);
+            } else {
+                $data = $result->get_data();
+                if ($data['success']) {
+                    wp_send_json_success($data);
+                } else {
+                    wp_send_json_error($data);
+                }
+            }
+        } catch (\Exception $e) {
+            wp_send_json_error([
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
      * AJAX handler for resetting plugin
      *
      * @return void
@@ -888,15 +924,22 @@ class AdminService
             $site_data['site_id'] = $site_id;
         }
 
-        // Determine if connected (for JavaScript compatibility)
-        $is_connected = ($connection_status === 'connected');
-        $is_verified = ($verification_status === 'verified');
+        // Determine if connected - robust check including essential connection data
+        // A site is only considered connected if it has essential tokens (access_token and site_id)
+        $is_connected = !empty($access_token) && !empty($site_id);
+        
+        // Update connection status based on essential data presence
+        if ($is_connected && $connection_status !== 'connected') {
+            update_option('surefeedback_connection_status', 'connected');
+            $connection_status = 'connected';
+        } elseif (!$is_connected && $connection_status === 'connected') {
+            update_option('surefeedback_connection_status', 'disconnected');
+            $connection_status = 'disconnected';
+        }
 
         $connection_data = [
-            'connected' => $is_connected, // Add this for JavaScript compatibility
-            'status' => $connection_status,
-            'verified' => $is_verified,
-            'verification_status' => $verification_status,
+            'connected' => $is_connected, // Boolean for JavaScript compatibility
+            'status' => $connection_status, // String status
             'app_url' => $app_url,
             'api_url' => $api_url,
             'parent_url' => $parent_url,
@@ -905,6 +948,8 @@ class AdminService
             'site_data' => $site_data,
             'site_id' => $site_id,
             'access_token' => $access_token ? substr($access_token, 0, 10) . '...' : null, // Partial token for debugging
+            // Keep verification status for backward compatibility but don't use it for connection logic
+            'verification_status' => $verification_status
         ];
 
         return $connection_data;

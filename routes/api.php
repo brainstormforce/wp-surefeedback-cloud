@@ -29,6 +29,7 @@ if (! defined('ABSPATH')) {
 use SureFeedback\Http\Controllers\Api\ConnectionController;
 use SureFeedback\Http\Controllers\Api\SettingsController;
 use SureFeedback\Http\Controllers\Api\DashboardController;
+use SureFeedback\Http\Controllers\VerificationController;
 
 // Connection management endpoints
 $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($router) {
@@ -42,6 +43,11 @@ $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($rout
 
 // Webhook endpoint for SureFeedback API callbacks
 $router->post('webhook', [ConnectionController::class, 'webhook']);
+
+// Verification endpoints
+$router->group(['prefix' => 'verification'], function ($router) {
+    $router->post('verify', [VerificationController::class, 'verify_connection']);
+});
 
 // Settings management endpoints
 $router->group(['prefix' => 'settings', 'namespace' => 'Api'], function ($router) {

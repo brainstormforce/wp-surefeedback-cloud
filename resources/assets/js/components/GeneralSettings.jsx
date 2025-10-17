@@ -132,6 +132,7 @@ const GeneralSettings = () => {
   const [availableRoles, setAvailableRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Load settings on component mount
   useEffect(() => {

@@ -41,6 +41,13 @@ export const settingsService = _settingsService;
 export { getSettings, updateSettings, getGeneralSettings, updateGeneralSettings, getWhiteLabelSettings, updateWhiteLabelSettings, resetSettings, importSettings, exportSettings };
 
 import {
+    verificationService as _verificationService,
+    verifyConnection as verifyConnectionStatus
+} from './services/verification.js';
+export const verificationService = _verificationService;
+export { verifyConnectionStatus };
+
+import {
     dashboardService as _dashboardService,
     getDashboardStats,
     getDashboardQuickAccess,

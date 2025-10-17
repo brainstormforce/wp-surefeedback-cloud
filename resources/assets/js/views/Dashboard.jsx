@@ -28,7 +28,7 @@ const DashboardContent = () => {
             )}
 
             {/* Main Content Area */}
-            <div className={`flex-1 ${isSetupRoute ? '' : 'overflow-auto'}`}>
+            <div className={`flex-1 ${isSetupRoute ? '' : 'overflow-auto bg-white'}`}>
                 <main className={isSetupRoute ? '' : 'p-2'}>
                     <Route path="setup" exact>
                         <SetupView />

@@ -13,6 +13,7 @@ import {
     settingsService, 
     dashboardService, 
     adminService,
+    verificationService,
     errorHandler 
 } from '../index.js';
 
@@ -668,5 +669,64 @@ export function useApiLoading() {
         setLoading,
         isLoading,
         isAnyLoading
+    };
+}
+
+/**
+ * Hook for verification status management
+ * Simplified to use only site token verification
+ * @param {Object} options - Hook options
+ * @returns {Object} Verification state and methods
+ */
+export function useVerification(options = {}) {
+    const [state, setState] = useState({
+        status: null,
+        isLoading: false,
+        error: null,
+        lastUpdated: null
+    });
+
+    const updateState = useCallback((updates) => {
+        setState(prevState => ({
+            ...prevState,
+            ...updates,
+            lastUpdated: new Date().toISOString()
+        }));
+    }, []);
+
+    const verifyConnection = useCallback(async () => {
+        updateState({ isLoading: true, error: null });
+        try {
+
+            const result = await verificationService.verifyConnection();
+            updateState({
+                status: result,
+                isLoading: false
+            });
+            return result;
+        } catch (err) {
+            const error = await errorHandler.handle(err);
+            updateState({ 
+                error: error.message, 
+                isLoading: false 
+            });
+            throw error;
+        }
+    }, [updateState]);
+
+    // Helper methods
+    const isVerified = useMemo(() => {
+        return state.status?.status === 'verified';
+    }, [state.status]);
+
+    const isPending = useMemo(() => {
+        return state.status?.status === 'pending';
+    }, [state.status]);
+
+    return {
+        ...state,
+        verifyConnection,
+        isVerified,
+        isPending
     };
 }

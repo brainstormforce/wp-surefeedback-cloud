@@ -11,8 +11,7 @@ import Welcome from './Welcome.jsx';
 const Connections = () => {
   const [isStarted, setIsStarted] = useState(false);
   
-  // Get status from localized data
-  const verificationStatus = window.sureFeedbackAdmin?.verification_status || 'unverified';
+  // Get connection status from localized data
   const connectionStatus = window.sureFeedbackAdmin?.connection_status || 'not_connected';
 
   // If setup is started, show welcome/setup component
@@ -20,21 +19,15 @@ const Connections = () => {
     return <Welcome />;
   }
 
-  // Determine which component to show based on status
+  // Determine which component to show based on connection status only
   const renderContent = () => {
     // If not connected, show NotConnected component
     if (connectionStatus === 'not_connected') {
       return <NotConnected setIsStarted={setIsStarted} />;
     }
     
-    // If connected, check verification status
-    if (verificationStatus === 'verified') {
-      return <Connected />;
-    } else if (verificationStatus === 'failed') {
-      return <ConnectionFailed />;
-    } else {
-      return <UnverifiedState />;
-    }
+    // If connected, show Connected component
+    return <Connected />;
   };
 
   return (

@@ -1,62 +1,124 @@
-import React from "react";
-import { AlertTriangle } from "lucide-react";
+import React, { useState } from "react";
+import { AlertTriangle, CheckCircle, Loader2, RefreshCw, ExternalLink } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { __ } from "@wordpress/i18n";
+import { useVerification } from "../hooks";
 
-const UnverifiedState = () => {
-  const verificationStatus = window.sureFeedbackAdmin?.verification_status || 'unverified';
+const UnverifiedState = ({ showLoading = false, onRetryVerification = null, verificationResult = null }) => {
+  const { verifyConnection, isLoading: verificationLoading } = useVerification();
+  const dbVerificationStatus = window.sureFeedbackAdmin?.verification_status || 'unverified';
+  const verificationStatus = verificationResult?.status || dbVerificationStatus;  
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
+  const isLoading = isTestingConnection || verificationLoading || (showLoading && !verificationResult);
   
   const handleAction = () => {
-    if (verificationStatus === 'pending') {
-      // Go to dashboard
-      const appUrl = window.sureFeedbackAdmin?.connection?.app_url || 'http://localhost:3000';
-      window.open(`${appUrl}/sites`, '_blank');
-    } else if (verificationStatus === 'failed') {
-      // Reconnect
-      window.location.reload();
+    const appUrl = window.sureFeedbackAdmin?.connection?.app_url || 'http://localhost:3000';
+    window.open(`${appUrl}/sites`, '_blank');
+  };
+
+  const handleTestConnection = async () => {
+    setIsTestingConnection(true);
+    try {
+      const result = await verifyConnection({});
+      if (result.status === 'verified') {
+        window.location.reload();
+      } else if (result.status === 'pending') {
+        window.location.reload();
+      } else {
+        window.location.reload();
+      }
+    } catch (error) {
+      // Error handling without alert
+    } finally {
+      setIsTestingConnection(false);
     }
   };
 
-  const getButtonText = () => {
-    if (verificationStatus === 'pending') return __("Go to Dashboard", "surefeedback");
-    if (verificationStatus === 'failed') return __("Reconnect", "surefeedback");
-    return __("Go to Dashboard", "surefeedback");
+  const getIconAndColor = () => {
+    return {
+      icon: AlertTriangle,
+      bgColor: 'bg-yellow-100',
+      iconBgColor: 'bg-yellow-500',
+      textColor: 'text-yellow-600'
+    };
   };
 
+  const { icon: Icon, bgColor, iconBgColor, textColor } = getIconAndColor();
+
   const getTitle = () => {
-    if (verificationStatus === 'pending') return __("Verification Pending", "surefeedback");
-    if (verificationStatus === 'failed') return __("Verification Failed", "surefeedback");
-    return __("Verification Required", "surefeedback");
+    return __("Verification Pending", "surefeedback");
   };
 
   const getDescription = () => {
-    if (verificationStatus === 'pending') {
-      return __("Your verification is in progress. You can check the status on your dashboard.", "surefeedback");
+    if (verificationResult && verificationResult.message) {
+      return verificationResult.message + '. ' + __("Please add the SureFeedback script to complete integration.", "surefeedback");
     }
-    if (verificationStatus === 'failed') {
-      return __("Verification failed. Please try reconnecting to complete the process.", "surefeedback");
-    }
-    return __("Your site needs to be verified before you can access the connection settings.", "surefeedback");
+    return __("Your verification is in progress. You can check the status on your dashboard.", "surefeedback");
+  };
+
+  const getButtonText = () => {
+    return __("Go to Dashboard", "surefeedback");
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-background p-4">
-      <Card className="shadow-sm text-center max-w-md w-full">
-        <CardContent className="space-y-4 p-6">
-          <AlertTriangle className="mx-auto text-yellow-600 h-8 w-8" />
-          <h2 className="text-xl font-semibold text-foreground">
-            {getTitle()}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {getDescription()}
-          </p>
-          <Button
-            size="default"
-            onClick={handleAction}
-          >
-            {getButtonText()}
-          </Button>
+    <div className="flex justify-center items-start bg-background p-4 pt-8">
+      <Card className="shadow-sm text-center max-w-2xl w-full">
+        <CardContent className="flex flex-col justify-center items-center space-y-6 px-6 py-8 min-h-[400px]">
+          {isLoading ? (
+            // Testing Connection State
+            <>
+              <div className="w-20 h-20 mx-auto bg-yellow-100 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-yellow-600">
+                  {__("Checking Connection", "surefeedback")}
+                </h2>
+                <p className="text-muted-foreground">
+                  {__("Verifying your WordPress site connection to SureFeedback. Please wait while we check the integration status.", "surefeedback")}
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={`w-20 h-20 mx-auto ${bgColor} rounded-full flex items-center justify-center`}>
+                <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h2 className={`text-xl font-semibold ${textColor}`}>
+                  {getTitle()}
+                </h2>
+                <p className="text-muted-foreground">
+                  {getDescription()}
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  size="default"
+                  onClick={handleTestConnection}
+                  disabled={isLoading}
+                  className="flex items-center"
+                >
+                  <span className="mr-2">🔄</span>
+                  {__("Test Connection", "surefeedback")}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="default"
+                  onClick={handleAction}
+                  className="flex items-center"
+                >
+                  <span className="mr-2">🔗</span>
+                  {getButtonText()}
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

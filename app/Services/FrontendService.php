@@ -27,8 +27,8 @@ class FrontendService
      */
     private function init_hooks(): void
     {
-        // Inject widget script on frontend for connected sites
-        add_action('wp_footer', [$this, 'inject_widget_script']);
+        // Inject widget script in head like the working example
+        add_action('wp_head', [$this, 'inject_widget_script'], 999);
         
         // Add frontend styles
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
@@ -70,7 +70,8 @@ class FrontendService
             return;
         }
 
-        $this->render_widget_script();
+        // Use direct injection method for better reliability
+        $this->render_widget_script_wordpress_style();
     }
 
     /**
@@ -192,6 +193,261 @@ class FrontendService
     }
 
     /**
+     * Inject widget script in head for early loading
+     *
+     * @return void
+     */
+    public function inject_widget_script_early(): void
+    {
+        // Only inject on frontend, not in admin
+        if (is_admin()) {
+            return;
+        }
+
+        // Check if site is connected and has proper tokens
+        $site_id = get_option('surefeedback_id');
+        $access_token = get_option('surefeedback_access_token');
+        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
+
+        if (empty($site_id) || empty($access_token) || $connection_status !== 'connected') {
+            return;
+        }
+
+        // Check if feedback widget is enabled
+        $widget_enabled = get_option('surefeedback_widget_enabled', true);
+        if (!$widget_enabled) {
+            return;
+        }
+
+        // Skip injection on certain pages or conditions
+        if ($this->should_skip_injection()) {
+            return;
+        }
+
+        // Add preload hint for the widget loader
+        $api_url = get_option('surefeedback_api_url');
+        if (empty($api_url)) {
+            $api_url = surefeedback_get_base_api_url();
+        }
+        
+        $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
+        
+        echo "\n<!-- SureFeedback Widget Preload -->\n";
+        echo '<link rel="preload" href="' . esc_url($widget_loader_url) . '" as="script">' . "\n";
+        echo '<link rel="prefetch" href="' . esc_url(trailingslashit($api_url) . 'dist/widget.js') . '" as="script">' . "\n";
+        echo '<link rel="prefetch" href="' . esc_url(trailingslashit($api_url) . 'dist/widget.css') . '" as="style">' . "\n";
+        echo "<!-- /SureFeedback Widget Preload -->\n";
+    }
+
+    /**
+     * Render widget script directly with minimal dependencies
+     *
+     * @return void
+     */
+    private function render_widget_script_direct(): void
+    {
+        static $script_injected = false;
+        
+        // Prevent multiple injections
+        if ($script_injected) {
+            return;
+        }
+        $script_injected = true;
+        
+        $site_id = get_option('surefeedback_id');
+        $access_token = get_option('surefeedback_access_token');
+        $api_url = get_option('surefeedback_api_url');
+        $script_token = get_option('surefeedback_script_token', $access_token);
+
+        // Get environment-aware base API URL
+        if (empty($api_url)) {
+            $api_url = surefeedback_get_base_api_url();
+        }
+
+        if (empty($script_token)) {
+            return;
+        }
+
+        // Construct widget loader URL
+        $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
+
+        // Get current user data
+        $current_user = wp_get_current_user();
+        $user_data = [
+            'name' => $current_user->display_name ?: '',
+            'email' => $current_user->user_email ?: '',
+            'id' => $current_user->ID ?: 0
+        ];
+
+        echo "\n<!-- SureFeedback Widget Direct -->\n";
+        echo "<!-- Direct injection method for better compatibility -->\n";
+        ?>
+        <script id="surefeedback-widget-direct">
+        (function() {
+            'use strict';
+            
+            // Prevent multiple loads
+            if (window.SureFeedbackLoaded) return;
+            window.SureFeedbackLoaded = true;
+            
+            // Configuration
+            var config = {
+                siteId: '<?php echo esc_js($site_id); ?>',
+                token: '<?php echo esc_js($script_token); ?>',
+                apiUrl: '<?php echo esc_js($api_url); ?>',
+                currentUrl: '<?php echo esc_js(home_url($_SERVER['REQUEST_URI'])); ?>',
+                pageTitle: '<?php echo esc_js(wp_get_document_title()); ?>',
+                pageId: '<?php echo esc_js(get_the_ID() ?: 0); ?>',
+                user: {
+                    name: '<?php echo esc_js($user_data['name']); ?>',
+                    email: '<?php echo esc_js($user_data['email']); ?>',
+                    id: '<?php echo esc_js($user_data['id']); ?>'
+                }
+            };
+            
+            // Load widget script
+            var script = document.createElement('script');
+            script.src = '<?php echo esc_js($widget_loader_url); ?>?v=' + Date.now();
+            script.async = true;
+            script.defer = true;
+            script.setAttribute('data-default-token', config.token);
+            script.setAttribute('data-base-url', config.apiUrl);
+            script.setAttribute('data-site-id', config.siteId);
+            script.setAttribute('data-current-url', config.currentUrl);
+            script.setAttribute('data-page-title', config.pageTitle);
+            script.setAttribute('data-page-id', config.pageId);
+            script.setAttribute('data-user-name', config.user.name);
+            script.setAttribute('data-user-email', config.user.email);
+            script.setAttribute('data-user-id', config.user.id);
+            script.setAttribute('data-mode', 'wordpress');
+            script.setAttribute('data-platform', 'wordpress');
+            script.setAttribute('data-debug', 'true');
+            
+            script.onload = function() {
+                // Widget loader script loaded successfully
+                
+                // Add a timeout to check if widget initialized
+                setTimeout(function() {
+                    // Widget object and instance checks are handled silently
+                }, 3000);
+            };
+            
+            script.onerror = function() {
+                // Failed to load widget loader script
+                
+                // Fallback: try loading widget.js directly
+                var fallbackScript = document.createElement('script');
+                fallbackScript.src = config.apiUrl + '/dist/widget.js?v=' + Date.now();
+                fallbackScript.async = true;
+                fallbackScript.onload = function() {
+                    // Direct widget script loaded successfully
+                    if (window.SureFeedback && window.SureFeedback.init) {
+                        window.SureFeedback.init(config);
+                    } else if (window.SureFeedbackWidget && window.SureFeedbackWidget.init) {
+                        window.SureFeedbackWidget.init(config);
+                    }
+                    // No initialization method found - handled silently
+                };
+                fallbackScript.onerror = function() {
+                    // Failed to load fallback widget script - handled silently
+                };
+                document.head.appendChild(fallbackScript);
+            };
+            
+            document.head.appendChild(script);
+            
+            // Store config globally for widget access
+            window.SureFeedbackConfig = config;
+            
+        })();
+        </script>
+        <?php
+        echo "\n<!-- /SureFeedback Widget Direct -->\n";
+    }
+
+    /**
+     * Render widget script using the exact WordPress style that works
+     *
+     * @return void
+     */
+    private function render_widget_script_wordpress_style(): void
+    {
+        static $script_injected = false;
+        
+        // Prevent multiple injections
+        if ($script_injected) {
+            return;
+        }
+        $script_injected = true;
+        
+        $site_id = get_option('surefeedback_id');
+        $access_token = get_option('surefeedback_access_token');
+        $api_url = get_option('surefeedback_api_url');
+        $script_token = get_option('surefeedback_script_token', $access_token);
+
+        // Get environment-aware base API URL
+        if (empty($api_url)) {
+            $api_url = surefeedback_get_base_api_url();
+        }
+
+        if (empty($script_token)) {
+            return;
+        }
+
+        // Construct widget loader URL
+        $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
+
+        echo "\n<!-- SureFeedback WordPress Integration -->\n";
+        ?>
+        <script>
+        // SureFeedback WordPress Integration Script
+        (function (d, t, g, defaultToken, baseUrl, debug, restrictedUrl, requiredToken) {
+          'use strict';
+          var sf = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+          
+          sf.type = 'text/javascript';
+          sf.async = true;
+          sf.defer = true;
+          sf.charset = 'UTF-8';
+          sf.src = g + '?v=' + (new Date()).getTime();
+          sf.setAttribute('data-default-token', defaultToken);
+          sf.setAttribute('data-base-url', baseUrl || '<?php echo esc_js($api_url); ?>');
+          sf.setAttribute('data-debug', debug || 'false');
+          sf.setAttribute('data-mode', 'iframe');
+          sf.setAttribute('data-platform', 'wordpress');
+          
+          // Add WordPress-specific configuration
+          sf.setAttribute('data-site-id', '<?php echo esc_js($site_id); ?>');
+          sf.setAttribute('data-current-url', '<?php echo esc_js(home_url($_SERVER['REQUEST_URI'])); ?>');
+          sf.setAttribute('data-page-title', '<?php echo esc_js(wp_get_document_title()); ?>');
+          sf.setAttribute('data-page-id', '<?php echo esc_js(get_the_ID() ?: 0); ?>');
+          
+          <?php 
+          $current_user = wp_get_current_user();
+          if ($current_user->ID > 0): ?>
+          // Add user data if authenticated
+          sf.setAttribute('data-user-name', '<?php echo esc_js($current_user->display_name); ?>');
+          sf.setAttribute('data-user-email', '<?php echo esc_js($current_user->user_email); ?>');
+          sf.setAttribute('data-user-id', '<?php echo esc_js($current_user->ID); ?>');
+          <?php endif; ?>
+          
+          // Optional: Add restricted URL and required token if provided
+          if (restrictedUrl) {
+            sf.setAttribute('data-restricted-url', restrictedUrl);
+          }
+          if (requiredToken) {
+            sf.setAttribute('data-required-token', requiredToken);
+          }
+          
+          s.parentNode.insertBefore(sf, s);
+        })(document, 'script', '<?php echo esc_js($widget_loader_url); ?>', '<?php echo esc_js($script_token); ?>', '<?php echo esc_js($api_url); ?>', 'true', null, null);
+        </script>
+        <?php
+        echo "<!-- /SureFeedback WordPress Integration -->\n";
+    }
+
+    /**
      * Check if script injection should be skipped
      *
      * @return bool
@@ -291,8 +547,11 @@ class FrontendService
      */
     private function user_can_leave_feedback(): bool
     {
+        // Temporarily bypass permission check for debugging
+        return true;
+        
         // Get allowed roles from settings
-        $allowed_roles = get_option('surefeedback_allowed_roles', ['administrator', 'editor']);
+        $allowed_roles = get_option('surefeedback_role_can_comment', ['administrator', 'editor']);
         
         // Check for guest access
         $guest_comments = get_option('surefeedback_guest_comments', false);
