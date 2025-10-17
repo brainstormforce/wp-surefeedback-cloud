@@ -1,6 +1,6 @@
 {
   "name": "surefeedback",
-  "version": "1.2.6",
+  "version": "1.0.0",
   "description": "SureFeedback client plugin for collecting and managing user feedback",
   "main": "index.js",
   "scripts": {

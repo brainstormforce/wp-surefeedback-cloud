@@ -5,6 +5,13 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
 
+    // Read version from main plugin file
+    version: (function() {
+      var phpFile = grunt.file.read('surefeedback.php');
+      var versionMatch = phpFile.match(/\* Version:\s*([0-9.]+)/);
+      return versionMatch ? versionMatch[1] : '1.0.0';
+    })(),
+
     addtextdomain: {
       options: {
         textdomain: "surefeedback",
@@ -53,7 +60,7 @@ module.exports = function (grunt) {
       // Local/Development zip
       local: {
         options: {
-          archive: "surefeedback-local.zip",
+          archive: "surefeedback-v<%= version %>-local.zip",
         },
         files: [
           {
@@ -102,7 +109,7 @@ module.exports = function (grunt) {
       // Staging zip
       staging: {
         options: {
-          archive: "surefeedback-staging.zip",
+          archive: "surefeedback-v<%= version %>-staging.zip",
         },
         files: [
           {
@@ -151,7 +158,7 @@ module.exports = function (grunt) {
       // Production zip (WordPress.org release)
       production: {
         options: {
-          archive: "surefeedback.zip",
+          archive: "surefeedback-v<%= version %>.zip",
         },
         files: [
           {
@@ -214,24 +221,24 @@ module.exports = function (grunt) {
       release_local: {
         files: [
           {
-            src: "surefeedback-local.zip",
-            dest: "release/local/surefeedback-local.zip",
+            src: "surefeedback-v<%= version %>-local.zip",
+            dest: "release/local/surefeedback-v<%= version %>-local.zip",
           },
         ],
       },
       release_staging: {
         files: [
           {
-            src: "surefeedback-staging.zip",
-            dest: "release/staging/surefeedback-staging.zip",
+            src: "surefeedback-v<%= version %>-staging.zip",
+            dest: "release/staging/surefeedback-v<%= version %>-staging.zip",
           },
         ],
       },
       release_production: {
         files: [
           {
-            src: "surefeedback.zip",
-            dest: "release/production/surefeedback.zip",
+            src: "surefeedback-v<%= version %>.zip",
+            dest: "release/production/surefeedback-v<%= version %>.zip",
           },
         ],
       },

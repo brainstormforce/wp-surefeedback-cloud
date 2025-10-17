@@ -46,7 +46,7 @@ if ( ! defined( 'SUREFEEDBACK_PLUGIN_FILE' ) ) {
 
 // Plugin Version.
 if ( ! defined( 'SUREFEEDBACK_VERSION' ) ) {
-	define( 'SUREFEEDBACK_VERSION', '1.0.1' );
+	define( 'SUREFEEDBACK_VERSION', '1.0.0' );
 }
 
 // Plugin Basename.
