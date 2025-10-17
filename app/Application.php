@@ -4,6 +4,7 @@
  * Application - Main plugin application class
  *
  * @package SureFeedback
+ * @author Anurag Singh <anurags@bsf.io>
  */
 
 namespace SureFeedback;

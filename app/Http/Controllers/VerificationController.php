@@ -12,6 +12,7 @@ use WP_Error;
  * Handles verification requests to the SureFeedback API
  *
  * @package SureFeedback\Http\Controllers
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class VerificationController
 {

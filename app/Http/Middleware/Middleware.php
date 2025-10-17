@@ -11,6 +11,7 @@ use WP_Error;
  * Provides base functionality for request middleware processing.
  *
  * @package SureFeedback\App\Http\Middleware
+ * @author Anurag Singh <anurags@bsf.io>
  */
 abstract class Middleware
 {

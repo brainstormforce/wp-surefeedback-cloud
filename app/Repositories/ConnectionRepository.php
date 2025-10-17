@@ -8,6 +8,7 @@ namespace SureFeedback\Repositories;
  * Handles all connection-related data operations.
  *
  * @package SureFeedback\App\Repositories
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class ConnectionRepository extends BaseRepository
 {

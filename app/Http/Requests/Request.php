@@ -9,6 +9,7 @@ namespace SureFeedback\Http\Requests;
  * and data handling in WordPress environment.
  *
  * @package SureFeedback\App\Http\Requests
+ * @author Anurag Singh <anurags@bsf.io>
  */
 abstract class Request
 {

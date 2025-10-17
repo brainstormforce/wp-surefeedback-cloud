@@ -11,6 +11,7 @@ use Exception;
  * Provides additional context and logging capabilities.
  *
  * @package SureFeedback\App\Exceptions
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class SureFeedbackException extends Exception
 {

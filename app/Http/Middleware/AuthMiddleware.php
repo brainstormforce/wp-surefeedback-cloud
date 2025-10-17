@@ -11,6 +11,7 @@ use WP_Error;
  * Handles authentication and authorization for API requests.
  *
  * @package SureFeedback\App\Http\Middleware
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class AuthMiddleware extends Middleware
 {

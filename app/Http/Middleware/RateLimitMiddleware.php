@@ -11,6 +11,7 @@ use WP_Error;
  * Implements rate limiting to prevent abuse of API endpoints.
  *
  * @package SureFeedback\App\Http\Middleware
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class RateLimitMiddleware extends Middleware
 {

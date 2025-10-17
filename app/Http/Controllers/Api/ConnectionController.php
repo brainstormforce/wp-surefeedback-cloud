@@ -18,6 +18,7 @@ use WP_REST_Response;
  * status checks, verification, and connection management.
  *
  * @package SureFeedback\App\Http\Controllers\Api
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class ConnectionController extends Controller
 {

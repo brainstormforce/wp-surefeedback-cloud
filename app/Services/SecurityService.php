@@ -9,6 +9,7 @@ namespace SureFeedback\Services;
  * signature verification, input validation, and access control.
  *
  * @package SureFeedback\App\Services
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class SecurityService
 {

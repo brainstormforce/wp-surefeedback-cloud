@@ -9,6 +9,7 @@ namespace SureFeedback\Exceptions;
  * Used for service resolution, binding issues, etc.
  *
  * @package SureFeedback\App\Exceptions
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class ContainerException extends SureFeedbackException
 {

@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for disconnecting site.
  *
  * @package SureFeedback\App\Http\Requests\Admin
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class DisconnectRequest extends Request
 {

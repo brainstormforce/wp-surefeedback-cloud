@@ -9,6 +9,7 @@ namespace SureFeedback\Exceptions;
  * Includes HTTP status codes and response handling.
  *
  * @package SureFeedback\App\Exceptions
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class ApiException extends SureFeedbackException
 {

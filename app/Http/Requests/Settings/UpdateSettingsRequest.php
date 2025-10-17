@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for updating general settings.
  *
  * @package SureFeedback\App\Http\Requests\Settings
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class UpdateSettingsRequest extends Request
 {

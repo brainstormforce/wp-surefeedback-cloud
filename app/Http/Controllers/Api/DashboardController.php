@@ -18,6 +18,7 @@ use WP_REST_Response;
  * statistics, quick access data, and recent activity.
  *
  * @package SureFeedback\App\Http\Controllers\Api
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class DashboardController extends Controller
 {

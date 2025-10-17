@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for dashboard statistics.
  *
  * @package SureFeedback\App\Http\Requests\Dashboard
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class StatsRequest extends Request
 {

@@ -9,6 +9,7 @@ namespace SureFeedback\Services;
  * functionality for the SureFeedback feedback collection system.
  *
  * @package SureFeedback\App\Services
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class FrontendService
 {

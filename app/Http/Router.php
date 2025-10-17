@@ -6,6 +6,7 @@ namespace SureFeedback\Http;
  * Router - REST API route registration
  *
  * @package SureFeedback\Http
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class Router
 {

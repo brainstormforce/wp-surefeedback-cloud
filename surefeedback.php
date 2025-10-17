@@ -6,6 +6,7 @@
  * Author: Brainstorm Force
  * Author URI: https://www.brainstormforce.com
  * Version: 1.0.0
+ * Developer: Anurag Singh <anurags@bsf.io>
  *
  * Requires at least: 4.7
  * Tested up to: 6.8

@@ -9,6 +9,7 @@ namespace SureFeedback\Repositories;
  * in WordPress environment using WordPress options API.
  *
  * @package SureFeedback\App\Repositories
+ * @author Anurag Singh <anurags@bsf.io>
  */
 abstract class BaseRepository
 {

@@ -6,6 +6,7 @@ namespace SureFeedback\Providers;
  * Route Service Provider
  *
  * @package SureFeedback\Providers
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class RouteServiceProvider
 {

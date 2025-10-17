@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for verifying connections.
  *
  * @package SureFeedback\App\Http\Requests\Connection
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class VerifyRequest extends Request
 {

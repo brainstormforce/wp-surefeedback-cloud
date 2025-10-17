@@ -15,6 +15,7 @@ use SureFeedback\Http\Controllers\VerificationController;
  * settings pages, dashboard integration, and admin-specific features.
  *
  * @package SureFeedback\App\Services
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class AdminService
 {

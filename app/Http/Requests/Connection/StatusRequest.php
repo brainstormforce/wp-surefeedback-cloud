@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for checking connection status.
  *
  * @package SureFeedback\App\Http\Requests\Connection
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class StatusRequest extends Request
 {

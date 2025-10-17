@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for testing parent site connection.
  *
  * @package SureFeedback\App\Http\Requests\Admin
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class TestParentSiteRequest extends Request
 {

@@ -8,6 +8,7 @@ namespace SureFeedback\Repositories;
  * Handles all settings-related data operations.
  *
  * @package SureFeedback\App\Repositories
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class SettingsRepository extends BaseRepository
 {

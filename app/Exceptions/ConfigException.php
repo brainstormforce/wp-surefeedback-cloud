@@ -9,6 +9,7 @@ namespace SureFeedback\Exceptions;
  * Used for invalid settings, missing configuration, etc.
  *
  * @package SureFeedback\App\Exceptions
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class ConfigException extends SureFeedbackException
 {

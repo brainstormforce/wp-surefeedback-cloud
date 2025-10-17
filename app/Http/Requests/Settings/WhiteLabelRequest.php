@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for updating white label settings.
  *
  * @package SureFeedback\App\Http\Requests\Settings
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class WhiteLabelRequest extends Request
 {

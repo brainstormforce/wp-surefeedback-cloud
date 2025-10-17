@@ -11,6 +11,7 @@ use WP_Error;
  * Manages and executes middleware stack for API requests.
  *
  * @package SureFeedback\App\Http\Middleware
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class MiddlewareManager
 {

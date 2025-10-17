@@ -4,6 +4,7 @@
  * Base Controller - Laravel-inspired controller
  *
  * @package SureFeedback\App\Http\Controllers
+ * @author Anurag Singh <anurags@bsf.io>
  */
 
 namespace SureFeedback\Http\Controllers;

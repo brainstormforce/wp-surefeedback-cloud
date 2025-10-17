@@ -20,6 +20,7 @@ use WP_REST_Response;
  * white labeling, verification, and connection management.
  *
  * @package SureFeedback\App\Http\Controllers\Api
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class AdminApiController extends Controller
 {

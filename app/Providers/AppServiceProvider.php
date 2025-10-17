@@ -4,6 +4,7 @@
  * App Service Provider - Main application services
  *
  * @package SureFeedback\Providers
+ * @author Anurag Singh <anurags@bsf.io>
  */
 
 namespace SureFeedback\Providers;

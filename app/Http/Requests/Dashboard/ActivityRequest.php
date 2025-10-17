@@ -10,6 +10,7 @@ use SureFeedback\Http\Requests\Request;
  * Validates requests for recent activity.
  *
  * @package SureFeedback\App\Http\Requests\Dashboard
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class ActivityRequest extends Request
 {

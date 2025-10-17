@@ -13,6 +13,7 @@ use WP_Error;
  * and data synchronization with the parent SaaS platform.
  *
  * @package SureFeedback\App\Services
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class SaasClientService
 {

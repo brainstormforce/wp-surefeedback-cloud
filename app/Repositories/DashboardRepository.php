@@ -8,6 +8,7 @@ namespace SureFeedback\Repositories;
  * Handles all dashboard-related data operations and statistics.
  *
  * @package SureFeedback\App\Repositories
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class DashboardRepository extends BaseRepository
 {

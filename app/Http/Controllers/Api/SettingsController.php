@@ -17,6 +17,7 @@ use WP_REST_Response;
  * general settings, white label configuration, and plugin options.
  *
  * @package SureFeedback\App\Http\Controllers\Api
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class SettingsController extends Controller
 {

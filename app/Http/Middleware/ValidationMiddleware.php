@@ -12,6 +12,7 @@ use SureFeedback\Http\Requests\Request;
  * Handles request validation using Request classes.
  *
  * @package SureFeedback\App\Http\Middleware
+ * @author Anurag Singh <anurags@bsf.io>
  */
 class ValidationMiddleware extends Middleware
 {
