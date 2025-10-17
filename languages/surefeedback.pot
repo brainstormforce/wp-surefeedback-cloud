@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SureFeedback Client 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
-"POT-Creation-Date: 2025-10-17 16:41:34+00:00\n"
+"POT-Creation-Date: 2025-10-17 17:25:45+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -216,6 +216,18 @@ msgstr ""
 
 #: app/Services/AdminService.php:885
 msgid "Failed to import settings"
+msgstr ""
+
+#: routes/api.php:53
+msgid "You do not have permission to activate plugins."
+msgstr ""
+
+#: routes/api.php:66
+msgid "Plugin is already active."
+msgstr ""
+
+#: routes/api.php:88
+msgid "Plugin activated successfully."
 msgstr ""
 
 #: surefeedback.php:187

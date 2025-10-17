@@ -44,6 +44,75 @@ $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($rout
 // Webhook endpoint for SureFeedback API callbacks
 $router->post('webhook', [ConnectionController::class, 'webhook']);
 
+// Plugin activation endpoint (for SaaS auto-installation)
+$router->post('plugin/activate', function () {
+    // Check if user is authenticated and has admin capabilities
+    if (!is_user_logged_in() || !current_user_can('activate_plugins')) {
+        return new WP_Error(
+            'rest_forbidden',
+            __('You do not have permission to activate plugins.', 'surefeedback'),
+            ['status' => rest_authorization_required_code()]
+        );
+    }
+
+    try {
+        $plugin_file = SUREFEEDBACK_PLUGIN_BASENAME;
+
+        // Check if plugin is already active
+        if (is_plugin_active($plugin_file)) {
+            return rest_ensure_response([
+                'success' => true,
+                'already_active' => true,
+                'message' => __('Plugin is already active.', 'surefeedback'),
+                'plugin' => $plugin_file,
+                'status' => 'active',
+            ]);
+        }
+
+        // Activate the plugin
+        $result = activate_plugin($plugin_file, '', false, true);
+
+        if (is_wp_error($result)) {
+            return new WP_Error(
+                'activation_failed',
+                $result->get_error_message(),
+                ['status' => 500]
+            );
+        }
+
+        // Run activation hook manually if needed
+        do_action('activate_' . $plugin_file);
+
+        return rest_ensure_response([
+            'success' => true,
+            'message' => __('Plugin activated successfully.', 'surefeedback'),
+            'plugin' => $plugin_file,
+            'status' => 'active',
+            'activated_at' => current_time('mysql'),
+        ]);
+
+    } catch (\Exception $e) {
+        return new WP_Error(
+            'activation_exception',
+            $e->getMessage(),
+            ['status' => 500]
+        );
+    }
+});
+
+// Plugin status endpoint
+$router->get('plugin/status', function () {
+    $plugin_file = SUREFEEDBACK_PLUGIN_BASENAME;
+    
+    return rest_ensure_response([
+        'plugin' => $plugin_file,
+        'is_active' => is_plugin_active($plugin_file),
+        'version' => SUREFEEDBACK_VERSION,
+        'name' => 'SureFeedback Client',
+        'status' => is_plugin_active($plugin_file) ? 'active' : 'inactive',
+    ]);
+});
+
 // Verification endpoints
 $router->group(['prefix' => 'verification'], function ($router) {
     $router->post('verify', [VerificationController::class, 'verify_connection']);
