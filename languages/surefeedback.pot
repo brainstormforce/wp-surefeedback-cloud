@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SureFeedback Client 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
-"POT-Creation-Date: 2025-10-16 10:23:58+00:00\n"
+"POT-Creation-Date: 2025-10-17 15:00:06+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,8 +24,12 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Generator: grunt-wp-i18n 1.0.4\n"
 
-#: app/Application.php:509
-msgid "An error occurred. Please try again later."
+#: app/Http/Controllers/Api/SettingsController.php:55
+msgid "Authentication required"
+msgstr ""
+
+#: app/Http/Controllers/Api/SettingsController.php:59
+msgid "Insufficient permissions. Administrator access required."
 msgstr ""
 
 #: app/Http/Controllers/Controller.php:128
@@ -64,200 +68,158 @@ msgstr ""
 msgid "The %s field is invalid."
 msgstr ""
 
-#: app/Http/Controllers/Controller.php:426
-msgid "An error occurred while processing your request."
+#: app/Http/Controllers/Controller.php:395
+msgid "Nonce not provided"
 msgstr ""
 
-#: app/Services/AdminService.php:116 app/Services/AdminService.php:117
-msgid "SureFeedback"
+#: app/Http/Controllers/Controller.php:407
+msgid "Invalid nonce"
 msgstr ""
 
-#: app/Services/AdminService.php:130 app/Services/AdminService.php:131
-#: app/Services/AdminService.php:379 app/Services/AdminService.php:414
-#: surefeedback.php:160
-msgid "Dashboard"
-msgstr ""
-
-#: app/Services/AdminService.php:142 app/Services/AdminService.php:143
-#: app/Services/AdminService.php:381 app/Services/AdminService.php:421
-#: surefeedback.php:161
-msgid "Settings"
-msgstr ""
-
-#: app/Services/AdminService.php:154 app/Services/AdminService.php:155
-#: app/Services/AdminService.php:686
-msgid "Connection"
-msgstr ""
-
-#: app/Services/AdminService.php:166 app/Services/AdminService.php:167
-msgid "Tools"
-msgstr ""
-
-#: app/Services/AdminService.php:332
-msgid "SureFeedback is not connected to a parent site. "
-msgstr ""
-
-#: app/Services/AdminService.php:334
-msgid "Connect now"
-msgstr ""
-
-#: app/Services/AdminService.php:344
-msgid "SureFeedback verification failed. Please check your connection settings."
-msgstr ""
-
-#: app/Services/AdminService.php:355
-msgid "Settings saved successfully."
-msgstr ""
-
-#: app/Services/AdminService.php:356
-msgid "Connection established successfully."
-msgstr ""
-
-#: app/Services/AdminService.php:357
-msgid "Disconnected successfully."
-msgstr ""
-
-#: app/Services/AdminService.php:358
-msgid "Plugin reset completed."
-msgstr ""
-
-#: app/Services/AdminService.php:431
-msgid "Open Parent Dashboard"
-msgstr ""
-
-#: app/Services/AdminService.php:452
-msgid "SureFeedback Status"
-msgstr ""
-
-#: app/Services/AdminService.php:470
-msgid "Connection Status:"
-msgstr ""
-
-#: app/Services/AdminService.php:472 app/Services/AdminService.php:602
-msgid "Connected"
-msgstr ""
-
-#: app/Services/AdminService.php:474 app/Services/AdminService.php:603
-msgid "Disconnected"
-msgstr ""
-
-#: app/Services/AdminService.php:480
-msgid "Last Verification:"
-msgstr ""
-
-#: app/Services/AdminService.php:486
-msgid "Pending Feedback:"
-msgstr ""
-
-#: app/Services/AdminService.php:493
-msgid "View Dashboard"
-msgstr ""
-
-#: app/Services/AdminService.php:498
-msgid "Connect Now"
-msgstr ""
-
-#: app/Services/AdminService.php:601
-msgid "Connecting..."
-msgstr ""
-
-#: app/Services/AdminService.php:604
-msgid "Testing connection..."
-msgstr ""
-
-#: app/Services/AdminService.php:605
-msgid "Saving..."
-msgstr ""
-
-#: app/Services/AdminService.php:606
-msgid "Saved"
-msgstr ""
-
-#: app/Services/AdminService.php:607
-msgid "Error"
-msgstr ""
-
-#: app/Services/AdminService.php:608
-msgid "Success"
-msgstr ""
-
-#: app/Services/AdminService.php:609
-msgid "Are you sure you want to disconnect? This will disable the feedback widget."
-msgstr ""
-
-#: app/Services/AdminService.php:610
-msgid "Are you sure you want to reset all settings? This action cannot be undone."
-msgstr ""
-
-#: app/Services/AdminService.php:680
-msgid "Overview"
-msgstr ""
-
-#: app/Services/AdminService.php:692
-msgid "Troubleshooting"
-msgstr ""
-
-#: app/Services/AdminService.php:706
-msgid ""
-"SureFeedback allows clients to provide feedback directly on your website "
-"using a sticky note-style interface. The feedback is then synced with your "
-"parent SureFeedback dashboard for centralized management."
-msgstr ""
-
-#: app/Services/AdminService.php:716
-msgid ""
-"To connect this site to your SureFeedback parent dashboard, you need the "
-"parent site URL and a site token. These are provided when you add a new "
-"site in your parent dashboard."
-msgstr ""
-
-#: app/Services/AdminService.php:726
-msgid ""
-"If you are experiencing connection issues, please check that your parent "
-"site URL is correct and that the site token matches what was provided in "
-"your parent dashboard."
-msgstr ""
-
-#: app/Services/AdminService.php:736
-msgid "For more information:"
-msgstr ""
-
-#: app/Services/AdminService.php:737
-msgid "Documentation"
-msgstr ""
-
-#: app/Services/AdminService.php:738
-msgid "Support"
-msgstr ""
-
-#: app/Services/AdminService.php:751 app/Services/AdminService.php:784
-#: app/Services/AdminService.php:814 app/Services/AdminService.php:866
-#: app/Services/AdminService.php:896
+#: app/Http/Controllers/Controller.php:422 app/Services/AdminService.php:662
+#: app/Services/AdminService.php:695 app/Services/AdminService.php:725
+#: app/Services/AdminService.php:765 app/Services/AdminService.php:817
+#: app/Services/AdminService.php:847
 msgid "Insufficient permissions"
 msgstr ""
 
-#: app/Services/AdminService.php:763
+#: app/Http/Controllers/Controller.php:501
+msgid "An error occurred while processing your request."
+msgstr ""
+
+#: app/Services/AdminService.php:118 app/Services/AdminService.php:119
+msgid "SureFeedback"
+msgstr ""
+
+#: app/Services/AdminService.php:132 app/Services/AdminService.php:133
+#: app/Services/AdminService.php:383
+msgid "Connection"
+msgstr ""
+
+#: app/Services/AdminService.php:142 app/Services/AdminService.php:143
+#: app/Services/AdminService.php:385 app/Services/AdminService.php:418
+#: surefeedback.php:187
+msgid "Settings"
+msgstr ""
+
+#: app/Services/AdminService.php:334
+msgid "SureFeedback is not connected to a parent site. "
+msgstr ""
+
+#: app/Services/AdminService.php:336
+msgid "Connect now"
+msgstr ""
+
+#: app/Services/AdminService.php:359
+msgid "Settings saved successfully."
+msgstr ""
+
+#: app/Services/AdminService.php:360
+msgid "Connection established successfully."
+msgstr ""
+
+#: app/Services/AdminService.php:361
+msgid "Disconnected successfully."
+msgstr ""
+
+#: app/Services/AdminService.php:362
+msgid "Plugin reset completed."
+msgstr ""
+
+#: app/Services/AdminService.php:428
+msgid "Open Parent Dashboard"
+msgstr ""
+
+#: app/Services/AdminService.php:449
+msgid "SureFeedback Status"
+msgstr ""
+
+#: app/Services/AdminService.php:467
+msgid "Connection Status:"
+msgstr ""
+
+#: app/Services/AdminService.php:469 app/Services/AdminService.php:600
+msgid "Connected"
+msgstr ""
+
+#: app/Services/AdminService.php:471 app/Services/AdminService.php:601
+msgid "Disconnected"
+msgstr ""
+
+#: app/Services/AdminService.php:477
+msgid "Last Verification:"
+msgstr ""
+
+#: app/Services/AdminService.php:484
+msgid "Pending Feedback:"
+msgstr ""
+
+#: app/Services/AdminService.php:491
+msgid "View Dashboard"
+msgstr ""
+
+#: app/Services/AdminService.php:496
+msgid "Connect Now"
+msgstr ""
+
+#: app/Services/AdminService.php:599
+msgid "Connecting..."
+msgstr ""
+
+#: app/Services/AdminService.php:602
+msgid "Testing connection..."
+msgstr ""
+
+#: app/Services/AdminService.php:603
+msgid "Saving..."
+msgstr ""
+
+#: app/Services/AdminService.php:604
+msgid "Saved"
+msgstr ""
+
+#: app/Services/AdminService.php:605
+msgid "Error"
+msgstr ""
+
+#: app/Services/AdminService.php:606
+msgid "Success"
+msgstr ""
+
+#: app/Services/AdminService.php:607
+msgid "Are you sure you want to disconnect? This will disable the feedback widget."
+msgstr ""
+
+#: app/Services/AdminService.php:608
+msgid "Are you sure you want to reset all settings? This action cannot be undone."
+msgstr ""
+
+#: app/Services/AdminService.php:674
 msgid "Settings saved successfully"
 msgstr ""
 
-#: app/Services/AdminService.php:768
+#: app/Services/AdminService.php:679
 msgid "Failed to save settings"
 msgstr ""
 
-#: app/Services/AdminService.php:852
+#: app/Services/AdminService.php:803
 msgid "Plugin reset successfully"
 msgstr ""
 
-#: app/Services/AdminService.php:903
+#: app/Services/AdminService.php:854
 msgid "No settings provided"
 msgstr ""
 
-#: app/Services/AdminService.php:928
+#: app/Services/AdminService.php:879
 msgid "Settings imported successfully"
 msgstr ""
 
-#: app/Services/AdminService.php:933
+#: app/Services/AdminService.php:884
 msgid "Failed to import settings"
+msgstr ""
+
+#: surefeedback.php:186
+msgid "Dashboard"
 msgstr ""
 
 #. Plugin Name of the plugin/theme

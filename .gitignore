@@ -9,8 +9,6 @@ yarn-error.log*
 /build/
 
 # Release builds
-*.zip
-/release/
 
 # Environment variables
 .env
