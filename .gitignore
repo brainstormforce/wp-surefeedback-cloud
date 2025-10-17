@@ -8,6 +8,10 @@ yarn-error.log*
 /dist/
 /build/
 
+# Release builds
+*.zip
+/release/
+
 # Environment variables
 .env
 .env.local

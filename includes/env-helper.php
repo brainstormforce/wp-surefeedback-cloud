@@ -45,12 +45,47 @@ function surefeedback_load_env() {
  */
 function surefeedback_env($key, $default = null) {
     $value = getenv($key);
-    
+
     if ($value === false) {
         $value = $_ENV[$key] ?? $default;
     }
-    
+
     return $value;
+}
+
+/**
+ * Get active environment
+ */
+function surefeedback_get_active_env() {
+    return strtoupper(surefeedback_env('ACTIVE_ENV', 'production'));
+}
+
+/**
+ * Get environment-specific variable
+ *
+ * @param string $var_name The base variable name (e.g., 'SUREFEEDBACK_APP_URL')
+ * @param mixed $default Default value if not found
+ * @return mixed The environment-specific value
+ */
+function surefeedback_get_env_var($var_name, $default = null) {
+    $active_env = surefeedback_get_active_env();
+
+    // Try to get environment-specific variable (e.g., SUREFEEDBACK_APP_URL_DEVELOPMENT)
+    $env_specific_key = $var_name . '_' . $active_env;
+    $value = surefeedback_env($env_specific_key);
+
+    if ($value !== null) {
+        return $value;
+    }
+
+    // Fall back to base variable name (backwards compatibility)
+    $value = surefeedback_env($var_name);
+
+    if ($value !== null) {
+        return $value;
+    }
+
+    return $default;
 }
 
 /**
@@ -62,24 +97,24 @@ function surefeedback_get_app_url() {
     if (!empty($custom_url)) {
         return $custom_url;
     }
-    
-    // Check environment variable
-    $env_url = surefeedback_env('SUREFEEDBACK_APP_URL');
+
+    // Check environment variable (with ACTIVE_ENV support)
+    $env_url = surefeedback_get_env_var('SUREFEEDBACK_APP_URL');
     if ($env_url) {
         return $env_url;
     }
-    
+
     // Auto-detect based on current site URL
     $site_url = home_url();
-    
+
     if (strpos($site_url, 'localhost') !== false || strpos($site_url, '.local') !== false) {
         return 'http://localhost:3000';
     }
-    
+
     if (strpos($site_url, 'staging') !== false) {
         return 'https://app-staging.surefeedback.com';
     }
-    
+
     return 'https://app.surefeedback.com'; // Production default
 }
 
@@ -92,24 +127,24 @@ function surefeedback_get_api_url() {
     if (!empty($custom_url)) {
         return $custom_url;
     }
-    
-    // Check environment variable
-    $env_url = surefeedback_env('SUREFEEDBACK_API_URL');
+
+    // Check environment variable (with ACTIVE_ENV support)
+    $env_url = surefeedback_get_env_var('SUREFEEDBACK_API_URL');
     if ($env_url) {
         return $env_url;
     }
-    
+
     // Auto-detect based on current site URL
     $site_url = home_url();
-    
+
     if (strpos($site_url, 'localhost') !== false || strpos($site_url, '.local') !== false) {
         return 'http://localhost:8000/api/v1';
     }
-    
+
     if (strpos($site_url, 'staging') !== false) {
         return 'https://api-staging.surefeedback.com/api/v1';
     }
-    
+
     return 'https://api.surefeedback.com/api/v1'; // Production default
 }
 
@@ -122,24 +157,24 @@ function surefeedback_get_base_api_url() {
     if (!empty($custom_url)) {
         return str_replace('/api/v1', '', $custom_url);
     }
-    
-    // Check environment variable
-    $env_url = surefeedback_env('SUREFEEDBACK_API_URL');
+
+    // Check environment variable (with ACTIVE_ENV support)
+    $env_url = surefeedback_get_env_var('SUREFEEDBACK_API_URL');
     if ($env_url) {
         return str_replace('/api/v1', '', $env_url);
     }
-    
+
     // Auto-detect based on current site URL
     $site_url = home_url();
-    
+
     if (strpos($site_url, 'localhost') !== false || strpos($site_url, '.local') !== false) {
         return 'http://localhost:8000';
     }
-    
+
     if (strpos($site_url, 'staging') !== false) {
         return 'https://api-staging.surefeedback.com';
     }
-    
+
     return 'https://api.surefeedback.com'; // Production default
 }
 
@@ -147,22 +182,23 @@ function surefeedback_get_base_api_url() {
  * Get current environment
  */
 function surefeedback_get_environment() {
-    $env = surefeedback_env('SUREFEEDBACK_ENV');
+    // Check environment variable (with ACTIVE_ENV support)
+    $env = surefeedback_get_env_var('SUREFEEDBACK_ENV');
     if ($env) {
         return $env;
     }
-    
+
     // Auto-detect
     $site_url = home_url();
-    
+
     if (strpos($site_url, 'localhost') !== false || strpos($site_url, '.local') !== false) {
         return 'development';
     }
-    
+
     if (strpos($site_url, 'staging') !== false) {
         return 'staging';
     }
-    
+
     return 'production';
 }
 

@@ -50,7 +50,108 @@ module.exports = function (grunt) {
     },
 
     compress: {
-      main: {
+      // Local/Development zip
+      local: {
+        options: {
+          archive: "surefeedback-local.zip",
+        },
+        files: [
+          {
+            src: [
+              "**/*",
+              "!node_modules/**",
+              "!tests/**",
+              "!.git/**",
+              "!.gitignore",
+              "!.claude/**",
+              "!bin/**",
+              "!vendor/**",
+              "!src/**",
+              "!resources/assets/**",
+              "!release/**",
+              "!vite.config.js",
+              "!postcss.config.cjs",
+              "!tailwind.config.cjs",
+              "!package.json",
+              "!package-lock.json",
+              "!composer.json",
+              "!composer.lock",
+              "!phpcs.xml.dist",
+              "!phpstan.neon",
+              "!phpstan-baseline.neon",
+              "!phpunit.xml",
+              "!stubs-generator.php",
+              "!jsconfig.json",
+              "!components.json",
+              "!GruntFile.js",
+              "!CLAUDE.md",
+              "!GithubCopilot.md",
+              "!README.md",
+              "!.env.example",
+              "!*.log",
+              "!*.tmp",
+              "!.DS_Store",
+              "!Thumbs.db",
+              "!.phpunit.cache/**",
+              "!surefeedback-*.zip",
+              "!surefeedback.zip",
+            ],
+            dest: "surefeedback/",
+          },
+        ],
+      },
+      // Staging zip
+      staging: {
+        options: {
+          archive: "surefeedback-staging.zip",
+        },
+        files: [
+          {
+            src: [
+              "**/*",
+              "!node_modules/**",
+              "!tests/**",
+              "!.git/**",
+              "!.gitignore",
+              "!.claude/**",
+              "!bin/**",
+              "!vendor/**",
+              "!src/**",
+              "!resources/assets/**",
+              "!release/**",
+              "!vite.config.js",
+              "!postcss.config.cjs",
+              "!tailwind.config.cjs",
+              "!package.json",
+              "!package-lock.json",
+              "!composer.json",
+              "!composer.lock",
+              "!phpcs.xml.dist",
+              "!phpstan.neon",
+              "!phpstan-baseline.neon",
+              "!phpunit.xml",
+              "!stubs-generator.php",
+              "!jsconfig.json",
+              "!components.json",
+              "!GruntFile.js",
+              "!CLAUDE.md",
+              "!GithubCopilot.md",
+              "!README.md",
+              "!.env.example",
+              "!*.log",
+              "!*.tmp",
+              "!.DS_Store",
+              "!Thumbs.db",
+              "!.phpunit.cache/**",
+              "!surefeedback-*.zip",
+              "!surefeedback.zip",
+            ],
+            dest: "surefeedback/",
+          },
+        ],
+      },
+      // Production zip (WordPress.org release)
+      production: {
         options: {
           archive: "surefeedback.zip",
         },
@@ -62,10 +163,12 @@ module.exports = function (grunt) {
               "!tests/**",
               "!.git/**",
               "!.gitignore",
+              "!.claude/**",
               "!bin/**",
               "!vendor/**",
               "!src/**",
               "!resources/assets/**",
+              "!release/**",
               "!vite.config.js",
               "!postcss.config.cjs",
               "!tailwind.config.cjs",
@@ -76,17 +179,62 @@ module.exports = function (grunt) {
               "!phpcs.xml.dist",
               "!phpstan.neon",
               "!phpstan-baseline.neon",
+              "!phpunit.xml",
               "!stubs-generator.php",
+              "!jsconfig.json",
+              "!components.json",
               "!GruntFile.js",
               "!CLAUDE.md",
               "!GithubCopilot.md",
               "!README.md",
+              "!.env.example",
               "!*.log",
               "!*.tmp",
               "!.DS_Store",
               "!Thumbs.db",
+              "!.phpunit.cache/**",
+              "!surefeedback-*.zip",
+              "!surefeedback.zip",
             ],
             dest: "surefeedback/",
+          },
+        ],
+      },
+    },
+
+    clean: {
+      // Clean release folders before creating new zips
+      release_local: ["release/local/*.zip"],
+      release_staging: ["release/staging/*.zip"],
+      release_production: ["release/production/*.zip"],
+      release_all: ["release/**/*.zip"],
+      // Clean root-level zips
+      root_zips: ["surefeedback*.zip"],
+    },
+
+    copy: {
+      // Copy zips to release folders
+      release_local: {
+        files: [
+          {
+            src: "surefeedback-local.zip",
+            dest: "release/local/surefeedback-local.zip",
+          },
+        ],
+      },
+      release_staging: {
+        files: [
+          {
+            src: "surefeedback-staging.zip",
+            dest: "release/staging/surefeedback-staging.zip",
+          },
+        ],
+      },
+      release_production: {
+        files: [
+          {
+            src: "surefeedback.zip",
+            dest: "release/production/surefeedback.zip",
           },
         ],
       },
@@ -96,6 +244,8 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-wp-i18n");
   grunt.loadNpmTasks("grunt-wp-readme-to-markdown");
   grunt.loadNpmTasks("grunt-contrib-compress");
+  grunt.loadNpmTasks("grunt-contrib-clean");
+  grunt.loadNpmTasks("grunt-contrib-copy");
 
   // Custom task to build Vite assets
   grunt.registerTask("build-assets", "Build Vite assets", function() {
@@ -112,10 +262,124 @@ module.exports = function (grunt) {
     });
   });
 
+  // Custom task to create .env file for local environment
+  grunt.registerTask("env-local", "Create .env file for local environment", function() {
+    var fs = require('fs');
+    var envContent = '# SureFeedback Environment Configuration\n' +
+                     '# Local/Development Environment\n\n' +
+                     '# Active Environment (development, staging, production)\n' +
+                     'ACTIVE_ENV=development\n\n' +
+                     '# Development Environment\n' +
+                     'SUREFEEDBACK_ENV_DEVELOPMENT=development\n' +
+                     'SUREFEEDBACK_APP_URL_DEVELOPMENT=http://localhost:3000\n' +
+                     'SUREFEEDBACK_API_URL_DEVELOPMENT=http://localhost:8000/api/v1\n\n' +
+                     '# Staging Environment\n' +
+                     'SUREFEEDBACK_ENV_STAGING=staging\n' +
+                     'SUREFEEDBACK_APP_URL_STAGING=https://app-staging.surefeedback.com\n' +
+                     'SUREFEEDBACK_API_URL_STAGING=https://api-staging.surefeedback.com/api/v1\n\n' +
+                     '# Production Environment\n' +
+                     'SUREFEEDBACK_ENV_PRODUCTION=production\n' +
+                     'SUREFEEDBACK_APP_URL_PRODUCTION=https://app.surefeedback.com\n' +
+                     'SUREFEEDBACK_API_URL_PRODUCTION=https://api.surefeedback.com/api/v1\n';
+    fs.writeFileSync('.env', envContent);
+    grunt.log.writeln(".env file created for local environment.");
+  });
+
+  // Custom task to create .env file for staging environment
+  grunt.registerTask("env-staging", "Create .env file for staging environment", function() {
+    var fs = require('fs');
+    var envContent = '# SureFeedback Environment Configuration\n' +
+                     '# Staging Environment\n\n' +
+                     '# Active Environment (development, staging, production)\n' +
+                     'ACTIVE_ENV=staging\n\n' +
+                     '# Development Environment\n' +
+                     'SUREFEEDBACK_ENV_DEVELOPMENT=development\n' +
+                     'SUREFEEDBACK_APP_URL_DEVELOPMENT=http://localhost:3000\n' +
+                     'SUREFEEDBACK_API_URL_DEVELOPMENT=http://localhost:8000/api/v1\n\n' +
+                     '# Staging Environment\n' +
+                     'SUREFEEDBACK_ENV_STAGING=staging\n' +
+                     'SUREFEEDBACK_APP_URL_STAGING=https://app-staging.surefeedback.com\n' +
+                     'SUREFEEDBACK_API_URL_STAGING=https://api-staging.surefeedback.com/api/v1\n\n' +
+                     '# Production Environment\n' +
+                     'SUREFEEDBACK_ENV_PRODUCTION=production\n' +
+                     'SUREFEEDBACK_APP_URL_PRODUCTION=https://app.surefeedback.com\n' +
+                     'SUREFEEDBACK_API_URL_PRODUCTION=https://api.surefeedback.com/api/v1\n';
+    fs.writeFileSync('.env', envContent);
+    grunt.log.writeln(".env file created for staging environment.");
+  });
+
+  // Custom task to create .env file for production environment
+  grunt.registerTask("env-production", "Create .env file for production environment", function() {
+    var fs = require('fs');
+    var envContent = '# SureFeedback Environment Configuration\n' +
+                     '# Production Environment\n\n' +
+                     '# Active Environment (development, staging, production)\n' +
+                     'ACTIVE_ENV=production\n\n' +
+                     '# Development Environment\n' +
+                     'SUREFEEDBACK_ENV_DEVELOPMENT=development\n' +
+                     'SUREFEEDBACK_APP_URL_DEVELOPMENT=http://localhost:3000\n' +
+                     'SUREFEEDBACK_API_URL_DEVELOPMENT=http://localhost:8000/api/v1\n\n' +
+                     '# Staging Environment\n' +
+                     'SUREFEEDBACK_ENV_STAGING=staging\n' +
+                     'SUREFEEDBACK_APP_URL_STAGING=https://app-staging.surefeedback.com\n' +
+                     'SUREFEEDBACK_API_URL_STAGING=https://api-staging.surefeedback.com/api/v1\n\n' +
+                     '# Production Environment\n' +
+                     'SUREFEEDBACK_ENV_PRODUCTION=production\n' +
+                     'SUREFEEDBACK_APP_URL_PRODUCTION=https://app.surefeedback.com\n' +
+                     'SUREFEEDBACK_API_URL_PRODUCTION=https://api.surefeedback.com/api/v1\n';
+    fs.writeFileSync('.env', envContent);
+    grunt.log.writeln(".env file created for production environment.");
+  });
+
   grunt.registerTask("i18n", ["addtextdomain", "makepot"]);
   grunt.registerTask("readme", ["wp_readme_to_markdown"]);
   grunt.registerTask("build", ["build-assets", "i18n"]);
-  grunt.registerTask("release", ["build", "compress"]);
+
+  // Release tasks for different environments
+  grunt.registerTask("release:local", [
+    "build",
+    "clean:release_local",
+    "env-local",
+    "compress:local",
+    "copy:release_local",
+    "clean:root_zips"
+  ]);
+
+  grunt.registerTask("release:staging", [
+    "build",
+    "clean:release_staging",
+    "env-staging",
+    "compress:staging",
+    "copy:release_staging",
+    "clean:root_zips"
+  ]);
+
+  grunt.registerTask("release:production", [
+    "build",
+    "clean:release_production",
+    "env-production",
+    "compress:production",
+    "copy:release_production",
+    "clean:root_zips"
+  ]);
+
+  grunt.registerTask("release:all", [
+    "build",
+    "clean:release_all",
+    "env-local",
+    "compress:local",
+    "copy:release_local",
+    "env-staging",
+    "compress:staging",
+    "copy:release_staging",
+    "env-production",
+    "compress:production",
+    "copy:release_production",
+    "clean:root_zips"
+  ]);
+
+  // Default release command creates all three zips
+  grunt.registerTask("release", ["release:all"]);
 
   grunt.util.linefeed = "\n";
 };
