@@ -66,6 +66,7 @@ module.exports = function (grunt) {
           {
             src: [
               "**/*",
+              ".env", // Explicitly include .env file (it's in .gitignore)
               "!node_modules/**",
               "!tests/**",
               "!.git/**",
@@ -115,6 +116,7 @@ module.exports = function (grunt) {
           {
             src: [
               "**/*",
+              ".env", // Explicitly include .env file (it's in .gitignore)
               "!node_modules/**",
               "!tests/**",
               "!.git/**",
