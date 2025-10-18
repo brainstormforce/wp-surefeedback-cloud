@@ -283,73 +283,31 @@ module.exports = function (grunt) {
     });
   });
 
-  // Custom task to create .env file for local environment
-  grunt.registerTask("env-local", "Create .env file for local environment", function() {
+  // Custom task to copy environment file for staging
+  grunt.registerTask("copy-env-staging", "Copy .env.staging to .env", function() {
     var fs = require('fs');
-    var envContent = '# SureFeedback Environment Configuration\n' +
-                     '# Local/Development Environment\n\n' +
-                     '# Active Environment (development, staging, production)\n' +
-                     'ACTIVE_ENV=development\n\n' +
-                     '# Development Environment\n' +
-                     'SUREFEEDBACK_ENV_DEVELOPMENT=development\n' +
-                     'SUREFEEDBACK_APP_URL_DEVELOPMENT=http://localhost:3000\n' +
-                     'SUREFEEDBACK_API_URL_DEVELOPMENT=http://localhost:8000/api/v1\n\n' +
-                     '# Staging Environment\n' +
-                     'SUREFEEDBACK_ENV_STAGING=staging\n' +
-                     'SUREFEEDBACK_APP_URL_STAGING=https://app-staging.surefeedback.com\n' +
-                     'SUREFEEDBACK_API_URL_STAGING=https://api-staging.surefeedback.com/api/v1\n\n' +
-                     '# Production Environment\n' +
-                     'SUREFEEDBACK_ENV_PRODUCTION=production\n' +
-                     'SUREFEEDBACK_APP_URL_PRODUCTION=https://app.surefeedback.com\n' +
-                     'SUREFEEDBACK_API_URL_PRODUCTION=https://api.surefeedback.com/api/v1\n';
-    fs.writeFileSync('.env', envContent);
-    grunt.log.writeln(".env file created for local environment.");
+    if (fs.existsSync('.env.staging')) {
+      fs.copyFileSync('.env.staging', '.env');
+      grunt.log.writeln("Copied .env.staging to .env for staging release.");
+    } else {
+      grunt.log.warn(".env.staging file not found!");
+    }
   });
 
-  // Custom task to create .env file for staging environment
-  grunt.registerTask("env-staging", "Create .env file for staging environment", function() {
+  // Custom task to copy environment file for production
+  grunt.registerTask("copy-env-production", "Copy .env.production to .env", function() {
     var fs = require('fs');
-    var envContent = '# SureFeedback Environment Configuration\n' +
-                     '# Staging Environment\n\n' +
-                     '# Active Environment (development, staging, production)\n' +
-                     'ACTIVE_ENV=staging\n\n' +
-                     '# Development Environment\n' +
-                     'SUREFEEDBACK_ENV_DEVELOPMENT=development\n' +
-                     'SUREFEEDBACK_APP_URL_DEVELOPMENT=http://localhost:3000\n' +
-                     'SUREFEEDBACK_API_URL_DEVELOPMENT=http://localhost:8000/api/v1\n\n' +
-                     '# Staging Environment\n' +
-                     'SUREFEEDBACK_ENV_STAGING=staging\n' +
-                     'SUREFEEDBACK_APP_URL_STAGING=https://app-staging.surefeedback.com\n' +
-                     'SUREFEEDBACK_API_URL_STAGING=https://api-staging.surefeedback.com/api/v1\n\n' +
-                     '# Production Environment\n' +
-                     'SUREFEEDBACK_ENV_PRODUCTION=production\n' +
-                     'SUREFEEDBACK_APP_URL_PRODUCTION=https://app.surefeedback.com\n' +
-                     'SUREFEEDBACK_API_URL_PRODUCTION=https://api.surefeedback.com/api/v1\n';
-    fs.writeFileSync('.env', envContent);
-    grunt.log.writeln(".env file created for staging environment.");
+    if (fs.existsSync('.env.production')) {
+      fs.copyFileSync('.env.production', '.env');
+      grunt.log.writeln("Copied .env.production to .env for production release.");
+    } else {
+      grunt.log.warn(".env.production file not found!");
+    }
   });
 
-  // Custom task to create .env file for production environment
-  grunt.registerTask("env-production", "Create .env file for production environment", function() {
-    var fs = require('fs');
-    var envContent = '# SureFeedback Environment Configuration\n' +
-                     '# Production Environment\n\n' +
-                     '# Active Environment (development, staging, production)\n' +
-                     'ACTIVE_ENV=production\n\n' +
-                     '# Development Environment\n' +
-                     'SUREFEEDBACK_ENV_DEVELOPMENT=development\n' +
-                     'SUREFEEDBACK_APP_URL_DEVELOPMENT=http://localhost:3000\n' +
-                     'SUREFEEDBACK_API_URL_DEVELOPMENT=http://localhost:8000/api/v1\n\n' +
-                     '# Staging Environment\n' +
-                     'SUREFEEDBACK_ENV_STAGING=staging\n' +
-                     'SUREFEEDBACK_APP_URL_STAGING=https://app-staging.surefeedback.com\n' +
-                     'SUREFEEDBACK_API_URL_STAGING=https://api-staging.surefeedback.com/api/v1\n\n' +
-                     '# Production Environment\n' +
-                     'SUREFEEDBACK_ENV_PRODUCTION=production\n' +
-                     'SUREFEEDBACK_APP_URL_PRODUCTION=https://app.surefeedback.com\n' +
-                     'SUREFEEDBACK_API_URL_PRODUCTION=https://api.surefeedback.com/api/v1\n';
-    fs.writeFileSync('.env', envContent);
-    grunt.log.writeln(".env file created for production environment.");
+  // Custom task to restore original .env for development
+  grunt.registerTask("restore-env-dev", "Restore .env for development", function() {
+    grunt.log.writeln(".env kept as is for local development.");
   });
 
   grunt.registerTask("i18n", ["addtextdomain", "makepot"]);
@@ -360,7 +318,7 @@ module.exports = function (grunt) {
   grunt.registerTask("release:local", [
     "build",
     "clean:release_local",
-    "env-local",
+    "restore-env-dev",
     "compress:local",
     "copy:release_local",
     "clean:root_zips"
@@ -369,7 +327,7 @@ module.exports = function (grunt) {
   grunt.registerTask("release:staging", [
     "build",
     "clean:release_staging",
-    "env-staging",
+    "copy-env-staging",
     "compress:staging",
     "copy:release_staging",
     "clean:root_zips"
@@ -378,7 +336,7 @@ module.exports = function (grunt) {
   grunt.registerTask("release:production", [
     "build",
     "clean:release_production",
-    "env-production",
+    "copy-env-production",
     "compress:production",
     "copy:release_production",
     "clean:root_zips"
@@ -387,13 +345,13 @@ module.exports = function (grunt) {
   grunt.registerTask("release:all", [
     "build",
     "clean:release_all",
-    "env-local",
+    "restore-env-dev",
     "compress:local",
     "copy:release_local",
-    "env-staging",
+    "copy-env-staging",
     "compress:staging",
     "copy:release_staging",
-    "env-production",
+    "copy-env-production",
     "compress:production",
     "copy:release_production",
     "clean:root_zips"

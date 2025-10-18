@@ -54,31 +54,13 @@ function surefeedback_env($key, $default = null) {
 }
 
 /**
- * Get active environment
- */
-function surefeedback_get_active_env() {
-    return strtoupper(surefeedback_env('ACTIVE_ENV', 'production'));
-}
-
-/**
- * Get environment-specific variable
+ * Get environment variable with fallback
  *
- * @param string $var_name The base variable name (e.g., 'SUREFEEDBACK_APP_URL')
+ * @param string $var_name The variable name (e.g., 'SUREFEEDBACK_APP_URL')
  * @param mixed $default Default value if not found
- * @return mixed The environment-specific value
+ * @return mixed The environment value
  */
 function surefeedback_get_env_var($var_name, $default = null) {
-    $active_env = surefeedback_get_active_env();
-
-    // Try to get environment-specific variable (e.g., SUREFEEDBACK_APP_URL_DEVELOPMENT)
-    $env_specific_key = $var_name . '_' . $active_env;
-    $value = surefeedback_env($env_specific_key);
-
-    if ($value !== null) {
-        return $value;
-    }
-
-    // Fall back to base variable name (backwards compatibility)
     $value = surefeedback_env($var_name);
 
     if ($value !== null) {
