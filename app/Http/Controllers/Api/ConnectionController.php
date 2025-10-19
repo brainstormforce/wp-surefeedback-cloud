@@ -7,6 +7,7 @@ use SureFeedback\Http\Requests\ConnectionRequest;
 use SureFeedback\Http\Requests\VerifyConnectionRequest;
 use SureFeedback\Repositories\ConnectionRepository;
 use SureFeedback\Repositories\SettingsRepository;
+use SureFeedback\Services\JWTService;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -37,6 +38,13 @@ class ConnectionController extends Controller
     protected $settingsRepository;
 
     /**
+     * JWT Service
+     *
+     * @var JWTService
+     */
+    protected $jwtService;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -44,6 +52,7 @@ class ConnectionController extends Controller
         parent::__construct();
         $this->connectionRepository = new ConnectionRepository();
         $this->settingsRepository = new SettingsRepository();
+        $this->jwtService = new JWTService();
     }
     /**
      * Get connection status
@@ -58,9 +67,7 @@ class ConnectionController extends Controller
             if (is_wp_error($nonce_result)) {
                 return $nonce_result;
             }
-            
             $connectionData = $this->connectionRepository->getConnectionStatus();
-            
             $connection_data = [
                 'connected' => $this->isConnected(),
                 'parent_url' => $connectionData['parent_url'],
@@ -643,4 +650,240 @@ class ConnectionController extends Controller
             return $this->error('Failed to process webhook', 500);
         }
     }
+
+    /**
+     * Disconnect website via REST API with JWT authentication
+     *
+     * This endpoint allows disconnecting a website from SureFeedback
+     * using JWT token authentication and performs a complete factory reset.
+     *
+     * @param WP_REST_Request $request The REST request object
+     * @return WP_REST_Response|WP_Error The response
+     */
+    public function disconnect_website(WP_REST_Request $request)
+    {
+        try {
+            // Get JWT token data (set by middleware)
+            $token_data = $request->get_param('_jwt_token_data');
+            
+            if (!$token_data) {
+                return $this->error('Authentication required', 401);
+            }
+
+            // Get parameters from request
+            $website_url = $request->get_param('website_url') ?: get_site_url();
+            $force_disconnect = $request->get_param('force') ? true : false;
+            
+            // Log the disconnect request
+            $this->logInfo('Website disconnect request received', [
+                'website_url' => $website_url,
+                'token_user' => $token_data['userId'] ?? $token_data['user_id'] ?? 'unknown',
+                'force' => $force_disconnect,
+                'timestamp' => current_time('mysql')
+            ]);
+
+            // Get current connection status
+            $connection_status = $this->connectionRepository->getConnectionStatus();
+            
+            if (!$connection_status['connected'] && !$force_disconnect) {
+                return $this->error('Website is not connected', 400, [
+                    'current_status' => $connection_status
+                ]);
+            }
+
+            // Update connection status to disconnected first
+            update_option('surefeedback_connection_status', 'disconnected');
+            update_option('surefeedback_last_reset', current_time('mysql'));
+            
+            // Always perform factory reset (complete data cleanup)
+            $disconnection_result = $this->performDisconnection();
+            
+            if (!$disconnection_result['success']) {
+                return $this->error($disconnection_result['message'], 500);
+            }
+
+            // Clear scheduled events
+            wp_clear_scheduled_hook('surefeedback_auto_verify');
+            wp_clear_scheduled_hook('surefeedback_hourly_verify');
+
+            // Log successful disconnection
+            $this->logInfo('Website disconnected successfully (factory reset)', [
+                'website_url' => $website_url,
+                'disconnected_at' => current_time('mysql'),
+                'token_user' => $token_data['user_id'] ?? 'unknown'
+            ]);
+
+            return $this->success([
+                'message' => 'Website disconnected and reset to factory settings',
+                'website_url' => $website_url,
+                'disconnected_at' => current_time('mysql'),
+                'previous_status' => $connection_status,
+                'cleared_data' => $disconnection_result['cleared_data'],
+                'restored_defaults' => $disconnection_result['restored_defaults']
+            ]);
+
+        } catch (\Exception $e) {
+            $this->logError('Website disconnection failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->get_params()
+            ]);
+            
+            return $this->error('Failed to disconnect website: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Perform the disconnection process with factory reset
+     * 
+     * Always performs complete factory reset - clears all plugin data and restores defaults
+     * 
+     * @return array Result of disconnection process
+     */
+    private function performDisconnection()
+    {
+        $cleared_data = [];
+        
+        try {
+            // Clear all connection-related options (except connection_status which is set to 'disconnected')
+            $connection_options = [
+                'surefeedback_access_token',
+                'surefeedback_site_url',
+                'surefeedback_site_id', 
+                'surefeedback_verification_status',
+                'surefeedback_last_verification',
+                'surefeedback_connection_established_at',
+                'surefeedback_parent_url',
+                'surefeedback_connected',
+                'surefeedback_signature',
+                'surefeedback_user_id',
+                'surefeedback_user_email',
+                'surefeedback_connection_time',
+                'surefeedback_last_check',
+                'surefeedback_connection_date',
+                'surefeedback_last_connection_check',
+                'surefeedback_site_token',
+                'surefeedback_script_token',
+                'surefeedback_organization_id',
+                'surefeedback_site_name',
+                'surefeedback_domain',
+                'surefeedback_api_url'
+                // Note: surefeedback_connection_status is NOT deleted - it's set to 'disconnected'
+            ];
+
+            // Clear all plugin settings
+            $all_plugin_options = [
+                'surefeedback_widget_enabled',
+                'surefeedback_role_can_comment',
+                'surefeedback_guest_comments',
+                'surefeedback_admin_can_comment',
+                'surefeedback_show_on_admin',
+                'surefeedback_disable_for_admin',
+                'surefeedback_debug_mode',
+                'surefeedback_plugin_name',
+                'surefeedback_plugin_description',
+                'surefeedback_plugin_author',
+                'surefeedback_plugin_author_url',
+                'surefeedback_plugin_link',
+                'surefeedback_white_label_settings',
+                'surefeedback_settings',
+                'surefeedback_installation_date'
+            ];
+            
+            // Combine all options to clear
+            $all_options_to_clear = array_merge($connection_options, $all_plugin_options);
+            
+            // Clear all options
+            foreach ($all_options_to_clear as $option) {
+                $old_value = get_option($option);
+                if ($old_value !== false) {
+                    delete_option($option);
+                    $cleared_data[$option] = $old_value;
+                }
+            }
+
+            // Clear any cached data
+            wp_cache_delete('surefeedback_connection_status');
+            wp_cache_delete('surefeedback_settings');
+
+            delete_transient('surefeedback_connection_check');
+            delete_transient('surefeedback_verification_status');
+
+            $defaults = [
+                'surefeedback_widget_enabled' => true,
+                'surefeedback_role_can_comment' => ['administrator'],
+                'surefeedback_guest_comments' => false,
+                'surefeedback_admin_can_comment' => true,
+                'surefeedback_show_on_admin' => false,
+                'surefeedback_disable_for_admin' => false,
+                'surefeedback_debug_mode' => false,
+                'surefeedback_connection_status' => 'disconnected' // Ensure status is set to disconnected
+            ];
+            
+            foreach ($defaults as $option => $value) {
+                update_option($option, $value);
+            }
+
+            update_option('surefeedback_last_reset', current_time('mysql'));
+            
+            return [
+                'success' => true,
+                'message' => 'Plugin reset to factory settings successfully',
+                'type' => 'factory_reset',
+                'cleared_data' => $cleared_data,
+                'restored_defaults' => $defaults
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Failed to reset plugin: ' . $e->getMessage(),
+                'cleared_data' => $cleared_data
+            ];
+        }
+    }
+
+
+
+    /**
+     * Simple JWT token validation endpoint
+     *
+     * Returns a simple response indicating if the JWT token is valid
+     *
+     * @param WP_REST_Request $request The REST request object
+     * @return WP_REST_Response|WP_Error The response
+     */
+    public function validate_token(WP_REST_Request $request)
+    {
+        // Get JWT token data (set by middleware)
+        $token_data = $request->get_param('_jwt_token_data');
+        
+        if (!$token_data) {
+            return $this->error('Token is invalid', 401);
+        }
+
+        // Check permissions using JWT service
+        $has_admin_permission = $this->jwtService->check_permission($token_data, 'manage_options');
+
+        return $this->success([
+            'message' => 'Token is valid',
+            'token_info' => [
+                'user_id' => $token_data['user_id'] ?? null,
+                'userId' => $token_data['userId'] ?? null,
+                'email' => $token_data['email'] ?? null,
+                'role' => $token_data['role'] ?? null,
+                'first_name' => $token_data['first_name'] ?? null,
+                'last_name' => $token_data['last_name'] ?? null,
+                'permissions' => $token_data['permissions'] ?? [],
+                'issued_at' => isset($token_data['iat']) ? date('Y-m-d H:i:s', $token_data['iat']) : null,
+                'expires_at' => isset($token_data['exp']) ? date('Y-m-d H:i:s', $token_data['exp']) : null,
+            ],
+            'permission_check' => [
+                'has_admin_permission' => $has_admin_permission,
+                'required_permission' => 'manage_options'
+            ],
+            'validated_at' => current_time('mysql')
+        ]);
+    }
+
 }

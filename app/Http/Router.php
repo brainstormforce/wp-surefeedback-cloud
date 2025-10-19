@@ -105,17 +105,67 @@ class Router
      * @param string $method HTTP method
      * @param string $route Route path
      * @param array|callable $callback Callback function or controller array
+     * @param array $options Route options (middleware, etc.)
      * @return void
      */
-    protected function addRoute(string $method, string $route, $callback): void
+    protected function addRoute(string $method, string $route, $callback, array $options = []): void
     {
         $route = trim($this->prefix . '/' . $route, '/');
 
         $this->routes[] = [
             'method' => $method,
             'route' => $route ?: '/',
-            'callback' => $callback
+            'callback' => $callback,
+            'options' => $options
         ];
+    }
+
+    /**
+     * Add a JWT-protected route with POST method
+     *
+     * @param string $route Route path
+     * @param array|callable $callback Callback function or controller array
+     * @return void
+     */
+    public function postJWT(string $route, $callback): void
+    {
+        $this->addRoute('POST', $route, $callback, ['jwt' => true]);
+    }
+
+    /**
+     * Add a JWT-protected route with GET method
+     *
+     * @param string $route Route path
+     * @param array|callable $callback Callback function or controller array
+     * @return void
+     */
+    public function getJWT(string $route, $callback): void
+    {
+        $this->addRoute('GET', $route, $callback, ['jwt' => true]);
+    }
+
+    /**
+     * Add a JWT-protected route with PUT method
+     *
+     * @param string $route Route path
+     * @param array|callable $callback Callback function or controller array
+     * @return void
+     */
+    public function putJWT(string $route, $callback): void
+    {
+        $this->addRoute('PUT', $route, $callback, ['jwt' => true]);
+    }
+
+    /**
+     * Add a JWT-protected route with DELETE method
+     *
+     * @param string $route Route path
+     * @param array|callable $callback Callback function or controller array
+     * @return void
+     */
+    public function deleteJWT(string $route, $callback): void
+    {
+        $this->addRoute('DELETE', $route, $callback, ['jwt' => true]);
     }
 
     /**
@@ -142,14 +192,21 @@ class Router
     public function registerRoutes(): void
     {
         foreach ($this->routes as $route) {
+            $args = [
+                'methods' => $route['method'],
+                'callback' => $this->prepareCallback($route['callback'], $route['options'] ?? []),
+                'permission_callback' => [$this, 'checkPermissions'],
+            ];
+
+            // Add JWT permission callback if needed
+            if (isset($route['options']['jwt']) && $route['options']['jwt']) {
+                $args['permission_callback'] = [$this, 'checkJWTPermissions'];
+            }
+
             register_rest_route(
                 $this->namespace,
                 $route['route'],
-                [
-                    'methods' => $route['method'],
-                    'callback' => $this->prepareCallback($route['callback']),
-                    'permission_callback' => [$this, 'checkPermissions'],
-                ]
+                $args
             );
         }
     }
@@ -169,18 +226,62 @@ class Router
     }
 
     /**
+     * Check JWT permissions for protected routes
+     *
+     * @param \WP_REST_Request $request
+     * @return bool|\WP_Error
+     */
+    public function checkJWTPermissions(\WP_REST_Request $request)
+    {
+        try {
+            $jwtService = new \SureFeedback\Services\JWTService();
+            $token_data = $jwtService->validate_token_from_request($request);
+            
+            if (!$token_data) {
+                return new \WP_Error(
+                    'jwt_auth_invalid_token',
+                    'Invalid or missing JWT token.',
+                    ['status' => 401]
+                );
+            }
+
+            // Check if token has manage_options permission
+            if (!$jwtService->check_permission($token_data, 'manage_options')) {
+                return new \WP_Error(
+                    'jwt_auth_insufficient_permissions',
+                    'Insufficient permissions.',
+                    ['status' => 403]
+                );
+            }
+
+            // Store token data in request for use in controller
+            $request->set_param('_jwt_token_data', $token_data);
+            
+            return true;
+
+        } catch (\Exception $e) {
+            return new \WP_Error(
+                'jwt_auth_error',
+                'Authentication error: ' . $e->getMessage(),
+                ['status' => 500]
+            );
+        }
+    }
+
+    /**
      * Prepare callback for WordPress REST API
      *
      * @param array|callable $callback Controller method or callback
+     * @param array $options Route options
      * @return callable
      */
-    protected function prepareCallback($callback): callable
+    protected function prepareCallback($callback, array $options = []): callable
     {
         if (is_array($callback) && count($callback) === 2) {
             // Controller@method format
             list($controllerClass, $method) = $callback;
 
-            return function($request) use ($controllerClass, $method) {
+            return function($request) use ($controllerClass, $method, $options) {
                 $controller = new $controllerClass();
                 return $controller->$method($request);
             };

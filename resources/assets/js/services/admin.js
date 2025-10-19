@@ -12,6 +12,7 @@ import { API_ENDPOINTS, CACHE_CONFIG } from '../constants/api.js';
 import { ValidationError, withErrorHandling } from '../utils/errors.js';
 import { cacheManager } from '../utils/cache.js';
 import { authManager } from '../utils/auth.js';
+import { disconnect } from './disconnect.js';
 
 /**
  * Admin Service class
@@ -154,29 +155,25 @@ class AdminService {
     }
 
     /**
-     * Disconnect site from parent
+     * Disconnect site using the new disconnect service
      * @param {Object} options - Disconnect options
      * @returns {Promise<Object>}
      */
     async disconnectSite(options = {}) {
-        if (!this.canManageSettings()) {
-            throw new Error('Insufficient permissions to disconnect site');
-        }
-
-        const { force = false, cleanup = true } = options;
 
         try {
-            const response = await apiGateway.post(API_ENDPOINTS.ADMIN.DISCONNECT_SITE, {
-                force,
-                cleanup
-            });
+            // Use the new improved disconnect service
+            const response = await disconnect(options);
             
-            // Clear relevant caches
-            cacheManager.delete('admin_settings');
-            cacheManager.delete(CACHE_CONFIG.KEYS.CONNECTION_STATUS);
-            cacheManager.delete(CACHE_CONFIG.KEYS.SETTINGS);
+            // Clear relevant caches on successful disconnect
+            if (response.success) {
+                cacheManager.delete('admin_settings');
+                cacheManager.delete(CACHE_CONFIG.KEYS.CONNECTION_STATUS);
+                cacheManager.delete(CACHE_CONFIG.KEYS.SETTINGS);
+            }
             
             this.notifyListeners('site_disconnected', response);
+            
             return response;
         } catch (error) {
             this.handleAdminError(error, 'Failed to disconnect site');

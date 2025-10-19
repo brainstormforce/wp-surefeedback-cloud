@@ -5,7 +5,6 @@ import Connected from '../components/Connected';
 import NotConnected from '../components/NotConnected';
 import ConnectionFailed from '../components/ConnectionFailed';
 import UnverifiedState from '../components/UnverifiedState';
-import ConnectedState from '../components/ConnectedState';
 
 const ConnectionView = () => {
     const [apiVerificationStatus, setApiVerificationStatus] = useState(null);
@@ -56,13 +55,11 @@ const ConnectionView = () => {
             return <UnverifiedState showLoading={true} />;
         }
 
-        // Use API verification status if available, otherwise fall back to DB status
         const verificationStatus = apiVerificationStatus || dbVerificationStatus;
         
         // Check verification status first
         if (verificationStatus === 'verified' && connectionStatus === 'connected') {
-            // Fully verified and connected - show success state
-            return <ConnectedState connectionData={connectionData} verificationResult={verificationResult} />;
+            return <Connected  connectionData={connectionData} verificationResult={verificationResult} />;
         } else if (connectionStatus === 'connected' || verificationStatus === 'pending') {
             // Connected but not fully verified, or verification pending
             return <UnverifiedState 

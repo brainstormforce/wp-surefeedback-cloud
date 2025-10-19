@@ -35,6 +35,7 @@
     "php-stubs/wordpress-stubs": "^6.6",
     "symfony/http-kernel": "^7.1",
     "symfony/dependency-injection": "^7.1",
-    "symfony/translation-contracts": "^3.5"
+    "symfony/translation-contracts": "^3.5",
+    "firebase/php-jwt": "^6.10"
   }
 }

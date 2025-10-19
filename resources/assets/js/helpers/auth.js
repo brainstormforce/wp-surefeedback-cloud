@@ -14,7 +14,6 @@ export const authenticateRedirect = () => {
   // Generate a state token for security
   const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
-  // Build connection URL parameters following the PHP pattern
   const params = new URLSearchParams({
     source: 'wordpress',
     action: 'connect_site',
@@ -22,6 +21,8 @@ export const authenticateRedirect = () => {
     state: state,
     site_data: btoa(JSON.stringify(connection.site_data)), // base64 encode like PHP version
   });
+
+  console.log('Connection', connection);
 
   // Construct the connection URL using localized app URL
   const connectUrl = `${connection.app_url}/connect?${params.toString()}`;
@@ -61,94 +62,19 @@ export const reconnectSite = () => {
     state: state,
     site_data: btoa(JSON.stringify(connection.site_data)), // base64 encode like PHP version
   });
-
-  // Construct the reconnection URL - use /reconnect instead of /connect
   const reconnectUrl = `${connection.app_url}/reconnect?${params.toString()}`;
-  
-  // Store connection intent for redirect after login
+
   const connectionIntent = {
     url: reconnectUrl,
     timestamp: Date.now(),
     source: 'wordpress_plugin',
     action: 'reconnect'
   };
-  
-  // Store in both sessionStorage and localStorage for reliability
   sessionStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
   localStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
-  
-  
-  // Redirect to SaaS platform for reconnection
   window.open(reconnectUrl, '_blank');
 };
 
-export const disconnectSite = async () => {
-  const { sureFeedbackAdmin } = window;
-  
-  if (!sureFeedbackAdmin) {
-    return { success: false, error: 'Admin data not available' };
-  }
-
-  // Get site data from WordPress options
-  const siteToken = sureFeedbackAdmin.site_token || sureFeedbackAdmin.api_token;
-  const domain = sureFeedbackAdmin.site_domain || window.location.hostname;
-  const apiUrl = sureFeedbackAdmin.api_url || 'https://app.surefeedback.com/api/v1';
-
-  if (!siteToken) {
-    return { success: false, error: 'No site token found' };
-  }
-
-  try {
-    // Make API call to SaaS platform to disconnect the site
-    const response = await fetch(`${apiUrl}/sites/wordpress/disconnect`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${sureFeedbackAdmin.user_token || ''}`, // JWT token if available
-      },
-      body: JSON.stringify({
-        site_token: siteToken,
-        domain: domain,
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      // Clear local storage and session storage
-      localStorage.removeItem('surefeedback_connection_intent');
-      sessionStorage.removeItem('surefeedback_connection_intent');
-      
-      // Clear any other SureFeedback related storage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('surefeedback_')) {
-          localStorage.removeItem(key);
-        }
-      });
-
-      // Now call WordPress plugin endpoint to clear local WordPress data
-      try {
-        const wpDisconnectResponse = await fetch(sureFeedbackAdmin.rest_url + 'surefeedback/v1/disconnect', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-WP-Nonce': sureFeedbackAdmin.rest_nonce,
-          },
-        });
-
-        const wpResult = await wpDisconnectResponse.json();
-      } catch (error) {
-        // Failed to clear WordPress local data
-      }
-
-      return { success: true, data: result.data };
-    } else {
-      return { success: false, error: result.message };
-    }
-  } catch (error) {
-    return { success: false, error: 'Network error occurred' };
-  }
-};
 
 export const getUrlParam = (param) => {
   return new URL(window.location.href).searchParams.get(param);

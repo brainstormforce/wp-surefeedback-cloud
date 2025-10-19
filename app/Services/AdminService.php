@@ -938,6 +938,9 @@ class AdminService
             $connection_status = 'disconnected';
         }
 
+        // Get site token for API operations
+        $site_token = get_option('surefeedback_site_token', '');
+        
         $connection_data = [
             'connected' => $is_connected, // Boolean for JavaScript compatibility
             'status' => $connection_status, // String status
@@ -949,6 +952,7 @@ class AdminService
             'site_data' => $site_data,
             'site_id' => $site_id,
             'access_token' => $access_token ? substr($access_token, 0, 10) . '...' : null, // Partial token for debugging
+            'site_token' => $site_token, // Full site token for disconnect/verification operations
             // Keep verification status for backward compatibility but don't use it for connection logic
             'verification_status' => $verification_status
         ];

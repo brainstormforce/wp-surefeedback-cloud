@@ -75,6 +75,14 @@ import {
 export const adminService = _adminService;
 export { getAdminSettings, saveGeneralSettings, saveWhiteLabelSettings, verifyIntegration, disconnectSite, getAdminConnectionStatus, testParentSite, generateAccessToken, resetAdminSettings, getSystemInfo };
 
+import {
+    disconnectService as _disconnectService,
+    disconnect,
+    getDisconnectStatus
+} from './services/disconnect.js';
+export const disconnectService = _disconnectService;
+export { disconnect, getDisconnectStatus };
+
 // Utilities
 import {
     ApiError,
@@ -123,12 +131,12 @@ export {
  * Call this function to initialize all API services and utilities.
  */
 export function initializeServices() {
-    // Initialize services in order
-    tokenManager.init();
-    connectionService.init();
-    settingsService.init();
-    dashboardService.init();
-    adminService.init();
+        tokenManager.init();
+        connectionService.init();
+        settingsService.init();
+        dashboardService.init();
+        adminService.init();
+        disconnectService.init();
 }
 
 /**
@@ -140,6 +148,7 @@ export function cleanupServices() {
     settingsService.destroy();
     dashboardService.destroy();
     adminService.destroy();
+    disconnectService.destroy();
 }
 
 /**
@@ -165,6 +174,7 @@ export class ApiServiceFactory {
         this.services.set('settings', settingsService);
         this.services.set('dashboard', dashboardService);
         this.services.set('admin', adminService);
+        this.services.set('disconnect', disconnectService);
 
         // Initialize all services
         initializeServices();
@@ -243,7 +253,7 @@ export const api = {
     },
 
     async disconnect() {
-        return disconnectFromParent();
+        return disconnect();
     },
 
     async checkConnection() {
@@ -296,6 +306,7 @@ export default {
     settingsService: _settingsService,
     dashboardService: _dashboardService,
     adminService: _adminService,
+    disconnectService: _disconnectService,
     tokenManager: _tokenManager,
     authManager: _authManager,
     cacheManager: _cacheManager,

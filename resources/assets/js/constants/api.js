@@ -45,7 +45,7 @@ export const API_ENDPOINTS = {
         STATUS: 'connection/status',
         VERIFY: 'connection/verify',
         CONNECT: 'connection/connect',
-        DISCONNECT: 'connection/disconnect',
+        MASTER_DISCONNECT: 'disconnect/master-disconnect',
         HEALTH: 'connection/health',
     },
     
@@ -72,7 +72,6 @@ export const API_ENDPOINTS = {
         SAVE_GENERAL: 'admin/general-settings',
         SAVE_WHITE_LABEL: 'admin/white-label-settings',
         VERIFY_INTEGRATION: 'admin/verify-integration',
-        DISCONNECT_SITE: 'admin/disconnect',
         CONNECTION_STATUS: 'admin/connection-status',
     },
     

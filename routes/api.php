@@ -30,6 +30,7 @@ use SureFeedback\Http\Controllers\Api\ConnectionController;
 use SureFeedback\Http\Controllers\Api\SettingsController;
 use SureFeedback\Http\Controllers\Api\DashboardController;
 use SureFeedback\Http\Controllers\VerificationController;
+use SureFeedback\Http\Controllers\DisconnectController;
 
 // Connection management endpoints
 $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($router) {
@@ -39,6 +40,11 @@ $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($rout
     $router->delete('disconnect', [ConnectionController::class, 'disconnect']);
     $router->post('reset', [ConnectionController::class, 'reset']);
     $router->get('health', [ConnectionController::class, 'health']);
+});
+
+$router->group(['prefix' => 'remote', 'namespace' => 'Api'], function ($router) {
+    $router->getJWT('validate-token', [ConnectionController::class, 'validate_token']);
+    $router->postJWT('disconnect', [ConnectionController::class, 'disconnect_website']);
 });
 
 // Webhook endpoint for SureFeedback API callbacks
@@ -116,6 +122,11 @@ $router->get('plugin/status', function () {
 // Verification endpoints
 $router->group(['prefix' => 'verification'], function ($router) {
     $router->post('verify', [VerificationController::class, 'verify_connection']);
+});
+
+// Disconnect endpoints
+$router->group(['prefix' => 'disconnect'], function ($router) {
+    $router->post('master-disconnect', [DisconnectController::class, 'master_disconnect']);
 });
 
 // Settings management endpoints
