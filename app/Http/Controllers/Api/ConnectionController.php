@@ -177,6 +177,27 @@ class ConnectionController extends Controller
                 return $capability_result;
             }
 
+            // Get connection data before deleting
+            $site_id = get_option('surefeedback_site_id', '');
+            $site_token = get_option('surefeedback_access_token', '');
+            $domain = get_option('surefeedback_domain', '');
+            
+            // Get stored JWT token for API authentication
+            $jwt_token = get_option('surefeedback_user_token', '');
+
+            // Notify Laravel API to disconnect site on their side
+            if (!empty($site_id) && !empty($jwt_token)) {
+                $api_gateway = new \SureFeedback\Services\ApiGatewayService();
+                $disconnect_result = $api_gateway->disconnectSite($site_id, $site_token, $domain, $jwt_token);
+                
+                if (is_wp_error($disconnect_result)) {
+                    $this->logError('Failed to notify Laravel API about disconnection: ' . $disconnect_result->get_error_message());
+                } else {
+                    $this->logError('Laravel API notified about disconnection successfully');
+                }
+            }
+
+            // Delete all SureFeedback options regardless of API response
             $surefeedback_options = [
                 'surefeedback_access_token',
                 'surefeedback_parent_url',
@@ -190,6 +211,7 @@ class ConnectionController extends Controller
                 'surefeedback_site_connected',
                 'surefeedback_is_fully_verified',
                 'surefeedback_roles',
+                'surefeedback_user_token',
             ];
 
             foreach ($surefeedback_options as $option) {
@@ -198,8 +220,6 @@ class ConnectionController extends Controller
 
             wp_cache_delete('surefeedback_settings');
             delete_transient('surefeedback_connection_check');
-
-
 
             return $this->success([
                 'message' => 'Site connection reset successfully',
@@ -266,6 +286,11 @@ class ConnectionController extends Controller
 
                 if (!empty($data['parent_url'])) {
                     update_option('surefeedback_parent_url', esc_url_raw($data['parent_url']));
+                }
+
+                // Store JWT token for authenticated API calls (e.g., disconnect)
+                if (!empty($data['user_token'])) {
+                    update_option('surefeedback_user_token', sanitize_text_field($data['user_token']));
                 }
 
                 // Save site_connected field
@@ -336,6 +361,81 @@ class ConnectionController extends Controller
             ],
             'validated_at' => current_time('mysql')
         ]);
+    }
+
+    /**
+     * Handle disconnect webhook from SureFeedback API (JWT protected)
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function disconnect_webhook(WP_REST_Request $request)
+    {
+        try {
+            // Validate JWT token (already done by middleware)
+            $token_data = $request->get_param('_jwt_token_data');
+            
+            if (!$token_data) {
+                $this->logError('Disconnect webhook: Missing JWT token data');
+                return $this->error('Unauthorized', 401);
+            }
+
+            // Get disconnect data from request
+            $data = $request->get_json_params();
+            if (empty($data)) {
+                $data = $request->get_params();
+            }
+
+            $site_id = $data['site_id'] ?? null;
+            $force = $data['force'] ?? false;
+
+            $this->logInfo('Disconnect webhook received', [
+                'site_id' => $site_id,
+                'force' => $force,
+                'token_user' => $token_data['email'] ?? 'unknown'
+            ]);
+
+            // Delete all SureFeedback options
+            $surefeedback_options = [
+                'surefeedback_access_token',
+                'surefeedback_parent_url',
+                'surefeedback_site_id',
+                'surefeedback_last_verification',
+                'surefeedback_site_name',
+                'surefeedback_domain',
+                'surefeedback_organization_id',
+                'surefeedback_is_active',
+                'surefeedback_created_at',
+                'surefeedback_site_connected',
+                'surefeedback_is_fully_verified',
+                'surefeedback_roles',
+            ];
+
+            foreach ($surefeedback_options as $option) {
+                delete_option($option);
+            }
+
+            // Clear caches
+            wp_cache_delete('surefeedback_settings');
+            delete_transient('surefeedback_connection_check');
+
+            $this->logInfo('Site disconnected successfully via webhook', [
+                'site_id' => $site_id,
+                'disconnected_at' => current_time('mysql')
+            ]);
+
+            return $this->success([
+                'message' => 'Site disconnected successfully',
+                'disconnected' => true,
+                'site_id' => $site_id,
+                'disconnected_at' => current_time('mysql'),
+                'status' => 'disconnected'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->logError('Disconnect webhook error: ' . $e->getMessage());
+            return $this->error('Failed to process disconnect webhook', 500);
+        }
     }
 
     /**

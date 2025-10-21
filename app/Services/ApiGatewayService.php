@@ -66,6 +66,37 @@ class ApiGatewayService
     }
 
     /**
+     * Disconnect site from SureFeedback Laravel API
+     *
+     * Notifies the Laravel backend to disconnect the site and clean up data
+     *
+     * @param string $site_id Site ID
+     * @param string $site_token Site access token
+     * @param string $domain Site domain
+     * @param string $jwt_token JWT token for authentication
+     * @return array|WP_Error
+     */
+    public function disconnectSite(string $site_id, string $site_token, string $domain, string $jwt_token)
+    {
+        $endpoint = '/api/v1/sites/wordpress/disconnect';
+        
+        $data = [
+            'site_id' => $site_id,
+            'site_token' => $site_token,
+            'domain' => $domain,
+            'website_url' => home_url(),
+            'force' => true,
+        ];
+
+        // Add JWT token to headers for authentication
+        $headers = [
+            'Authorization' => 'Bearer ' . $jwt_token,
+        ];
+
+        return $this->post($endpoint, $data, $headers);
+    }
+
+    /**
      * Perform GET request
      *
      * @param string $endpoint API endpoint (relative path)

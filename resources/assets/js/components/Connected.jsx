@@ -2,6 +2,16 @@ import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
 import { __ } from "@wordpress/i18n";
 import {
   CheckCircle,
@@ -15,15 +25,61 @@ const Connected = ({ connectionData, verificationResult }) => {
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [disconnectStatus, setDisconnectStatus] = useState(null); // null, 'success', 'error'
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDisconnectClick = () => {
     if (isDisconnecting) return;
-    setAcceptedTerms(false); // Reset terms when opening dialog
     setIsDialogOpen(true);
   };
 
   const confirmDisconnect = async () => {
-   // To Be Implemented
+    setIsDisconnecting(true);
+    setDisconnectStatus(null);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(
+        `${window.sureFeedbackAdmin.rest_url}surefeedback/v1/connection/reset`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": window.sureFeedbackAdmin.nonce,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setDisconnectStatus("success");
+        setIsDialogOpen(false);
+        
+        // Redirect to the connection setup page after a brief delay
+        setTimeout(() => {
+          window.location.href = window.sureFeedbackAdmin.admin_url + 'admin.php?page=surefeedback-connection#setup';
+        }, 1500);
+      } else {
+        setDisconnectStatus("error");
+        setErrorMessage(
+          data.message ||
+            __("Failed to disconnect. Please try again.", "surefeedback")
+        );
+        setIsDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Disconnect error:", error);
+      setDisconnectStatus("error");
+      setErrorMessage(
+        __(
+          "An error occurred while disconnecting. Please try again.",
+          "surefeedback"
+        )
+      );
+      setIsDialogOpen(false);
+    } finally {
+      setIsDisconnecting(false);
+    }
   };
 
   const handleGoToDashboard = () => {
@@ -140,6 +196,41 @@ const Connected = ({ connectionData, verificationResult }) => {
         </CardContent>
       </Card>
 
+      {/* Disconnect Confirmation Dialog */}
+      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {__("Disconnect Website?", "surefeedback")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {__(
+                "This will disconnect your website from SureFeedback. All connection settings will be removed. You can reconnect at any time.",
+                "surefeedback"
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDisconnecting}>
+              {__("Cancel", "surefeedback")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDisconnect}
+              disabled={isDisconnecting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDisconnecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {__("Disconnecting...", "surefeedback")}
+                </>
+              ) : (
+                __("Disconnect", "surefeedback")
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
