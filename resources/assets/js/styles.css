@@ -9,6 +9,15 @@
 .post-type-elementor-hf #wpcontent {
     padding-left: 0;
 }
+
+/* Mobile: Remove all left padding/margin */
+@media (max-width: 782px) {
+	.toplevel_page_surefeedback #wpcontent {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+}
+
 .post-type-elementor-hf #wpbody-content .wrap {
 	padding-left: 20px;
 }
@@ -200,6 +209,35 @@ input[type="radio"].surefeedback-radio-field:focus {
 }
 
 @media (max-width: 768px) {
+	/* Fix left spacing on mobile - aggressive override */
+	body.toplevel_page_surefeedback #wpcontent,
+	.toplevel_page_surefeedback #wpcontent,
+	#wpcontent {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	body.toplevel_page_surefeedback #wpbody-content,
+	.toplevel_page_surefeedback #wpbody-content,
+	#wpbody-content {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	body.toplevel_page_surefeedback,
+	.toplevel_page_surefeedback {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	/* Remove spacing from the dashboard wrapper */
+	.surefeedback-dashboard,
+	.surefeedback-app-wrapper,
+	#surefeedback-dashboard-app {
+		margin-left: 0 !important;
+		padding-left: 0 !important;
+	}
+
 	#toplevel_page_surefeedback .container {
 		padding: 0 1rem;
 	}
@@ -212,6 +250,96 @@ input[type="radio"].surefeedback-radio-field:focus {
 		width: 100% !important;
 		height: 100% !important;
 		border-radius: 0 !important;
+	}
+
+	/* Mobile Navbar Fixes */
+	.surefeedback-nav-menu {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 0.75rem !important;
+		padding: 0.75rem 1rem !important;
+		grid-template-columns: none !important;
+	}
+
+	/* Logo at top */
+	.surefeedback-nav-menu > div:first-child {
+		justify-content: center !important;
+		width: 100%;
+	}
+
+	/* Navigation tabs below logo */
+	.surefeedback-nav-menu > div:nth-child(2) {
+		width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.surefeedback-nav-menu > div:nth-child(2) > nav {
+		width: 100%;
+	}
+
+	.surefeedback-nav-menu > div:nth-child(2) > nav > ul {
+		gap: 0.5rem !important;
+		flex-wrap: nowrap;
+		justify-content: flex-start !important;
+		padding-bottom: 0.25rem;
+	}
+
+	.surefeedback-nav-menu > div:nth-child(2) > nav > ul > li {
+		flex-shrink: 0;
+	}
+
+	/* Actions at bottom */
+	.surefeedback-nav-menu > div:last-child {
+		justify-content: center !important;
+		width: 100%;
+		gap: 1rem !important;
+	}
+
+	/* Widget Control Mobile Optimizations */
+	#surefeedback-dashboard-app {
+		font-size: 14px;
+	}
+	
+	/* Mobile responsive cards */
+	#surefeedback-dashboard-app .space-y-6 {
+		gap: 1rem;
+	}
+	
+	/* Improve touch targets */
+	#surefeedback-dashboard-app button,
+	#surefeedback-dashboard-app input,
+	#surefeedback-dashboard-app select {
+		min-height: 36px;
+	}
+	
+	/* Better badge sizing on mobile */
+	#surefeedback-dashboard-app .badge {
+		font-size: 10px;
+		padding: 2px 6px;
+	}
+	
+	/* Optimize page list items */
+	#surefeedback-dashboard-app .page-list-item {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	
+	/* Make switches easier to tap */
+	#surefeedback-dashboard-app [role="switch"] {
+		width: 44px;
+		height: 24px;
+	}
+
+	/* Fix main content area */
+	#surefeedback-dashboard-app .surefeedback-dashboard {
+		margin-left: 0 !important;
+		padding-left: 0 !important;
+	}
+
+	/* Remove any negative margins */
+	#surefeedback-dashboard-app * {
+		margin-left: 0 !important;
 	}
 }
 :is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps .text-xs {
@@ -284,10 +412,39 @@ div#surefeedback-dashboard-app {
 		overflow: scroll;
 		max-width: fit-content;
 	}
-        .surefeedback-onboarding-bottom {
-                display: grid !important;
-                max-width: fit-content;
-        }
+	.surefeedback-onboarding-bottom {
+		display: grid !important;
+		max-width: fit-content;
+	}
+
+	/* Additional mobile navbar fixes */
+	.surefeedback-nav-menu [class*="NavigationMenuLink"] {
+		font-size: 0.875rem !important;
+		padding: 0.5rem 0.75rem !important;
+		white-space: nowrap;
+	}
+
+	.surefeedback-nav-menu img {
+		display: block !important;
+		max-height: 20px !important;
+	}
+
+	/* Fix dropdown menus on mobile */
+	.surefeedback-nav-menu [role="menu"] {
+		max-width: 90vw !important;
+	}
+
+	/* Icon sizing on mobile */
+	.surefeedback-nav-menu svg {
+		width: 20px !important;
+		height: 20px !important;
+	}
+
+	/* Badge responsive */
+	.surefeedback-nav-menu [class*="Badge"] {
+		font-size: 0.75rem !important;
+		padding: 0.125rem 0.5rem !important;
+	}
 }
 
 body.surefeedback-onboarding-fullscreen #wpadminbar,
@@ -437,8 +594,27 @@ input[type="checkbox"].role-checkbox:checked::after {
 }
 
 
-#wpcontent, #wpfooter {
-    margin-left: 140px !important;
+
+/* Mobile responsive override for WordPress admin */
+@media (max-width: 782px) {
+	#wpcontent, #wpfooter {
+		margin-left: 0 !important;
+	}
+	
+	.toplevel_page_surefeedback #wpcontent {
+		padding-left: 0 !important;
+	}
+}
+
+@media (max-width: 600px) {
+	#wpcontent, #wpfooter {
+		margin-left: 0 !important;
+	}
+	
+	.auto-fold #wpcontent, 
+	.auto-fold #wpfooter {
+		margin-left: 0 !important;
+	}
 }
 
 /* Override WordPress default focus styles for SureFeedback navbar */

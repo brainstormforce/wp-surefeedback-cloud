@@ -18,14 +18,7 @@ class SettingsRepository extends BaseRepository
      * @var array
      */
     protected $defaultSettings = [
-        'plugin_name' => 'SureFeedback',
-        'roles' => ['administrator', 'editor'],
-        'guest_comments' => false,
-        'admin_dashboard_comments' => true,
-        'auto_approve' => false,
-        'notification_email' => '',
-        'webhook_url' => '',
-        'widget_enabled' => true,
+        'roles' => [], // Empty array means all roles enabled by default
     ];
 
     /**
@@ -35,7 +28,35 @@ class SettingsRepository extends BaseRepository
      */
     public function getGeneralSettings(): array
     {
-        return [];
+        $settings = [];
+        
+        // Get each setting with surefeedback_ prefix
+        foreach ($this->defaultSettings as $key => $defaultValue) {
+            $settings[$key] = $this->getOption($key, $defaultValue);
+        }
+        
+        // If roles setting is empty or not set, return all available roles as default
+        if (empty($settings['roles']) || !is_array($settings['roles'])) {
+            $settings['roles'] = $this->getAllAvailableRoleNames();
+        }
+        
+        return $settings;
+    }
+
+    /**
+     * Get all available WordPress role names
+     *
+     * @return array
+     */
+    private function getAllAvailableRoleNames(): array
+    {
+        global $wp_roles;
+        
+        if (!isset($wp_roles)) {
+            $wp_roles = new \WP_Roles();
+        }
+        
+        return array_keys($wp_roles->roles);
     }
 
     /**
@@ -47,8 +68,7 @@ class SettingsRepository extends BaseRepository
      */
     public function getSetting(string $key, $default = null)
     {
-        $settings = $this->getGeneralSettings();
-        return $settings[$key] ?? $default;
+        return $this->getOption($key, $default);
     }
 
     /**
@@ -59,7 +79,36 @@ class SettingsRepository extends BaseRepository
      */
     public function updateGeneralSettings(array $settings): array
     {
-        return [];
+        $updatedSettings = [];
+        
+        foreach ($settings as $key => $value) {
+            // Sanitize and save each setting with surefeedback_ prefix
+            $sanitizedValue = $this->sanitizeSettingValue($key, $value);
+            
+            if ($this->setOption($key, $sanitizedValue)) {
+                $updatedSettings[$key] = $sanitizedValue;
+            }
+        }
+        
+        return $updatedSettings;
+    }
+    
+    /**
+     * Sanitize setting value based on type
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return mixed
+     */
+    private function sanitizeSettingValue(string $key, $value)
+    {
+        switch ($key) {
+            case 'roles':
+                return is_array($value) ? array_map('sanitize_text_field', $value) : [];
+            
+            default:
+                return $this->sanitizeData($value);
+        }
     }
 
     /**
@@ -71,12 +120,9 @@ class SettingsRepository extends BaseRepository
      */
     public function updateSetting(string $key, $value): bool
     {
-        $settings = $this->getGeneralSettings();
-        $settings[$key] = $this->sanitizeData($value);
-        
-        return $this->setOption('settings', $settings);
+        $sanitizedValue = $this->sanitizeSettingValue($key, $value);
+        return $this->setOption($key, $sanitizedValue);
     }
-
 
     /**
      * Get plugin roles
@@ -97,95 +143,7 @@ class SettingsRepository extends BaseRepository
     public function setPluginRoles(array $roles): bool
     {
         $sanitizedRoles = array_map('sanitize_text_field', $roles);
-        return $this->updateSetting('roles', $sanitizedRoles);
-    }
-
-    /**
-     * Check if guest comments are enabled
-     *
-     * @return bool
-     */
-    public function areGuestCommentsEnabled(): bool
-    {
-        return (bool) $this->getSetting('guest_comments', false);
-    }
-
-    /**
-     * Set guest comments enabled status
-     *
-     * @param bool $enabled
-     * @return bool
-     */
-    public function setGuestCommentsEnabled(bool $enabled): bool
-    {
-        return $this->updateSetting('guest_comments', $enabled);
-    }
-
-    /**
-     * Check if admin dashboard comments are enabled
-     *
-     * @return bool
-     */
-    public function areAdminDashboardCommentsEnabled(): bool
-    {
-        return (bool) $this->getSetting('admin_dashboard_comments', true);
-    }
-
-    /**
-     * Set admin dashboard comments enabled status
-     *
-     * @param bool $enabled
-     * @return bool
-     */
-    public function setAdminDashboardCommentsEnabled(bool $enabled): bool
-    {
-        return $this->updateSetting('admin_dashboard_comments', $enabled);
-    }
-
-    /**
-     * Get notification email
-     *
-     * @return string|null
-     */
-    public function getNotificationEmail(): ?string
-    {
-        $email = $this->getSetting('notification_email', '');
-        return empty($email) ? null : $email;
-    }
-
-    /**
-     * Set notification email
-     *
-     * @param string $email
-     * @return bool
-     */
-    public function setNotificationEmail(string $email): bool
-    {
-        $sanitizedEmail = sanitize_email($email);
-        return $this->updateSetting('notification_email', $sanitizedEmail);
-    }
-
-    /**
-     * Get webhook URL
-     *
-     * @return string|null
-     */
-    public function getWebhookUrl(): ?string
-    {
-        $url = $this->getSetting('webhook_url', '');
-        return empty($url) ? null : $url;
-    }
-
-    /**
-     * Set webhook URL
-     *
-     * @param string $url
-     * @return bool
-     */
-    public function setWebhookUrl(string $url): bool
-    {
-        $sanitizedUrl = esc_url_raw($url);
-        return $this->updateSetting('webhook_url', $sanitizedUrl);
+        return $this->setOption('roles', $sanitizedRoles);
     }
 
     /**

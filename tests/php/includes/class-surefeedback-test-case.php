@@ -39,15 +39,12 @@ class SureFeedback_Test_Case extends WP_UnitTestCase
     {
         $plugin_options = [
             'surefeedback_installation_date',
-            'surefeedback_widget_enabled',
-            'surefeedback_role_can_comment',
-            'surefeedback_guest_comments',
-            'surefeedback_admin_can_comment',
-            'surefeedback_show_on_admin',
-            'surefeedback_disable_for_admin',
+            'surefeedback_roles',
             'surefeedback_connection_status',
             'surefeedback_access_token',
             'surefeedback_signature',
+            'surefeedback_site_id',
+            'surefeedback_parent_url',
         ];
         
         foreach ($plugin_options as $option) {
@@ -60,10 +57,13 @@ class SureFeedback_Test_Case extends WP_UnitTestCase
      */
     protected function get_default_options()
     {
+        global $wp_roles;
+        if (!isset($wp_roles)) {
+            $wp_roles = new \WP_Roles();
+        }
+        
         return [
-            'surefeedback_widget_enabled' => true,
-            'surefeedback_role_can_comment' => ['administrator'],
-            'surefeedback_guest_comments' => false,
+            'surefeedback_roles' => array_keys($wp_roles->roles), // All roles enabled by default
             'surefeedback_admin_can_comment' => true,
             'surefeedback_show_on_admin' => false,
             'surefeedback_disable_for_admin' => false,

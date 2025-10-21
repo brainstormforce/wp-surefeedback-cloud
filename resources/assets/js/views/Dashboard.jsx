@@ -6,6 +6,7 @@ import SetupView from './SetupView';
 import ConnectionView from './ConnectionView';
 import PermissionsView from './PermissionsView';
 import SettingsView from './SettingsView';
+import WidgetControlView from './WidgetControlView';
 
 // Import navigation
 import NavMenu from '../components/NavMenu';
@@ -41,6 +42,9 @@ const DashboardContent = () => {
                     </Route>
                     <Route path="settings" exact>
                         <SettingsView />
+                    </Route>
+                    <Route path="widget-control" exact>
+                        <WidgetControlView />
                     </Route>
                 </main>
             </div>

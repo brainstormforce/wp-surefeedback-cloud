@@ -362,7 +362,7 @@ abstract class Controller
      */
     protected function logInfo(string $message, array $context = []): void
     {
-        $this->log($message, $context, 'info');
+        // Logging disabled
     }
 
     /**

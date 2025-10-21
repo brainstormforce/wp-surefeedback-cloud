@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast, Toaster } from "@/components/ui/toast";
 import { __ } from "@wordpress/i18n";
-import { Loader2, Save, Shield, Users, Globe, Trash2, AlertTriangle } from "lucide-react";
+import { Loader2, Save, Shield, Trash2, AlertTriangle } from "lucide-react";
 
 const ResetConnectionButton = () => {
   const [resetting, setResetting] = useState(false);
@@ -125,9 +125,7 @@ const ResetConnectionButton = () => {
 
 const GeneralSettings = () => {
   const [settings, setSettings] = useState({
-    surefeedback_role_can_comment: [],
-    surefeedback_guest_comments_enabled: false,
-    surefeedback_admin: false
+    roles: []
   });
   const [availableRoles, setAvailableRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,12 +151,18 @@ const GeneralSettings = () => {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
+          const availableRolesList = data.data.availableRoles || [];
+          const savedRoles = data.data.general?.roles || [];
+          
+          // If no roles are saved yet, enable all roles by default
+          const defaultRoles = savedRoles.length === 0 
+            ? availableRolesList.map(role => role.name)
+            : savedRoles;
+          
           setSettings({
-            surefeedback_role_can_comment: data.data.general?.surefeedback_role_can_comment || [],
-            surefeedback_guest_comments_enabled: data.data.general?.surefeedback_guest_comments_enabled || false,
-            surefeedback_admin: data.data.general?.surefeedback_admin || false
+            roles: defaultRoles
           });
-          setAvailableRoles(data.data.availableRoles || []);
+          setAvailableRoles(availableRolesList);
         }
       }
     } catch (error) {
@@ -168,10 +172,9 @@ const GeneralSettings = () => {
     }
   };
 
-  const saveGeneralSettings = async (updatedSettings = null) => {
+  const saveGeneralSettings = async () => {
     try {
       setSaving(true);
-      const dataToSave = updatedSettings || settings;
 
       const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/settings/general', {
         method: 'POST',
@@ -179,13 +182,14 @@ const GeneralSettings = () => {
           'Content-Type': 'application/json',
           'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
         },
-        body: JSON.stringify(dataToSave),
+        body: JSON.stringify(settings),
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
           toast.success(__('Settings saved successfully!', 'surefeedback'));
+          setHasUnsavedChanges(false);
           return true;
         }
       }
@@ -198,42 +202,23 @@ const GeneralSettings = () => {
     }
   };
 
-  const handleRoleChange = async (roleName, selected) => {
+  const handleRoleChange = (roleName, selected) => {
     const updatedRoles = selected
-      ? [...settings.surefeedback_role_can_comment, roleName]
-      : settings.surefeedback_role_can_comment.filter(role => role !== roleName);
+      ? [...settings.roles, roleName]
+      : settings.roles.filter(role => role !== roleName);
 
-    const updatedSettings = {
+    setSettings({
       ...settings,
-      surefeedback_role_can_comment: updatedRoles
-    };
-
-    setSettings(updatedSettings);
-    await saveGeneralSettings(updatedSettings);
-  };
-
-  const handleGuestCommentsChange = async (checked) => {
-    const updatedSettings = {
-      ...settings,
-      surefeedback_guest_comments_enabled: checked
-    };
-
-    setSettings(updatedSettings);
-    await saveGeneralSettings(updatedSettings);
-  };
-
-  const handleAdminCommentsChange = async (checked) => {
-    const updatedSettings = {
-      ...settings,
-      surefeedback_admin: checked
-    };
-
-    setSettings(updatedSettings);
-    await saveGeneralSettings(updatedSettings);
+      roles: updatedRoles
+    });
+    setHasUnsavedChanges(true);
   };
 
   const handleSaveChanges = async () => {
-    await saveGeneralSettings();
+    const success = await saveGeneralSettings();
+    if (success) {
+      setHasUnsavedChanges(false);
+    }
   };
 
   if (loading) {
@@ -272,76 +257,34 @@ const GeneralSettings = () => {
                   {__("User Permissions", "surefeedback")}
                 </CardTitle>
                 <CardDescription className="mt-0.5">
-                  {__("Allow user roles to view comments on your site without access token.", "surefeedback")}
+                  {__("Allow user roles to view comment widget on your site", "surefeedback")}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="space-y-4">
               {availableRoles.map((role) => (
-                <div key={role.name} className="flex items-center space-x-2">
+                <div key={role.name} className="flex items-start justify-between py-2 border-b last:border-b-0">
+                  <div className="flex-1 pr-4">
+                    <Label
+                      htmlFor={`role-${role.name}`}
+                      className="text-sm font-semibold cursor-pointer capitalize block mb-1"
+                    >
+                      {role.label}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {__(`Enable ${role.label} role to view and interact with the feedback widget`, "surefeedback")}
+                    </p>
+                  </div>
                   <Switch
                     id={`role-${role.name}`}
-                    checked={settings.surefeedback_role_can_comment?.includes(role.name) || false}
+                    checked={settings.roles?.includes(role.name) || false}
                     onCheckedChange={(checked) => handleRoleChange(role.name, checked)}
+                    className="flex-shrink-0"
                   />
-                  <Label
-                    htmlFor={`role-${role.name}`}
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    {role.label}
-                  </Label>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Guest Comments Card */}
-        <Card className="shadow-sm">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-start gap-3 flex-1">
-                <Globe className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="space-y-0.5">
-                  <Label className="text-base font-semibold text-foreground">
-                    {__("Allow Site Visitors", "surefeedback")}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {__("Allow the site visitors to view and add comments on your site without access token.", "surefeedback")}
-                  </p>
-                </div>
-              </div>
-              <Switch
-                checked={settings.surefeedback_guest_comments_enabled || false}
-                onCheckedChange={handleGuestCommentsChange}
-                className="flex-shrink-0"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Dashboard Commenting Card */}
-        <Card className="shadow-sm">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-start gap-3 flex-1">
-                <Users className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="space-y-0.5">
-                  <Label className="text-base font-semibold text-foreground">
-                    {__("Dashboard Commenting", "surefeedback")}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {__("Allow commenting in your site's WordPress dashboard area.", "surefeedback")}
-                  </p>
-                </div>
-              </div>
-              <Switch
-                checked={settings.surefeedback_admin || false}
-                onCheckedChange={handleAdminCommentsChange}
-                className="flex-shrink-0"
-              />
             </div>
           </CardContent>
         </Card>
@@ -351,7 +294,7 @@ const GeneralSettings = () => {
           <Button
             size="lg"
             onClick={handleSaveChanges}
-            disabled={saving || loading}
+            disabled={saving || loading || !hasUnsavedChanges}
             className="min-w-[150px]"
           >
             {saving ? (
@@ -362,7 +305,7 @@ const GeneralSettings = () => {
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                {__("Save Changes", "surefeedback")}
+                {hasUnsavedChanges ? __("Save Changes", "surefeedback") : __("No Changes", "surefeedback")}
               </>
             )}
           </Button>

@@ -59,7 +59,7 @@ class AdminApiController extends Controller
                 ],
             ];
 
-            $this->logInfo('Settings retrieved for admin API');
+
 
             return $this->success($settings);
 

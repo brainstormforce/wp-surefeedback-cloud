@@ -35,6 +35,17 @@ const PermissionsView = () => {
         }));
     };
     
+    // Get available roles from WordPress
+    const getAvailableRoles = () => {
+        return window.sureFeedbackAdmin?.availableRoles || [
+            { name: 'administrator', label: 'Administrator' },
+            { name: 'editor', label: 'Editor' },
+            { name: 'author', label: 'Author' },
+            { name: 'contributor', label: 'Contributor' },
+            { name: 'subscriber', label: 'Subscriber' }
+        ];
+    };
+    
     const renderUserRoles = () => (
         <div className="space-y-6">
             <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -43,24 +54,24 @@ const PermissionsView = () => {
                     <Title size="md">{__('User Permissions', 'surefeedback')}</Title>
                 </div>
                 <p className="text-gray-600 mb-6">
-                    {__('Allow user roles to view comments on your site without access token.', 'surefeedback')}
+                    {__('Allow user roles to view comment widget on your site', 'surefeedback')}
                 </p>
                 
                 <div className="space-y-4">
-                    {['administrator', 'editor', 'author', 'contributor', 'subscriber'].map(role => (
-                        <div key={role} className="flex items-center justify-between py-2">
-                            <div>
-                                <span className="font-medium capitalize">{role}</span>
-                                <p className="text-sm text-gray-500">
-                                    {__(`Allow ${role}s to view and interact with feedback`, 'surefeedback')}
+                    {getAvailableRoles().map(role => (
+                        <div key={role.name} className="flex items-start justify-between py-3 border-b last:border-b-0">
+                            <div className="flex-1 pr-4">
+                                <span className="font-semibold text-gray-900 block mb-1">{role.label}</span>
+                                <p className="text-sm text-gray-600">
+                                    {__(`Enable ${role.label} role to view and interact with the feedback widget`, 'surefeedback')}
                                 </p>
                             </div>
                             <Switch
-                                checked={permissions.userRoles.includes(role)}
+                                checked={permissions.userRoles.includes(role.name)}
                                 onChange={(checked) => {
                                     const updatedRoles = checked 
-                                        ? [...permissions.userRoles, role]
-                                        : permissions.userRoles.filter(r => r !== role);
+                                        ? [...permissions.userRoles, role.name]
+                                        : permissions.userRoles.filter(r => r !== role.name);
                                     handlePermissionChange('userRoles', updatedRoles);
                                 }}
                             />

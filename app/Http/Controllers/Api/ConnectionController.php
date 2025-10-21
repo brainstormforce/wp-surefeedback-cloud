@@ -63,7 +63,7 @@ class ConnectionController extends Controller
                 'status' => $this->isConnected() ? 'connected' : 'disconnected',
             ];
 
-            $this->logInfo('Connection status requested', $connection_data);
+
 
             return $this->success($connection_data);
 
@@ -119,10 +119,7 @@ class ConnectionController extends Controller
             update_option('surefeedback_parent_url', $parent_url);
             update_option('surefeedback_access_token', $access_token);
 
-            $this->logInfo('Connection established', [
-                'parent_url' => $parent_url,
-                'site_token' => substr($site_token, 0, 8) . '...'
-            ]);
+
 
             return $this->success([
                 'message' => 'Connection established successfully',
@@ -190,9 +187,9 @@ class ConnectionController extends Controller
                 'surefeedback_organization_id',
                 'surefeedback_is_active',
                 'surefeedback_created_at',
-                'surefeedback_widget_enabled',
                 'surefeedback_site_connected',
                 'surefeedback_is_fully_verified',
+                'surefeedback_roles',
             ];
 
             foreach ($surefeedback_options as $option) {
@@ -202,7 +199,7 @@ class ConnectionController extends Controller
             wp_cache_delete('surefeedback_settings');
             delete_transient('surefeedback_connection_check');
 
-            $this->logInfo('Site connection reset completely');
+
 
             return $this->success([
                 'message' => 'Site connection reset successfully',
@@ -231,7 +228,7 @@ class ConnectionController extends Controller
                 $data = $request->get_params();
             }
 
-            $this->logInfo('Webhook received', ['data' => $data]);
+
             $siteData = isset($data['data']) ? $data['data'] : $data;
 
             $siteId = $siteData['id'] ?? $data['site_id'] ?? null;
@@ -277,7 +274,6 @@ class ConnectionController extends Controller
                     : true;
                 
                 update_option('surefeedback_site_connected', $site_connected_value);
-                update_option('surefeedback_widget_enabled', true);
                 
                 // Set verification fields from webhook data or use initial state
                 // WordPress doesn't store null values, so we use empty string for last_verification

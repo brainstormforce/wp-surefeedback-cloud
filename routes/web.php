@@ -56,7 +56,7 @@ $router->group(['prefix' => 'public'], function ($router) {
     // Widget endpoints
     $router->get('widget/config', function () {
         return wp_json_encode([
-            'enabled' => get_option('surefeedback_widget_enabled', false),
+            'connected' => !empty(get_option('surefeedback_access_token')),
         ]);
     });
     
@@ -77,7 +77,8 @@ add_action('wp_ajax_surefeedback_reset_plugin', [AdminController::class, 'ajaxRe
 
 // Frontend hooks
 add_action('wp_enqueue_scripts', function () {
-    if (get_option('surefeedback_widget_enabled', false)) {
+    $access_token = get_option('surefeedback_access_token');
+    if (!empty($access_token)) {
         wp_enqueue_script(
             'surefeedback-widget',
             SUREFEEDBACK_PLUGIN_URL . 'assets/widget.js',
@@ -89,9 +90,8 @@ add_action('wp_enqueue_scripts', function () {
         wp_localize_script('surefeedback-widget', 'surefeedbackConfig', [
             'apiUrl' => rest_url('surefeedback/v1/'),
             'nonce' => wp_create_nonce('wp_rest'),
-            'settings' => [
-                'enabled' => get_option('surefeedback_widget_enabled', false)
-            ]
+            'siteId' => get_option('surefeedback_site_id'),
+            'accessToken' => $access_token
         ]);
     }
 });

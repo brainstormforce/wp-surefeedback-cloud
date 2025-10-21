@@ -37,6 +37,7 @@ const NavMenu = () => {
     { label: __("Setup", "surefeedback"), path: "setup", showWhenConnected: false },
     { label: __("Connections", "surefeedback"), path: "connections", showWhenConnected: true },
     { label: __("Settings", "surefeedback"), path: "settings", showWhenConnected: true },
+    { label: __("Widget Control", "surefeedback"), path: "widget-control", showWhenConnected: true },
   ];
 
   const navItems = allNavItems.filter(item =>

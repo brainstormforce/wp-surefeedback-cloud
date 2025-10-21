@@ -59,12 +59,6 @@ class FrontendService
             return;
         }
 
-        // Check if feedback widget is enabled
-        $widget_enabled = get_option('surefeedback_widget_enabled', true);
-        if (!$widget_enabled) {
-            return;
-        }
-
         // Skip injection on certain pages or conditions
         if ($this->should_skip_injection()) {
             return;
@@ -86,15 +80,11 @@ class FrontendService
             return;
         }
 
-        $widget_enabled = get_option('surefeedback_widget_enabled', true);
         $access_token = get_option('surefeedback_access_token');
 
-        if (!$widget_enabled || empty($access_token)) {
+        if (empty($access_token)) {
             return;
         }
-
-        // Enqueue widget script from Laravel server
-    
 
         // Localize script with configuration
         wp_localize_script('surefeedback-widget', 'surefeedbackConfig', [
@@ -102,7 +92,6 @@ class FrontendService
             'nonce' => wp_create_nonce('wp_rest'),
             'siteId' => get_option('surefeedback_site_id'),
             'accessToken' => get_option('surefeedback_access_token'),
-            'settings' => $this->get_widget_settings(),
             'user' => $this->get_current_user_data(),
             'page' => $this->get_current_page_data()
         ]);
@@ -133,7 +122,7 @@ class FrontendService
         $required_token = null;
 
         // Check if user is logged in and has permission
-        $user_allowed = $this->user_can_leave_feedback();
+        $user_allowed = $this->user_can_see_widget();
         $current_user = $this->get_current_user_data();
 
         echo "\n<!-- SureFeedback Widget -->\n";
@@ -202,12 +191,6 @@ class FrontendService
         $access_token = get_option('surefeedback_access_token');
 
         if (empty($site_id) || empty($access_token)) {
-            return;
-        }
-
-        // Check if feedback widget is enabled
-        $widget_enabled = get_option('surefeedback_widget_enabled', true);
-        if (!$widget_enabled) {
             return;
         }
 
@@ -372,13 +355,29 @@ class FrontendService
             return;
         }
 
+        // Check if user has permission to see widget
+        if (!$this->user_can_see_widget()) {
+            echo "\n<!-- SureFeedback Widget: User does not have permission to view widget -->\n";
+            return;
+        }
+
+        // Check if widget is enabled for current page
+        if (!$this->is_widget_enabled_for_current_page()) {
+            echo "\n<!-- SureFeedback Widget: Widget is disabled for this page -->\n";
+            return;
+        }
+
         // Get environment-aware base API URL
         $api_url = surefeedback_get_base_api_url();
 
         // Construct widget loader URL
         $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
 
+        // Get current user data (we know user is logged in and has permission at this point)
+        $current_user = wp_get_current_user();
+
         echo "\n<!-- SureFeedback WordPress Integration -->\n";
+        echo "<!-- User: " . esc_html($current_user->display_name) . " (ID: " . esc_html($current_user->ID) . ") -->\n";
         ?>
         <script>
         // SureFeedback WordPress Integration Script
@@ -404,14 +403,11 @@ class FrontendService
           sf.setAttribute('data-page-title', '<?php echo esc_js(wp_get_document_title()); ?>');
           sf.setAttribute('data-page-id', '<?php echo esc_js(get_the_ID() ?: 0); ?>');
           
-          <?php 
-          $current_user = wp_get_current_user();
-          if ($current_user->ID > 0): ?>
-          // Add user data if authenticated
+          // Add user data (user is authenticated and has permission)
           sf.setAttribute('data-user-name', '<?php echo esc_js($current_user->display_name); ?>');
           sf.setAttribute('data-user-email', '<?php echo esc_js($current_user->user_email); ?>');
           sf.setAttribute('data-user-id', '<?php echo esc_js($current_user->ID); ?>');
-          <?php endif; ?>
+          sf.setAttribute('data-user-roles', '<?php echo esc_js(implode(',', $current_user->roles)); ?>');
           
           // Optional: Add restricted URL and required token if provided
           if (restrictedUrl) {
@@ -452,8 +448,8 @@ class FrontendService
             return true;
         }
 
-        // Skip if user doesn't have permission to leave feedback
-        if (!$this->user_can_leave_feedback()) {
+        // Skip if user doesn't have permission to see widget
+        if (!$this->user_can_see_widget()) {
             return true;
         }
 
@@ -522,42 +518,36 @@ class FrontendService
     }
 
     /**
-     * Check if current user can leave feedback
+     * Check if current user can see widget
      *
      * @return bool
      */
-    private function user_can_leave_feedback(): bool
+    private function user_can_see_widget(): bool
     {
-        // Temporarily bypass permission check for debugging
-        return true;
+        // Get allowed roles from settings with surefeedback_ prefix
+        $allowed_roles = get_option('surefeedback_roles', []);
         
-        // Get allowed roles from settings
-        $allowed_roles = get_option('surefeedback_role_can_comment', ['administrator', 'editor']);
+        // If no roles are saved (empty array), enable all roles by default
+        if (empty($allowed_roles) || !is_array($allowed_roles)) {
+            global $wp_roles;
+            if (!isset($wp_roles)) {
+                $wp_roles = new \WP_Roles();
+            }
+            $allowed_roles = array_keys($wp_roles->roles);
+        }
         
-        // Check for guest access
-        $guest_comments = get_option('surefeedback_guest_comments', false);
-        
+        // Check if user is logged in
         if (!is_user_logged_in()) {
-            return $guest_comments;
+            return false;
         }
 
         $user = wp_get_current_user();
         
         // Check if user has any of the allowed roles
-        $user_roles = $user->roles;
+        $user_roles = (array) $user->roles;
+        
+        // Return true if user has at least one of the allowed roles
         return !empty(array_intersect($user_roles, $allowed_roles));
-    }
-
-    /**
-     * Get widget settings
-     *
-     * @return array
-     */
-    private function get_widget_settings(): array
-    {
-        return [
-            'enabled' => get_option('surefeedback_widget_enabled', true),
-        ];
     }
 
     /**
@@ -570,7 +560,7 @@ class FrontendService
         if (!is_user_logged_in()) {
             return [
                 'logged_in' => false,
-                'can_comment' => get_option('surefeedback_guest_comments', false)
+                'can_comment' => false
             ];
         }
 
@@ -583,7 +573,7 @@ class FrontendService
             'email' => $user->user_email,
             'avatar' => get_avatar_url($user->ID, ['size' => 32]),
             'roles' => $user->roles,
-            'can_comment' => $this->user_can_leave_feedback()
+            'can_comment' => $this->user_can_see_widget()
         ];
     }
 
@@ -640,9 +630,7 @@ class FrontendService
     {
         // Allow public access for widget configuration
         $config = [
-            'enabled' => get_option('surefeedback_widget_enabled', true),
             'connected' => !empty(get_option('surefeedback_access_token')),
-            'settings' => $this->get_widget_settings(),
             'user' => $this->get_current_user_data(),
             'page' => $this->get_current_page_data()
         ];
@@ -657,7 +645,6 @@ class FrontendService
      */
     public function get_widget_status(): array
     {
-        $widget_enabled = get_option('surefeedback_widget_enabled', true);
         $site_id = get_option('surefeedback_site_id');
         $access_token = get_option('surefeedback_access_token');
 
@@ -666,7 +653,6 @@ class FrontendService
         $status = [
             'active' => false,
             'connected' => $is_connected,
-            'enabled' => $widget_enabled,
             'configured' => !empty($site_id),
             'issues' => []
         ];
@@ -676,15 +662,11 @@ class FrontendService
             $status['issues'][] = 'Not connected to parent site';
         }
 
-        if (!$status['enabled']) {
-            $status['issues'][] = 'Widget is disabled';
-        }
-
         if (!$status['configured']) {
             $status['issues'][] = 'Site ID not configured';
         }
 
-        $status['active'] = $status['connected'] && $status['enabled'] && $status['configured'];
+        $status['active'] = $status['connected'] && $status['configured'];
 
         return $status;
     }
@@ -732,5 +714,17 @@ class FrontendService
             'message' => 'Widget is functioning correctly',
             'status' => $status
         ];
+    }
+
+    /**
+     * Check if widget is enabled for current page
+     *
+     * @return bool
+     */
+    private function is_widget_enabled_for_current_page(): bool
+    {
+        // Use PageSettingsRepository to check if widget should be displayed
+        $page_settings_repository = new \SureFeedback\Repositories\PageSettingsRepository();
+        return $page_settings_repository->shouldDisplayWidgetOnCurrentPage();
     }
 }

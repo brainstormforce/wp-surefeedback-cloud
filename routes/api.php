@@ -29,6 +29,7 @@ if (! defined('ABSPATH')) {
 use SureFeedback\Http\Controllers\Api\ConnectionController;
 use SureFeedback\Http\Controllers\Api\SettingsController;
 use SureFeedback\Http\Controllers\Api\VerificationController;
+use SureFeedback\Http\Controllers\Api\PageSettingsController;
 
 // Connection management endpoints
 $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($router) {
@@ -128,6 +129,16 @@ $router->group(['prefix' => 'settings', 'namespace' => 'Api'], function ($router
     $router->post('/', [SettingsController::class, 'update']);
     $router->get('general', [SettingsController::class, 'general']);
     $router->post('general', [SettingsController::class, 'updateGeneral']);
+});
+
+// Page settings endpoints
+$router->group(['prefix' => 'page-settings'], function ($router) {
+    $router->get('/', [PageSettingsController::class, 'index']);
+    $router->post('/', [PageSettingsController::class, 'update']);
+    $router->post('enable', [PageSettingsController::class, 'enablePage']);
+    $router->post('disable', [PageSettingsController::class, 'disablePage']);
+    $router->post('enable-all', [PageSettingsController::class, 'enableAll']);
+    $router->post('disable-all', [PageSettingsController::class, 'disableAll']);
 });
 
 // Legacy compatibility routes

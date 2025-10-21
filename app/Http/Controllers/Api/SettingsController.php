@@ -48,7 +48,7 @@ class SettingsController extends Controller
             if (current_user_can('manage_options')) {
                 // User is authenticated via WordPress cookies and has admin rights
                 // No additional nonce validation needed for GET requests
-                $this->logInfo('Settings access granted via cookie authentication');
+
             } else {
                 // Fallback: Check if user is logged in at all
                 if (!is_user_logged_in()) {
@@ -64,7 +64,7 @@ class SettingsController extends Controller
                 'availableRoles' => $this->getAvailableRoles(),
             ];
             
-            $this->logInfo('Settings retrieved');
+
             
             return $this->success($settings);
             
@@ -108,7 +108,7 @@ class SettingsController extends Controller
                 $updated_settings = $this->settingsRepository->updateGeneralSettings($validated);
             }
             
-            $this->logInfo('Settings updated', $updated_settings);
+
             
             return $this->success([
                 'message' => 'Settings updated successfully',
@@ -180,7 +180,7 @@ class SettingsController extends Controller
             $validated = $updateRequest->validated();
             $settings = $this->settingsRepository->updateGeneralSettings($validated);
             
-            $this->logInfo('General settings updated', $settings);
+
             
             return $this->success([
                 'message' => 'General settings updated successfully',
