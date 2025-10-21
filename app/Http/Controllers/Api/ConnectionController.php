@@ -364,7 +364,7 @@ class ConnectionController extends Controller
     }
 
     /**
-     * Handle disconnect webhook from SureFeedback API (JWT protected)
+     * Handle disconnect webhook from SureFeedback API (Webhook Secret protected)
      *
      * @param WP_REST_Request $request
      * @return WP_REST_Response|WP_Error
@@ -372,12 +372,22 @@ class ConnectionController extends Controller
     public function disconnect_webhook(WP_REST_Request $request)
     {
         try {
-            // Validate JWT token (already done by middleware)
-            $token_data = $request->get_param('_jwt_token_data');
+            // Verify webhook secret key from X-Webhook-Secret header
+            $webhook_secret = $request->get_header('X-Webhook-Secret');
+            $stored_access_token = get_option('surefeedback_access_token');
             
-            if (!$token_data) {
-                $this->logError('Disconnect webhook: Missing JWT token data');
-                return $this->error('Unauthorized', 401);
+            // Validate webhook secret matches the stored API token
+            if (empty($webhook_secret) || empty($stored_access_token)) {
+                $this->logError('Disconnect webhook missing or invalid secret', [
+                    'has_secret' => !empty($webhook_secret),
+                    'has_stored_token' => !empty($stored_access_token)
+                ]);
+                return $this->error('Invalid or missing webhook secret', 401);
+            }
+            
+            if (!hash_equals($stored_access_token, $webhook_secret)) {
+                $this->logError('Disconnect webhook secret mismatch');
+                return $this->error('Webhook secret validation failed', 401);
             }
 
             // Get disconnect data from request
@@ -392,7 +402,7 @@ class ConnectionController extends Controller
             $this->logInfo('Disconnect webhook received', [
                 'site_id' => $site_id,
                 'force' => $force,
-                'token_user' => $token_data['email'] ?? 'unknown'
+                'disconnected_by' => $data['disconnected_by'] ?? 'unknown'
             ]);
 
             // Delete all SureFeedback options

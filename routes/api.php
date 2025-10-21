@@ -46,8 +46,8 @@ $router->group(['prefix' => 'remote', 'namespace' => 'Api'], function ($router) 
 // Webhook endpoint for SureFeedback API callbacks
 $router->post('webhook', [ConnectionController::class, 'webhook']);
 
-// Secure disconnect webhook endpoint (JWT protected)
-$router->postJWT('webhook/disconnect', [ConnectionController::class, 'disconnect_webhook']);
+// Secure disconnect webhook endpoint (Webhook Secret protected)
+$router->post('webhook/disconnect', [ConnectionController::class, 'disconnect_webhook']);
 
 // Plugin activation endpoint (for SaaS auto-installation)
 $router->post('plugin/activate', function () {
