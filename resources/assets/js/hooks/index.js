@@ -11,7 +11,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
     connectionService, 
     settingsService, 
-    dashboardService, 
     adminService,
     verificationService,
     errorHandler 
@@ -81,26 +80,6 @@ export function useConnection(options = {}) {
         }
     }, [updateState]);
 
-    const disconnect = useCallback(async () => {
-        updateState({ isLoading: true, error: null });
-        
-        try {
-            const result = await connectionService.disconnect();
-            updateState({
-                isConnected: false,
-                connectionData: null,
-                isLoading: false
-            });
-            return result;
-        } catch (error) {
-            updateState({ 
-                error: error.message, 
-                isLoading: false 
-            });
-            throw error;
-        }
-    }, [updateState]);
-
     const verify = useCallback(async (parentUrl, accessToken) => {
         updateState({ isLoading: true, error: null });
         
@@ -133,12 +112,6 @@ export function useConnection(options = {}) {
                         connectionData: data
                     });
                     break;
-                case 'connection_disconnected':
-                    updateState({
-                        isConnected: false,
-                        connectionData: null
-                    });
-                    break;
             }
         };
 
@@ -167,7 +140,6 @@ export function useConnection(options = {}) {
         ...state,
         getStatus,
         connect,
-        disconnect,
         verify,
         refresh: () => getStatus(true)
     };
@@ -307,141 +279,6 @@ export function useSettings(section = 'all') {
 }
 
 /**
- * Hook for dashboard data management
- * @param {Object} options - Hook options
- * @returns {Object} Dashboard state and methods
- */
-export function useDashboard(options = {}) {
-    const { autoRefresh = true, refreshInterval = 60000 } = options;
-    
-    const [state, setState] = useState({
-        stats: null,
-        quickAccess: null,
-        recentActivity: null,
-        isLoading: true,
-        error: null,
-        lastUpdated: null
-    });
-
-    const updateState = useCallback((updates) => {
-        setState(prevState => ({
-            ...prevState,
-            ...updates,
-            lastUpdated: new Date().toISOString()
-        }));
-    }, []);
-
-    const refreshAll = useCallback(async () => {
-        updateState({ isLoading: true, error: null });
-        
-        try {
-            const result = await dashboardService.refreshAll();
-            updateState({
-                stats: result.stats,
-                quickAccess: result.quickAccess,
-                recentActivity: result.recentActivity,
-                isLoading: false,
-                error: result.errors.length > 0 ? result.errors[0].error.message : null
-            });
-            return result;
-        } catch (error) {
-            updateState({ 
-                error: error.message, 
-                isLoading: false 
-            });
-            throw error;
-        }
-    }, [updateState]);
-
-    const getStats = useCallback(async (forceRefresh = false) => {
-        try {
-            const data = await dashboardService.getStats(forceRefresh);
-            updateState({ stats: data });
-            return data;
-        } catch (error) {
-            updateState({ error: error.message });
-            throw error;
-        }
-    }, [updateState]);
-
-    const getQuickAccess = useCallback(async (forceRefresh = false) => {
-        try {
-            const data = await dashboardService.getQuickAccess(forceRefresh);
-            updateState({ quickAccess: data });
-            return data;
-        } catch (error) {
-            updateState({ error: error.message });
-            throw error;
-        }
-    }, [updateState]);
-
-    const getRecentActivity = useCallback(async (options = {}) => {
-        try {
-            const data = await dashboardService.getRecentActivity(options);
-            updateState({ recentActivity: data });
-            return data;
-        } catch (error) {
-            updateState({ error: error.message });
-            throw error;
-        }
-    }, [updateState]);
-
-    // Setup dashboard listener
-    useEffect(() => {
-        const listener = (event, data) => {
-            switch (event) {
-                case 'stats_updated':
-                    updateState({ stats: data });
-                    break;
-                case 'quick_access_updated':
-                    updateState({ quickAccess: data });
-                    break;
-                case 'recent_activity_updated':
-                    updateState({ recentActivity: data });
-                    break;
-                case 'refresh_completed':
-                    updateState({
-                        stats: data.stats,
-                        quickAccess: data.quickAccess,
-                        recentActivity: data.recentActivity,
-                        error: data.errors.length > 0 ? data.errors[0].error.message : null
-                    });
-                    break;
-            }
-        };
-
-        dashboardService.addListener(listener);
-        
-        // Initial load
-        refreshAll();
-
-        return () => dashboardService.removeListener(listener);
-    }, [refreshAll, updateState]);
-
-    // Auto refresh
-    useEffect(() => {
-        if (!autoRefresh) {
-            return;
-        }
-
-        const interval = setInterval(() => {
-            refreshAll().catch(() => {});
-        }, refreshInterval);
-
-        return () => clearInterval(interval);
-    }, [autoRefresh, refreshInterval, refreshAll]);
-
-    return {
-        ...state,
-        refreshAll,
-        getStats,
-        getQuickAccess,
-        getRecentActivity,
-        refresh: refreshAll
-    };
-}
-
-/**
  * Hook for admin operations
  * @returns {Object} Admin state and methods
  */
@@ -545,22 +382,6 @@ export function useAdmin() {
         }
     }, [updateState]);
 
-    const disconnectSite = useCallback(async (options = {}) => {
-        updateState({ isLoading: true, error: null });
-        
-        try {
-            const result = await adminService.disconnectSite(options);
-            updateState({ isLoading: false });
-            return result;
-        } catch (error) {
-            updateState({ 
-                error: error.message, 
-                isLoading: false 
-            });
-            throw error;
-        }
-    }, [updateState]);
-
     // Setup admin listener
     useEffect(() => {
         const listener = (event, data) => {
@@ -589,7 +410,6 @@ export function useAdmin() {
         saveWhiteLabelSettings,
         verifyIntegration,
         testParentSite,
-        disconnectSite,
         refresh: () => getSettings(true)
     };
 }

@@ -27,21 +27,15 @@ if (! defined('ABSPATH')) {
 */
 
 use SureFeedback\App\Http\Controllers\AdminController;
-use SureFeedback\App\Http\Controllers\DashboardController;
 use SureFeedback\App\Http\Controllers\SettingsController;
 
 // Admin dashboard routes
 $router->group(['prefix' => 'admin', 'middleware' => 'auth'], function ($router) {
-    
-    // Main dashboard
-    $router->get('dashboard', [DashboardController::class, 'index']);
-    
+
     // Settings pages
     $router->get('settings', [SettingsController::class, 'index']);
     $router->get('settings/general', [SettingsController::class, 'general']);
     $router->get('settings/connection', [SettingsController::class, 'connection']);
-    $router->get('settings/white-label', [SettingsController::class, 'whiteLabel']);
-    $router->get('settings/advanced', [SettingsController::class, 'advanced']);
     
     // Admin actions
     $router->post('settings/save', [SettingsController::class, 'save']);
@@ -63,8 +57,6 @@ $router->group(['prefix' => 'public'], function ($router) {
     $router->get('widget/config', function () {
         return wp_json_encode([
             'enabled' => get_option('surefeedback_widget_enabled', false),
-            'position' => get_option('surefeedback_widget_position', 'bottom-right'),
-            'theme' => get_option('surefeedback_widget_theme', 'light')
         ]);
     });
     
@@ -98,8 +90,6 @@ add_action('wp_enqueue_scripts', function () {
             'apiUrl' => rest_url('surefeedback/v1/'),
             'nonce' => wp_create_nonce('wp_rest'),
             'settings' => [
-                'position' => get_option('surefeedback_widget_position', 'bottom-right'),
-                'theme' => get_option('surefeedback_widget_theme', 'light'),
                 'enabled' => get_option('surefeedback_widget_enabled', false)
             ]
         ]);

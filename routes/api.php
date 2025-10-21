@@ -28,27 +28,25 @@ if (! defined('ABSPATH')) {
 
 use SureFeedback\Http\Controllers\Api\ConnectionController;
 use SureFeedback\Http\Controllers\Api\SettingsController;
-use SureFeedback\Http\Controllers\Api\DashboardController;
-use SureFeedback\Http\Controllers\VerificationController;
-use SureFeedback\Http\Controllers\DisconnectController;
+use SureFeedback\Http\Controllers\Api\VerificationController;
 
 // Connection management endpoints
 $router->group(['prefix' => 'connection', 'namespace' => 'Api'], function ($router) {
     $router->get('status', [ConnectionController::class, 'status']);
-    $router->post('verify', [ConnectionController::class, 'verify']);
     $router->post('connect', [ConnectionController::class, 'connect']);
-    $router->delete('disconnect', [ConnectionController::class, 'disconnect']);
     $router->post('reset', [ConnectionController::class, 'reset']);
     $router->get('health', [ConnectionController::class, 'health']);
 });
 
 $router->group(['prefix' => 'remote', 'namespace' => 'Api'], function ($router) {
     $router->getJWT('validate-token', [ConnectionController::class, 'validate_token']);
-    $router->postJWT('disconnect', [ConnectionController::class, 'disconnect_website']);
 });
 
 // Webhook endpoint for SureFeedback API callbacks
 $router->post('webhook', [ConnectionController::class, 'webhook']);
+
+// Secure disconnect webhook endpoint (JWT protected)
+$router->postJWT('webhook/disconnect', [ConnectionController::class, 'disconnect_webhook']);
 
 // Plugin activation endpoint (for SaaS auto-installation)
 $router->post('plugin/activate', function () {
@@ -124,26 +122,12 @@ $router->group(['prefix' => 'verification'], function ($router) {
     $router->post('verify', [VerificationController::class, 'verify_connection']);
 });
 
-// Disconnect endpoints
-$router->group(['prefix' => 'disconnect'], function ($router) {
-    $router->post('master-disconnect', [DisconnectController::class, 'master_disconnect']);
-});
-
 // Settings management endpoints
 $router->group(['prefix' => 'settings', 'namespace' => 'Api'], function ($router) {
     $router->get('/', [SettingsController::class, 'index']);
     $router->post('/', [SettingsController::class, 'update']);
     $router->get('general', [SettingsController::class, 'general']);
     $router->post('general', [SettingsController::class, 'updateGeneral']);
-    $router->get('white-label', [SettingsController::class, 'whiteLabel']);
-    $router->post('white-label', [SettingsController::class, 'updateWhiteLabel']);
-});
-
-// Dashboard data endpoints
-$router->group(['prefix' => 'dashboard', 'namespace' => 'Api'], function ($router) {
-    $router->get('stats', [DashboardController::class, 'stats']);
-    $router->get('quick-access', [DashboardController::class, 'quickAccess']);
-    $router->get('recent-activity', [DashboardController::class, 'recentActivity']);
 });
 
 // Legacy compatibility routes

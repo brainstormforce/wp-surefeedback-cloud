@@ -45,15 +45,9 @@ class SureFeedback_Test_Case extends WP_UnitTestCase
             'surefeedback_admin_can_comment',
             'surefeedback_show_on_admin',
             'surefeedback_disable_for_admin',
-            'surefeedback_debug_mode',
             'surefeedback_connection_status',
             'surefeedback_access_token',
             'surefeedback_signature',
-            'surefeedback_plugin_name',
-            'surefeedback_plugin_description',
-            'surefeedback_plugin_author',
-            'surefeedback_plugin_author_url',
-            'surefeedback_plugin_link'
         ];
         
         foreach ($plugin_options as $option) {
@@ -73,7 +67,6 @@ class SureFeedback_Test_Case extends WP_UnitTestCase
             'surefeedback_admin_can_comment' => true,
             'surefeedback_show_on_admin' => false,
             'surefeedback_disable_for_admin' => false,
-            'surefeedback_debug_mode' => false
         ];
     }
     

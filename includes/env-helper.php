@@ -75,7 +75,7 @@ function surefeedback_get_env_var($var_name, $default = null) {
  */
 function surefeedback_get_app_url() {
     // Check for custom parent URL first
-    $custom_url = get_option('surefeedback_parent_url', '');
+    $custom_url = surefeedback_get_env_var('SUREFEEDBACK_APP_URL');
     if (!empty($custom_url)) {
         return $custom_url;
     }
@@ -104,12 +104,6 @@ function surefeedback_get_app_url() {
  * Get SureFeedback API URL (with /api/v1 suffix)
  */
 function surefeedback_get_api_url() {
-    // Check for custom API URL first
-    $custom_url = get_option('surefeedback_api_url', '');
-    if (!empty($custom_url)) {
-        return $custom_url;
-    }
-
     // Check environment variable (with ACTIVE_ENV support)
     $env_url = surefeedback_get_env_var('SUREFEEDBACK_API_URL');
     if ($env_url) {
@@ -134,12 +128,6 @@ function surefeedback_get_api_url() {
  * Get SureFeedback Base API URL (without /api/v1 suffix)
  */
 function surefeedback_get_base_api_url() {
-    // Check for custom API URL first
-    $custom_url = get_option('surefeedback_api_url', '');
-    if (!empty($custom_url)) {
-        return str_replace('/api/v1', '', $custom_url);
-    }
-
     // Check environment variable (with ACTIVE_ENV support)
     $env_url = surefeedback_get_env_var('SUREFEEDBACK_API_URL');
     if ($env_url) {
@@ -182,6 +170,40 @@ function surefeedback_get_environment() {
     }
 
     return 'production';
+}
+
+/**
+ * Get JWT Secret Key
+ *
+ * Returns the JWT secret key for token signing and validation.
+ * Priority order:
+ * 1. JWT_SECRET from .env file
+ * 2. WordPress SECURE_AUTH_KEY constant (fallback)
+ * 3. Generate and store a new secret
+ *
+ * @return string JWT secret key
+ */
+function surefeedback_get_jwt_secret() {
+    // Try to get from environment variable first
+    $jwt_secret = surefeedback_get_env_var('JWT_SECRET');
+
+    if (!empty($jwt_secret) && $jwt_secret !== 'your_jwt_secret_key_here_replace_in_production') {
+        return $jwt_secret;
+    }
+
+    // Fallback to WordPress SECURE_AUTH_KEY
+    if (defined('SECURE_AUTH_KEY') && !empty(SECURE_AUTH_KEY)) {
+        return SECURE_AUTH_KEY;
+    }
+
+    // Last resort: generate and store a secret
+    $stored_secret = get_option('surefeedback_jwt_secret');
+    if (empty($stored_secret)) {
+        $stored_secret = wp_generate_password(64, false);
+        update_option('surefeedback_jwt_secret', $stored_secret);
+    }
+
+    return $stored_secret;
 }
 
 // Load environment variables when this file is included

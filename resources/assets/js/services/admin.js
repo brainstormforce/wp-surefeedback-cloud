@@ -12,7 +12,6 @@ import { API_ENDPOINTS, CACHE_CONFIG } from '../constants/api.js';
 import { ValidationError, withErrorHandling } from '../utils/errors.js';
 import { cacheManager } from '../utils/cache.js';
 import { authManager } from '../utils/auth.js';
-import { disconnect } from './disconnect.js';
 
 /**
  * Admin Service class
@@ -150,33 +149,6 @@ class AdminService {
             return response;
         } catch (error) {
             this.handleAdminError(error, 'Integration verification failed');
-            throw error;
-        }
-    }
-
-    /**
-     * Disconnect site using the new disconnect service
-     * @param {Object} options - Disconnect options
-     * @returns {Promise<Object>}
-     */
-    async disconnectSite(options = {}) {
-
-        try {
-            // Use the new improved disconnect service
-            const response = await disconnect(options);
-            
-            // Clear relevant caches on successful disconnect
-            if (response.success) {
-                cacheManager.delete('admin_settings');
-                cacheManager.delete(CACHE_CONFIG.KEYS.CONNECTION_STATUS);
-                cacheManager.delete(CACHE_CONFIG.KEYS.SETTINGS);
-            }
-            
-            this.notifyListeners('site_disconnected', response);
-            
-            return response;
-        } catch (error) {
-            this.handleAdminError(error, 'Failed to disconnect site');
             throw error;
         }
     }
@@ -508,7 +480,6 @@ export const {
     saveGeneralSettings,
     saveWhiteLabelSettings,
     verifyIntegration,
-    disconnectSite,
     getConnectionStatus: getAdminConnectionStatus,
     testParentSite,
     generateAccessToken,
@@ -516,10 +487,10 @@ export const {
     getSystemInfo
 } = Object.fromEntries(
     ['getSettings', 'saveGeneralSettings', 'saveWhiteLabelSettings', 'verifyIntegration',
-     'disconnectSite', 'getConnectionStatus', 'testParentSite', 'generateAccessToken',
+     'getConnectionStatus', 'testParentSite', 'generateAccessToken',
      'resetSettings', 'getSystemInfo']
         .map(method => [
-            method, 
+            method,
             withErrorHandling(
                 adminService[method].bind(adminService),
                 { service: 'admin', method }

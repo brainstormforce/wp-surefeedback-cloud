@@ -52,11 +52,10 @@ class FrontendService
         }
 
         // Check if site is connected and has proper tokens
-        $site_id = get_option('surefeedback_id');
+        $site_id = get_option('surefeedback_site_id');
         $access_token = get_option('surefeedback_access_token');
-        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
 
-        if (empty($site_id) || empty($access_token) || $connection_status !== 'connected') {
+        if (empty($site_id) || empty($access_token)) {
             return;
         }
 
@@ -87,10 +86,10 @@ class FrontendService
             return;
         }
 
-        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
         $widget_enabled = get_option('surefeedback_widget_enabled', true);
+        $access_token = get_option('surefeedback_access_token');
 
-        if ($connection_status !== 'connected' || !$widget_enabled) {
+        if (!$widget_enabled || empty($access_token)) {
             return;
         }
 
@@ -101,7 +100,7 @@ class FrontendService
         wp_localize_script('surefeedback-widget', 'surefeedbackConfig', [
             'apiUrl' => rest_url('surefeedback/v1/'),
             'nonce' => wp_create_nonce('wp_rest'),
-            'siteId' => get_option('surefeedback_id'),
+            'siteId' => get_option('surefeedback_site_id'),
             'accessToken' => get_option('surefeedback_access_token'),
             'settings' => $this->get_widget_settings(),
             'user' => $this->get_current_user_data(),
@@ -116,25 +115,18 @@ class FrontendService
      */
     private function render_widget_script(): void
     {
-        $site_id = get_option('surefeedback_id');
+        $site_id = get_option('surefeedback_site_id');
         $access_token = get_option('surefeedback_access_token');
-        $api_url = get_option('surefeedback_api_url');
-        $script_token = get_option('surefeedback_script_token', $access_token);
 
-        // Get environment-aware base API URL
-        if (empty($api_url)) {
-            $api_url = surefeedback_get_base_api_url();
-        }
-
-        if (empty($script_token)) {
+        if (empty($access_token)) {
             return;
         }
 
+        // Get environment-aware base API URL
+        $api_url = surefeedback_get_base_api_url();
+
         // Construct widget loader URL
         $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
-
-        // Get debug mode setting
-        $debug_mode = get_option('surefeedback_debug_mode', false) ? 'true' : 'false';
 
         // Get restricted URL and required token if needed
         $restricted_url = null;
@@ -145,7 +137,7 @@ class FrontendService
         $current_user = $this->get_current_user_data();
 
         echo "\n<!-- SureFeedback Widget -->\n";
-        echo "<!-- Site ID: " . esc_html($site_id) . ", Token: " . esc_html(substr($script_token, 0, 10)) . "..., API: " . esc_html($api_url) . " -->\n";
+        echo "<!-- Site ID: " . esc_html($site_id) . ", Token: " . esc_html(substr($access_token, 0, 10)) . "..., API: " . esc_html($api_url) . " -->\n";
         ?>
         <script>
         // SureFeedback Integration Script
@@ -187,7 +179,7 @@ class FrontendService
           }
           
           s.parentNode.insertBefore(sf, s);
-        })(document, 'script', '<?php echo esc_js($widget_loader_url); ?>', '<?php echo esc_js($script_token); ?>', '<?php echo esc_js($api_url); ?>', '<?php echo esc_js($debug_mode); ?>', <?php echo $restricted_url ? "'" . esc_js($restricted_url) . "'" : 'null'; ?>, <?php echo $required_token ? "'" . esc_js($required_token) . "'" : 'null'; ?>);
+        })(document, 'script', '<?php echo esc_js($widget_loader_url); ?>', '<?php echo esc_js($access_token); ?>', '<?php echo esc_js($api_url); ?>', 'false', <?php echo $restricted_url ? "'" . esc_js($restricted_url) . "'" : 'null'; ?>, <?php echo $required_token ? "'" . esc_js($required_token) . "'" : 'null'; ?>);
         </script>
         <?php
         echo "\n<!-- /SureFeedback Widget -->\n";
@@ -206,11 +198,10 @@ class FrontendService
         }
 
         // Check if site is connected and has proper tokens
-        $site_id = get_option('surefeedback_id');
+        $site_id = get_option('surefeedback_site_id');
         $access_token = get_option('surefeedback_access_token');
-        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
 
-        if (empty($site_id) || empty($access_token) || $connection_status !== 'connected') {
+        if (empty($site_id) || empty($access_token)) {
             return;
         }
 
@@ -226,10 +217,7 @@ class FrontendService
         }
 
         // Add preload hint for the widget loader
-        $api_url = get_option('surefeedback_api_url');
-        if (empty($api_url)) {
-            $api_url = surefeedback_get_base_api_url();
-        }
+        $api_url = surefeedback_get_base_api_url();
         
         $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
         
@@ -255,19 +243,15 @@ class FrontendService
         }
         $script_injected = true;
         
-        $site_id = get_option('surefeedback_id');
+        $site_id = get_option('surefeedback_site_id');
         $access_token = get_option('surefeedback_access_token');
-        $api_url = get_option('surefeedback_api_url');
-        $script_token = get_option('surefeedback_script_token', $access_token);
 
-        // Get environment-aware base API URL
-        if (empty($api_url)) {
-            $api_url = surefeedback_get_base_api_url();
-        }
-
-        if (empty($script_token)) {
+        if (empty($access_token)) {
             return;
         }
+
+        // Get environment-aware base API URL
+        $api_url = surefeedback_get_base_api_url();
 
         // Construct widget loader URL
         $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
@@ -294,7 +278,7 @@ class FrontendService
             // Configuration
             var config = {
                 siteId: '<?php echo esc_js($site_id); ?>',
-                token: '<?php echo esc_js($script_token); ?>',
+                token: '<?php echo esc_js($access_token); ?>',
                 apiUrl: '<?php echo esc_js($api_url); ?>',
                 currentUrl: '<?php echo esc_js(home_url($_SERVER['REQUEST_URI'])); ?>',
                 pageTitle: '<?php echo esc_js(wp_get_document_title()); ?>',
@@ -381,19 +365,15 @@ class FrontendService
         }
         $script_injected = true;
         
-        $site_id = get_option('surefeedback_id');
+        $site_id = get_option('surefeedback_site_id');
         $access_token = get_option('surefeedback_access_token');
-        $api_url = get_option('surefeedback_api_url');
-        $script_token = get_option('surefeedback_script_token', $access_token);
 
-        // Get environment-aware base API URL
-        if (empty($api_url)) {
-            $api_url = surefeedback_get_base_api_url();
-        }
-
-        if (empty($script_token)) {
+        if (empty($access_token)) {
             return;
         }
+
+        // Get environment-aware base API URL
+        $api_url = surefeedback_get_base_api_url();
 
         // Construct widget loader URL
         $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
@@ -442,7 +422,7 @@ class FrontendService
           }
           
           s.parentNode.insertBefore(sf, s);
-        })(document, 'script', '<?php echo esc_js($widget_loader_url); ?>', '<?php echo esc_js($script_token); ?>', '<?php echo esc_js($api_url); ?>', 'true', null, null);
+        })(document, 'script', '<?php echo esc_js($widget_loader_url); ?>', '<?php echo esc_js($access_token); ?>', '<?php echo esc_js($api_url); ?>', 'true', null, null);
         </script>
         <?php
         echo "<!-- /SureFeedback WordPress Integration -->\n";
@@ -577,17 +557,6 @@ class FrontendService
     {
         return [
             'enabled' => get_option('surefeedback_widget_enabled', true),
-            'position' => get_option('surefeedback_widget_position', 'bottom-right'),
-            'theme' => get_option('surefeedback_widget_theme', 'light'),
-            'trigger_mode' => get_option('surefeedback_trigger_mode', 'manual'),
-            'auto_show_delay' => get_option('surefeedback_auto_show_delay', 5000),
-            'show_on_mobile' => get_option('surefeedback_show_on_mobile', true),
-            'show_user_avatar' => get_option('surefeedback_show_user_avatar', true),
-            'require_name' => get_option('surefeedback_require_name', false),
-            'require_email' => get_option('surefeedback_require_email', false),
-            'allow_file_upload' => get_option('surefeedback_allow_file_upload', true),
-            'max_file_size' => get_option('surefeedback_max_file_size', 5242880), // 5MB
-            'allowed_file_types' => get_option('surefeedback_allowed_file_types', ['jpg', 'png', 'gif', 'pdf'])
         ];
     }
 
@@ -672,7 +641,7 @@ class FrontendService
         // Allow public access for widget configuration
         $config = [
             'enabled' => get_option('surefeedback_widget_enabled', true),
-            'connection_status' => get_option('surefeedback_connection_status', 'disconnected'),
+            'connected' => !empty(get_option('surefeedback_access_token')),
             'settings' => $this->get_widget_settings(),
             'user' => $this->get_current_user_data(),
             'page' => $this->get_current_page_data()
@@ -688,17 +657,17 @@ class FrontendService
      */
     public function get_widget_status(): array
     {
-        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
         $widget_enabled = get_option('surefeedback_widget_enabled', true);
-        $site_id = get_option('surefeedback_id');
-        $script_url = get_option('surefeedback_script_url');
+        $site_id = get_option('surefeedback_site_id');
+        $access_token = get_option('surefeedback_access_token');
+
+        $is_connected = !empty($site_id) && !empty($access_token);
 
         $status = [
             'active' => false,
-            'connected' => $connection_status === 'connected',
+            'connected' => $is_connected,
             'enabled' => $widget_enabled,
             'configured' => !empty($site_id),
-            'script_loaded' => !empty($script_url),
             'issues' => []
         ];
 
@@ -713,10 +682,6 @@ class FrontendService
 
         if (!$status['configured']) {
             $status['issues'][] = 'Site ID not configured';
-        }
-
-        if (!$status['script_loaded']) {
-            $status['issues'][] = 'Widget script URL not set';
         }
 
         $status['active'] = $status['connected'] && $status['enabled'] && $status['configured'];
@@ -741,25 +706,25 @@ class FrontendService
             ];
         }
 
-        // Test script URL accessibility
-        $script_url = get_option('surefeedback_script_url');
-        if (!empty($script_url)) {
-            $response = wp_remote_head($script_url, ['timeout' => 10]);
-            
-            if (is_wp_error($response)) {
-                return [
-                    'success' => false,
-                    'message' => 'Widget script is not accessible: ' . $response->get_error_message()
-                ];
-            }
+        // Test widget loader URL accessibility
+        $api_url = surefeedback_get_base_api_url();
+        $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
 
-            $response_code = wp_remote_retrieve_response_code($response);
-            if ($response_code !== 200) {
-                return [
-                    'success' => false,
-                    'message' => "Widget script returned HTTP {$response_code}"
-                ];
-            }
+        $response = wp_remote_head($widget_loader_url, ['timeout' => 10]);
+
+        if (is_wp_error($response)) {
+            return [
+                'success' => false,
+                'message' => 'Widget script is not accessible: ' . $response->get_error_message()
+            ];
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            return [
+                'success' => false,
+                'message' => "Widget script returned HTTP {$response_code}"
+            ];
         }
 
         return [

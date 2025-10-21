@@ -18,12 +18,11 @@ import {
     getConnectionStatus,
     verifyConnection,
     connectToParent,
-    disconnectFromParent,
     getConnectionHealth,
     testConnection
 } from './services/connection.js';
 export const connectionService = _connectionService;
-export { getConnectionStatus, verifyConnection, connectToParent, disconnectFromParent, getConnectionHealth, testConnection };
+export { getConnectionStatus, verifyConnection, connectToParent, getConnectionHealth, testConnection };
 
 import {
     settingsService as _settingsService,
@@ -48,24 +47,11 @@ export const verificationService = _verificationService;
 export { verifyConnectionStatus };
 
 import {
-    dashboardService as _dashboardService,
-    getDashboardStats,
-    getDashboardQuickAccess,
-    getDashboardRecentActivity,
-    refreshDashboard,
-    getDashboardOverview,
-    getDashboardWidgetData
-} from './services/dashboard.js';
-export const dashboardService = _dashboardService;
-export { getDashboardStats, getDashboardQuickAccess, getDashboardRecentActivity, refreshDashboard, getDashboardOverview, getDashboardWidgetData };
-
-import {
     adminService as _adminService,
     getAdminSettings,
     saveGeneralSettings,
     saveWhiteLabelSettings,
     verifyIntegration,
-    disconnectSite,
     getAdminConnectionStatus,
     testParentSite,
     generateAccessToken,
@@ -73,15 +59,7 @@ import {
     getSystemInfo
 } from './services/admin.js';
 export const adminService = _adminService;
-export { getAdminSettings, saveGeneralSettings, saveWhiteLabelSettings, verifyIntegration, disconnectSite, getAdminConnectionStatus, testParentSite, generateAccessToken, resetAdminSettings, getSystemInfo };
-
-import {
-    disconnectService as _disconnectService,
-    disconnect,
-    getDisconnectStatus
-} from './services/disconnect.js';
-export const disconnectService = _disconnectService;
-export { disconnect, getDisconnectStatus };
+export { getAdminSettings, saveGeneralSettings, saveWhiteLabelSettings, verifyIntegration, getAdminConnectionStatus, testParentSite, generateAccessToken, resetAdminSettings, getSystemInfo };
 
 // Utilities
 import {
@@ -134,9 +112,7 @@ export function initializeServices() {
         tokenManager.init();
         connectionService.init();
         settingsService.init();
-        dashboardService.init();
         adminService.init();
-        disconnectService.init();
 }
 
 /**
@@ -146,9 +122,7 @@ export function initializeServices() {
 export function cleanupServices() {
     connectionService.destroy();
     settingsService.destroy();
-    dashboardService.destroy();
     adminService.destroy();
-    disconnectService.destroy();
 }
 
 /**
@@ -172,9 +146,7 @@ export class ApiServiceFactory {
         // Register services
         this.services.set('connection', connectionService);
         this.services.set('settings', settingsService);
-        this.services.set('dashboard', dashboardService);
         this.services.set('admin', adminService);
-        this.services.set('disconnect', disconnectService);
 
         // Initialize all services
         initializeServices();
@@ -252,10 +224,6 @@ export const api = {
         return connectToParent({ parentUrl, accessToken, signature });
     },
 
-    async disconnect() {
-        return disconnect();
-    },
-
     async checkConnection() {
         return getConnectionStatus();
     },
@@ -277,15 +245,6 @@ export const api = {
         return updateWhiteLabelSettings(data);
     },
 
-    // Dashboard operations
-    async getDashboard() {
-        return getDashboardOverview();
-    },
-
-    async refreshDashboard() {
-        return refreshDashboard();
-    },
-
     // Admin operations
     async verifyIntegration(data) {
         return verifyIntegration(data);
@@ -304,9 +263,7 @@ export default {
     apiGateway: _apiGateway,
     connectionService: _connectionService,
     settingsService: _settingsService,
-    dashboardService: _dashboardService,
     adminService: _adminService,
-    disconnectService: _disconnectService,
     tokenManager: _tokenManager,
     authManager: _authManager,
     cacheManager: _cacheManager,

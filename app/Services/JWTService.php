@@ -38,10 +38,14 @@ class JWTService
      */
     public function __construct()
     {
-        // Use the JWT secret from environment or default
-        $this->secret_key = defined('JWT_SECRET') 
-            ? JWT_SECRET 
-            : '8E1BfIN9vOOuo0beSYNskbSg2SP98cEUCTZ2AZxOhicVxJwEBFHrdd3vqwElpZl4';
+        if (function_exists('surefeedback_get_jwt_secret')) {
+            $this->secret_key = surefeedback_get_jwt_secret();
+        } else {
+            throw new \RuntimeException(
+                'JWT Secret configuration error: surefeedback_get_jwt_secret() function not found. ' .
+                'Ensure env-helper.php is loaded before instantiating JWTService.'
+            );
+        }
     }
 
     /**

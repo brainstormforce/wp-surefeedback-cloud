@@ -45,7 +45,6 @@ export const API_ENDPOINTS = {
         STATUS: 'connection/status',
         VERIFY: 'connection/verify',
         CONNECT: 'connection/connect',
-        MASTER_DISCONNECT: 'disconnect/master-disconnect',
         HEALTH: 'connection/health',
     },
     
@@ -55,22 +54,12 @@ export const API_ENDPOINTS = {
         UPDATE: 'settings',
         GENERAL: 'settings/general',
         UPDATE_GENERAL: 'settings/general',
-        WHITE_LABEL: 'settings/white-label',
-        UPDATE_WHITE_LABEL: 'settings/white-label',
-    },
-    
-    // Dashboard endpoints
-    DASHBOARD: {
-        STATS: 'dashboard/stats',
-        QUICK_ACCESS: 'dashboard/quick-access',
-        RECENT_ACTIVITY: 'dashboard/recent-activity',
     },
     
     // Admin API endpoints
     ADMIN: {
         SETTINGS: 'admin/settings',
         SAVE_GENERAL: 'admin/general-settings',
-        SAVE_WHITE_LABEL: 'admin/white-label-settings',
         VERIFY_INTEGRATION: 'admin/verify-integration',
         CONNECTION_STATUS: 'admin/connection-status',
     },
@@ -133,7 +122,6 @@ export const CACHE_CONFIG = {
     KEYS: {
         CONNECTION_STATUS: 'surefeedback_connection_status',
         SETTINGS: 'surefeedback_settings',
-        DASHBOARD_STATS: 'surefeedback_dashboard_stats',
         USER_PREFERENCES: 'surefeedback_user_preferences',
     },
     
@@ -181,7 +169,6 @@ export const UI_CONFIG = {
     // Polling intervals
     POLLING: {
         CONNECTION_STATUS: 30000,  // 30 seconds
-        DASHBOARD_REFRESH: 60000,  // 1 minute
     }
 };
 

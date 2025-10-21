@@ -5,9 +5,8 @@ namespace SureFeedback\Http\Controllers\Api;
 use SureFeedback\Http\Controllers\Controller;
 use SureFeedback\Http\Requests\ConnectionRequest;
 use SureFeedback\Http\Requests\VerifyConnectionRequest;
-use SureFeedback\Repositories\ConnectionRepository;
-use SureFeedback\Repositories\SettingsRepository;
 use SureFeedback\Services\JWTService;
+use SureFeedback\Constants\VerificationStatus;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -19,24 +18,10 @@ use WP_REST_Response;
  * status checks, verification, and connection management.
  *
  * @package SureFeedback\App\Http\Controllers\Api
- * @author Anurag Singh <anurags@bsf.io>
+ * @author Anurag
  */
 class ConnectionController extends Controller
 {
-    /**
-     * Connection Repository
-     *
-     * @var ConnectionRepository
-     */
-    protected $connectionRepository;
-
-    /**
-     * Settings Repository
-     *
-     * @var SettingsRepository
-     */
-    protected $settingsRepository;
-
     /**
      * JWT Service
      *
@@ -50,10 +35,9 @@ class ConnectionController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->connectionRepository = new ConnectionRepository();
-        $this->settingsRepository = new SettingsRepository();
         $this->jwtService = new JWTService();
     }
+
     /**
      * Get connection status
      *
@@ -67,89 +51,28 @@ class ConnectionController extends Controller
             if (is_wp_error($nonce_result)) {
                 return $nonce_result;
             }
-            $connectionData = $this->connectionRepository->getConnectionStatus();
+
             $connection_data = [
                 'connected' => $this->isConnected(),
-                'parent_url' => $connectionData['parent_url'],
-                'access_token' => !empty($connectionData['access_token']),
-                'last_check' => $connectionData['last_check'],
-                'status' => $connectionData['connected'] ? 'connected' : 'disconnected',
-                'health_score' => $this->calculateHealthScore()
+                'parent_url' => get_option('surefeedback_parent_url', ''),
+                'access_token' => !empty(get_option('surefeedback_access_token', '')),
+                'last_check' => get_option('surefeedback_last_verification', ''),
+                'is_fully_verified' => (int) get_option('surefeedback_is_fully_verified', VerificationStatus::PENDING),
+                'verification_status_label' => VerificationStatus::getLabel((int) get_option('surefeedback_is_fully_verified', VerificationStatus::PENDING)),
+                'site_connected' => get_option('surefeedback_site_connected', false),
+                'status' => $this->isConnected() ? 'connected' : 'disconnected',
             ];
-            
+
             $this->logInfo('Connection status requested', $connection_data);
-            
+
             return $this->success($connection_data);
-            
+
         } catch (\Exception $e) {
             $this->logError('Connection status error: ' . $e->getMessage());
             return $this->error('Failed to get connection status', 500);
         }
     }
-    
-    /**
-     * Verify connection with parent site
-     *
-     * @param WP_REST_Request $request
-     * @return WP_REST_Response|WP_Error
-     */
-    public function verify(WP_REST_Request $request)
-    {
-        try {
-            $nonce_result = $this->validateNonce($request);
-            if (is_wp_error($nonce_result)) {
-                return $nonce_result;
-            }
-            
-            $capability_result = $this->validateCapability('manage_options');
-            if (is_wp_error($capability_result)) {
-                return $capability_result;
-            }
-            
-            $validation = $this->validate($request, [
-                'parent_url' => 'required|url',
-                'access_token' => 'required|string|min:10'
-            ]);
-            
-            if (is_wp_error($validation)) {
-                return $validation;
-            }
-            
-            $parent_url = sanitize_url($request->get_param('parent_url'));
-            $access_token = sanitize_text_field($request->get_param('access_token'));
-            
-            // Perform verification request
-            $verification_result = $this->performVerification($parent_url, $access_token);
-            
-            if ($verification_result['success']) {
-                // Save connection details
-                update_option('surefeedback_parent_url', $parent_url);
-                update_option('surefeedback_access_token', $access_token);
-                update_option('surefeedback_connected', true);
-                update_option('surefeedback_last_connection_check', time());
-                
-                $this->logInfo('Connection verified successfully', [
-                    'parent_url' => $parent_url,
-                    'token_length' => strlen($access_token)
-                ]);
-                
-                return $this->success([
-                    'message' => 'Connection verified successfully',
-                    'connected' => true,
-                    'parent_url' => $parent_url,
-                    'verified_at' => current_time('mysql')
-                ]);
-            } else {
-                $this->logError('Connection verification failed', $verification_result);
-                return $this->error($verification_result['message'] ?? 'Verification failed', 400);
-            }
-            
-        } catch (\Exception $e) {
-            $this->logError('Connection verification error: ' . $e->getMessage());
-            return $this->error('Verification process failed', 500);
-        }
-    }
-    
+
     /**
      * Establish connection
      *
@@ -163,126 +86,57 @@ class ConnectionController extends Controller
             if (is_wp_error($nonce_result)) {
                 return $nonce_result;
             }
-            
+
             $capability_result = $this->validateCapability('manage_options');
             if (is_wp_error($capability_result)) {
                 return $capability_result;
             }
-            
+
             $validation = $this->validate($request, [
                 'parent_url' => 'required|url',
                 'site_token' => 'required|string',
                 'signature' => 'required|string'
             ]);
-            
+
             if (is_wp_error($validation)) {
                 return $validation;
             }
-            
+
             $parent_url = sanitize_url($request->get_param('parent_url'));
             $site_token = sanitize_text_field($request->get_param('site_token'));
             $signature = sanitize_text_field($request->get_param('signature'));
-            
+
             // Verify signature
             if (!$this->verifySignature($site_token, $signature)) {
                 $this->logError('Invalid signature during connection attempt');
                 return $this->error('Invalid signature', 403);
             }
-            
+
             // Generate access token
             $access_token = wp_generate_password(32, false);
-            
+
             // Save connection data
             update_option('surefeedback_parent_url', $parent_url);
             update_option('surefeedback_access_token', $access_token);
-            update_option('surefeedback_site_token', $site_token);
-            update_option('surefeedback_connected', true);
-            update_option('surefeedback_connection_date', current_time('mysql'));
-            
+
             $this->logInfo('Connection established', [
                 'parent_url' => $parent_url,
                 'site_token' => substr($site_token, 0, 8) . '...'
             ]);
-            
+
             return $this->success([
                 'message' => 'Connection established successfully',
                 'access_token' => $access_token,
                 'connected' => true,
                 'connected_at' => current_time('mysql')
             ]);
-            
+
         } catch (\Exception $e) {
             $this->logError('Connection establishment error: ' . $e->getMessage());
             return $this->error('Failed to establish connection', 500);
         }
     }
-    
-    /**
-     * Disconnect from parent site
-     *
-     * @param WP_REST_Request $request
-     * @return WP_REST_Response|WP_Error
-     */
-    public function disconnect(WP_REST_Request $request)
-    {
-        try {
-            $nonce_result = $this->validateNonce($request);
-            if (is_wp_error($nonce_result)) {
-                return $nonce_result;
-            }
-            
-            $capability_result = $this->validateCapability('manage_options');
-            if (is_wp_error($capability_result)) {
-                return $capability_result;
-            }
-            
-            // Notify parent site about disconnection
-            $this->notifyParentSiteDisconnection();
-            
-            // Clear connection data through repository
-            $this->connectionRepository->disconnect();
-            
-            $this->logInfo('Connection disconnected');
-            
-            return $this->success([
-                'message' => 'Disconnected successfully',
-                'connected' => false,
-                'disconnected_at' => current_time('mysql')
-            ]);
-            
-        } catch (\Exception $e) {
-            $this->logError('Disconnection error: ' . $e->getMessage());
-            return $this->error('Failed to disconnect', 500);
-        }
-    }
-    
-    /**
-     * Health check endpoint
-     *
-     * @param WP_REST_Request $request
-     * @return WP_REST_Response|WP_Error
-     */
-    public function health(WP_REST_Request $request)
-    {
-        try {
-            $health_data = [
-                'status' => 'healthy',
-                'plugin_version' => SUREFEEDBACK_VERSION,
-                'wordpress_version' => get_bloginfo('version'),
-                'php_version' => PHP_VERSION,
-                'connection_status' => $this->getConnectionStatus(),
-                'last_check' => current_time('mysql'),
-                'uptime' => $this->getUptime(),
-                'memory_usage' => $this->getMemoryUsage()
-            ];
-            
-            return $this->success($health_data);
-            
-        } catch (\Exception $e) {
-            return $this->error('Health check failed', 500);
-        }
-    }
-    
+
     /**
      * Check if site is connected
      *
@@ -290,115 +144,10 @@ class ConnectionController extends Controller
      */
     private function isConnected(): bool
     {
-        $connectionData = $this->connectionRepository->getConnectionStatus();
-        return $connectionData['connected'] &&
-               !empty($connectionData['parent_url']) &&
-               !empty($connectionData['access_token']);
+        return !empty(get_option('surefeedback_parent_url', '')) &&
+               !empty(get_option('surefeedback_access_token', ''));
     }
-    
-    /**
-     * Get detailed connection status
-     *
-     * @return string
-     */
-    private function getConnectionStatus(): string
-    {
-        if (!$this->isConnected()) {
-            return 'disconnected';
-        }
-        
-        $last_check = get_option('surefeedback_last_connection_check', 0);
-        $check_threshold = 5 * MINUTE_IN_SECONDS;
-        
-        if ($last_check && (time() - $last_check) > $check_threshold) {
-            return 'stale';
-        }
-        
-        return 'connected';
-    }
-    
-    /**
-     * Calculate connection health score
-     *
-     * @return int
-     */
-    private function calculateHealthScore(): int
-    {
-        $score = 0;
-        
-        // Base connection (40 points)
-        if ($this->isConnected()) {
-            $score += 40;
-        }
-        
-        // Recent activity (30 points)
-        $last_check = get_option('surefeedback_last_connection_check', 0);
-        if ($last_check && (time() - $last_check) < HOUR_IN_SECONDS) {
-            $score += 30;
-        }
-        
-        // Valid configuration (20 points)
-        if (!empty(get_option('surefeedback_parent_url', ''))) {
-            $score += 20;
-        }
-        
-        // Plugin health (10 points)
-        if (defined('SUREFEEDBACK_VERSION')) {
-            $score += 10;
-        }
-        
-        return $score;
-    }
-    
-    /**
-     * Perform verification with parent site
-     *
-     * @param string $parent_url
-     * @param string $access_token
-     * @return array
-     */
-    private function performVerification(string $parent_url, string $access_token): array
-    {
-        $verification_url = trailingslashit($parent_url) . 'wp-json/surefeedback/v1/verify-site';
-        
-        $response = wp_remote_post($verification_url, [
-            'headers' => [
-                'X-SureFeedback-Token' => $access_token,
-                'Content-Type' => 'application/json'
-            ],
-            'body' => wp_json_encode([
-                'site_url' => home_url(),
-                'site_name' => get_bloginfo('name'),
-                'plugin_version' => SUREFEEDBACK_VERSION
-            ]),
-            'timeout' => 30
-        ]);
-        
-        if (is_wp_error($response)) {
-            return [
-                'success' => false,
-                'message' => 'Connection failed: ' . $response->get_error_message()
-            ];
-        }
-        
-        $response_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        
-        if ($response_code !== 200) {
-            return [
-                'success' => false,
-                'message' => 'Verification failed with status: ' . $response_code
-            ];
-        }
-        
-        $data = json_decode($response_body, true);
-        
-        return [
-            'success' => true,
-            'data' => $data
-        ];
-    }
-    
+
     /**
      * Verify signature
      *
@@ -411,72 +160,9 @@ class ConnectionController extends Controller
         $expected_signature = hash_hmac('sha256', $site_token, SECURE_AUTH_KEY);
         return hash_equals($expected_signature, $signature);
     }
-    
-    /**
-     * Notify parent site about disconnection
-     *
-     * @return void
-     */
-    private function notifyParentSiteDisconnection(): void
-    {
-        $parent_url = get_option('surefeedback_parent_url', '');
-        $access_token = get_option('surefeedback_access_token', '');
-        
-        if (empty($parent_url) || empty($access_token)) {
-            return;
-        }
-        
-        $disconnect_url = trailingslashit($parent_url) . 'wp-json/surefeedback/v1/site-disconnected';
-        
-        wp_remote_post($disconnect_url, [
-            'headers' => [
-                'X-SureFeedback-Token' => $access_token,
-                'Content-Type' => 'application/json'
-            ],
-            'body' => wp_json_encode([
-                'site_url' => home_url(),
-                'disconnected_at' => current_time('mysql')
-            ]),
-            'timeout' => 10,
-            'blocking' => false
-        ]);
-    }
-    
-    /**
-     * Get system uptime
-     *
-     * @return string
-     */
-    private function getUptime(): string
-    {
-        $connection_date = get_option('surefeedback_connection_date', '');
-        if (empty($connection_date)) {
-            return 'Unknown';
-        }
-        
-        $connection_time = strtotime($connection_date);
-        $uptime_seconds = time() - $connection_time;
-        
-        return human_time_diff($connection_time, time());
-    }
-    
-    /**
-     * Get memory usage information
-     *
-     * @return array
-     */
-    private function getMemoryUsage(): array
-    {
-        return [
-            'current' => memory_get_usage(true),
-            'peak' => memory_get_peak_usage(true),
-            'limit' => ini_get('memory_limit')
-        ];
-    }
 
     /**
      * Reset site connection completely
-     * This removes all SureFeedback data from the WordPress database
      *
      * @param WP_REST_Request $request
      * @return WP_REST_Response|WP_Error
@@ -494,54 +180,27 @@ class ConnectionController extends Controller
                 return $capability_result;
             }
 
-            // Notify parent site about disconnection (if connected)
-            if ($this->connectionRepository->isConnected()) {
-                $this->notifyParentSiteDisconnection();
-            }
-
-            // Delete all SureFeedback options from the database
             $surefeedback_options = [
                 'surefeedback_access_token',
-                'surefeedback_admin_can_comment',
-                'surefeedback_api_url',
-                'surefeedback_connection_status',
-                'surefeedback_domain',
-                'surefeedback_id',
-                'surefeedback_installation_date',
-                'surefeedback_last_verification',
-                'surefeedback_organization_id',
                 'surefeedback_parent_url',
-                'surefeedback_role_can_comment',
-                'surefeedback_script_token',
-                'surefeedback_settings',
+                'surefeedback_site_id',
+                'surefeedback_last_verification',
                 'surefeedback_site_name',
-                'surefeedback_verification_status',
-                'surefeedback_white_label_settings',
+                'surefeedback_domain',
+                'surefeedback_organization_id',
+                'surefeedback_is_active',
+                'surefeedback_created_at',
                 'surefeedback_widget_enabled',
-                'surefeedback_connected',
-                'surefeedback_signature',
-                'surefeedback_user_id',
-                'surefeedback_user_email',
-                'surefeedback_connection_time',
-                'surefeedback_last_check',
-                'surefeedback_guest_comments',
-                'surefeedback_connection_date',
-                'surefeedback_last_connection_check',
-                'surefeedback_site_token',
+                'surefeedback_site_connected',
+                'surefeedback_is_fully_verified',
             ];
 
-            // Delete each option
             foreach ($surefeedback_options as $option) {
                 delete_option($option);
             }
 
-            // Clear any cached data
-            wp_cache_delete('surefeedback_connection_status');
             wp_cache_delete('surefeedback_settings');
-
-            // Clear any transients
             delete_transient('surefeedback_connection_check');
-            delete_transient('surefeedback_verification_status');
 
             $this->logInfo('Site connection reset completely');
 
@@ -568,313 +227,110 @@ class ConnectionController extends Controller
     {
         try {
             $data = $request->get_json_params();
-            
             if (empty($data)) {
                 $data = $request->get_params();
             }
 
             $this->logInfo('Webhook received', ['data' => $data]);
+            $siteData = isset($data['data']) ? $data['data'] : $data;
 
-            // Validate required fields
-            if (empty($data['success']) || empty($data['site_token']) || empty($data['site_id'])) {
+            $siteId = $siteData['id'] ?? $data['site_id'] ?? null;
+            $apiToken = $siteData['api_token'] ?? $data['site_token'] ?? null;
+
+            if (empty($data['success']) || empty($apiToken) || empty($siteId)) {
                 $this->logError('Webhook missing required fields', ['received_data' => $data]);
                 return $this->error('Missing required webhook data', 400);
             }
 
-            // Check if this is a successful connection
             if ($data['success'] === '1' || $data['success'] === 1 || $data['success'] === true) {
-                // Save connection data
-                update_option('surefeedback_connection_status', 'connected');
-                update_option('surefeedback_id', sanitize_text_field($data['site_id']));
-                update_option('surefeedback_access_token', sanitize_text_field($data['site_token']));
-                
-                // Save additional fields from the API response
-                if (!empty($data['script_token'])) {
-                    update_option('surefeedback_script_token', sanitize_text_field($data['script_token']));
+                update_option('surefeedback_site_id', sanitize_text_field($siteId));
+                update_option('surefeedback_access_token', sanitize_text_field($apiToken));
+
+                if (!empty($siteData['site_name'])) {
+                    update_option('surefeedback_site_name', sanitize_text_field($siteData['site_name']));
                 }
-                
+
+                if (!empty($siteData['domain'])) {
+                    update_option('surefeedback_domain', esc_url_raw($siteData['domain']));
+                }
+
+                if (!empty($siteData['organization_id'])) {
+                    update_option('surefeedback_organization_id', sanitize_text_field($siteData['organization_id']));
+                }
+
+                if (isset($siteData['is_active'])) {
+                    $isActive = (bool) $siteData['is_active'];
+                    update_option('surefeedback_is_active', $isActive);
+                }
+
+                if (!empty($siteData['created_at'])) {
+                    update_option('surefeedback_created_at', sanitize_text_field($siteData['created_at']));
+                }
+
                 if (!empty($data['parent_url'])) {
                     update_option('surefeedback_parent_url', esc_url_raw($data['parent_url']));
                 }
-                
-                if (!empty($data['organization_id'])) {
-                    update_option('surefeedback_organization_id', sanitize_text_field($data['organization_id']));
-                }
-                
-                if (!empty($data['site_name'])) {
-                    update_option('surefeedback_site_name', sanitize_text_field($data['site_name']));
-                }
-                
-                if (!empty($data['domain'])) {
-                    update_option('surefeedback_domain', esc_url_raw($data['domain']));
-                }
 
-                // Save API URL from environment
-                $base_api_url = surefeedback_get_base_api_url();
-                update_option('surefeedback_api_url', $base_api_url);
-
-                // Enable widget by default
+                // Save site_connected field
+                $site_connected_value = isset($data['site_connected']) 
+                    ? (bool) $data['site_connected'] 
+                    : true;
+                
+                update_option('surefeedback_site_connected', $site_connected_value);
                 update_option('surefeedback_widget_enabled', true);
                 
-                // Update last verification time
-                update_option('surefeedback_last_verification', current_time('mysql'));
-                update_option('surefeedback_verification_status', 'verified');
+                // Set verification fields from webhook data or use initial state
+                // WordPress doesn't store null values, so we use empty string for last_verification
+                $last_verification_value = $data['surefeedback_last_verification'] ?? '';
+                $is_fully_verified_value = isset($data['is_fully_verified']) 
+                    ? (int) $data['is_fully_verified'] 
+                    : VerificationStatus::PENDING;
+                
+                update_option('surefeedback_last_verification', $last_verification_value);
+                update_option('surefeedback_is_fully_verified', $is_fully_verified_value);
 
-                // Clear any cached data
-                wp_cache_delete('surefeedback_connection_status');
                 wp_cache_delete('surefeedback_settings');
                 delete_transient('surefeedback_connection_check');
-
-                $this->logInfo('Webhook processed successfully - site connected', [
-                    'site_id' => $data['site_id'],
-                    'organization_id' => $data['organization_id'] ?? null,
-                    'domain' => $data['domain'] ?? null
-                ]);
 
                 return $this->success([
                     'message' => 'Webhook processed successfully',
                     'connected' => true,
-                    'site_id' => $data['site_id'],
+                    'site_id' => $siteId,
                     'processed_at' => current_time('mysql')
                 ]);
-            } else {
-                $this->logError('Webhook indicated failure', ['webhook_data' => $data]);
-                return $this->error('Webhook indicated connection failure', 400);
             }
 
+            $this->logError('Webhook indicated failure', ['webhook_data' => $data]);
+            return $this->error('Webhook indicated connection failure', 400);
+
         } catch (\Exception $e) {
-            $this->logError('Webhook processing error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'request_data' => $request->get_params()
-            ]);
+            $this->logError('Webhook processing error: ' . $e->getMessage());
             return $this->error('Failed to process webhook', 500);
         }
     }
 
     /**
-     * Disconnect website via REST API with JWT authentication
+     * JWT token validation endpoint
      *
-     * This endpoint allows disconnecting a website from SureFeedback
-     * using JWT token authentication and performs a complete factory reset.
-     *
-     * @param WP_REST_Request $request The REST request object
-     * @return WP_REST_Response|WP_Error The response
-     */
-    public function disconnect_website(WP_REST_Request $request)
-    {
-        try {
-            // Get JWT token data (set by middleware)
-            $token_data = $request->get_param('_jwt_token_data');
-            
-            if (!$token_data) {
-                return $this->error('Authentication required', 401);
-            }
-
-            // Get parameters from request
-            $website_url = $request->get_param('website_url') ?: get_site_url();
-            $force_disconnect = $request->get_param('force') ? true : false;
-            
-            // Log the disconnect request
-            $this->logInfo('Website disconnect request received', [
-                'website_url' => $website_url,
-                'token_user' => $token_data['userId'] ?? $token_data['user_id'] ?? 'unknown',
-                'force' => $force_disconnect,
-                'timestamp' => current_time('mysql')
-            ]);
-
-            // Get current connection status
-            $connection_status = $this->connectionRepository->getConnectionStatus();
-            
-            if (!$connection_status['connected'] && !$force_disconnect) {
-                return $this->error('Website is not connected', 400, [
-                    'current_status' => $connection_status
-                ]);
-            }
-
-            // Update connection status to disconnected first
-            update_option('surefeedback_connection_status', 'disconnected');
-            update_option('surefeedback_last_reset', current_time('mysql'));
-            
-            // Always perform factory reset (complete data cleanup)
-            $disconnection_result = $this->performDisconnection();
-            
-            if (!$disconnection_result['success']) {
-                return $this->error($disconnection_result['message'], 500);
-            }
-
-            // Clear scheduled events
-            wp_clear_scheduled_hook('surefeedback_auto_verify');
-            wp_clear_scheduled_hook('surefeedback_hourly_verify');
-
-            // Log successful disconnection
-            $this->logInfo('Website disconnected successfully (factory reset)', [
-                'website_url' => $website_url,
-                'disconnected_at' => current_time('mysql'),
-                'token_user' => $token_data['user_id'] ?? 'unknown'
-            ]);
-
-            return $this->success([
-                'message' => 'Website disconnected and reset to factory settings',
-                'website_url' => $website_url,
-                'disconnected_at' => current_time('mysql'),
-                'previous_status' => $connection_status,
-                'cleared_data' => $disconnection_result['cleared_data'],
-                'restored_defaults' => $disconnection_result['restored_defaults']
-            ]);
-
-        } catch (\Exception $e) {
-            $this->logError('Website disconnection failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'request_data' => $request->get_params()
-            ]);
-            
-            return $this->error('Failed to disconnect website: ' . $e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Perform the disconnection process with factory reset
-     * 
-     * Always performs complete factory reset - clears all plugin data and restores defaults
-     * 
-     * @return array Result of disconnection process
-     */
-    private function performDisconnection()
-    {
-        $cleared_data = [];
-        
-        try {
-            // Clear all connection-related options (except connection_status which is set to 'disconnected')
-            $connection_options = [
-                'surefeedback_access_token',
-                'surefeedback_site_url',
-                'surefeedback_site_id', 
-                'surefeedback_verification_status',
-                'surefeedback_last_verification',
-                'surefeedback_connection_established_at',
-                'surefeedback_parent_url',
-                'surefeedback_connected',
-                'surefeedback_signature',
-                'surefeedback_user_id',
-                'surefeedback_user_email',
-                'surefeedback_connection_time',
-                'surefeedback_last_check',
-                'surefeedback_connection_date',
-                'surefeedback_last_connection_check',
-                'surefeedback_site_token',
-                'surefeedback_script_token',
-                'surefeedback_organization_id',
-                'surefeedback_site_name',
-                'surefeedback_domain',
-                'surefeedback_api_url'
-                // Note: surefeedback_connection_status is NOT deleted - it's set to 'disconnected'
-            ];
-
-            // Clear all plugin settings
-            $all_plugin_options = [
-                'surefeedback_widget_enabled',
-                'surefeedback_role_can_comment',
-                'surefeedback_guest_comments',
-                'surefeedback_admin_can_comment',
-                'surefeedback_show_on_admin',
-                'surefeedback_disable_for_admin',
-                'surefeedback_debug_mode',
-                'surefeedback_plugin_name',
-                'surefeedback_plugin_description',
-                'surefeedback_plugin_author',
-                'surefeedback_plugin_author_url',
-                'surefeedback_plugin_link',
-                'surefeedback_white_label_settings',
-                'surefeedback_settings',
-                'surefeedback_installation_date'
-            ];
-            
-            // Combine all options to clear
-            $all_options_to_clear = array_merge($connection_options, $all_plugin_options);
-            
-            // Clear all options
-            foreach ($all_options_to_clear as $option) {
-                $old_value = get_option($option);
-                if ($old_value !== false) {
-                    delete_option($option);
-                    $cleared_data[$option] = $old_value;
-                }
-            }
-
-            // Clear any cached data
-            wp_cache_delete('surefeedback_connection_status');
-            wp_cache_delete('surefeedback_settings');
-
-            delete_transient('surefeedback_connection_check');
-            delete_transient('surefeedback_verification_status');
-
-            $defaults = [
-                'surefeedback_widget_enabled' => true,
-                'surefeedback_role_can_comment' => ['administrator'],
-                'surefeedback_guest_comments' => false,
-                'surefeedback_admin_can_comment' => true,
-                'surefeedback_show_on_admin' => false,
-                'surefeedback_disable_for_admin' => false,
-                'surefeedback_debug_mode' => false,
-                'surefeedback_connection_status' => 'disconnected' // Ensure status is set to disconnected
-            ];
-            
-            foreach ($defaults as $option => $value) {
-                update_option($option, $value);
-            }
-
-            update_option('surefeedback_last_reset', current_time('mysql'));
-            
-            return [
-                'success' => true,
-                'message' => 'Plugin reset to factory settings successfully',
-                'type' => 'factory_reset',
-                'cleared_data' => $cleared_data,
-                'restored_defaults' => $defaults
-            ];
-
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Failed to reset plugin: ' . $e->getMessage(),
-                'cleared_data' => $cleared_data
-            ];
-        }
-    }
-
-
-
-    /**
-     * Simple JWT token validation endpoint
-     *
-     * Returns a simple response indicating if the JWT token is valid
-     *
-     * @param WP_REST_Request $request The REST request object
-     * @return WP_REST_Response|WP_Error The response
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
      */
     public function validate_token(WP_REST_Request $request)
     {
-        // Get JWT token data (set by middleware)
         $token_data = $request->get_param('_jwt_token_data');
-        
+
         if (!$token_data) {
             return $this->error('Token is invalid', 401);
         }
 
-        // Check permissions using JWT service
         $has_admin_permission = $this->jwtService->check_permission($token_data, 'manage_options');
 
         return $this->success([
             'message' => 'Token is valid',
             'token_info' => [
                 'user_id' => $token_data['user_id'] ?? null,
-                'userId' => $token_data['userId'] ?? null,
                 'email' => $token_data['email'] ?? null,
                 'role' => $token_data['role'] ?? null,
-                'first_name' => $token_data['first_name'] ?? null,
-                'last_name' => $token_data['last_name'] ?? null,
-                'permissions' => $token_data['permissions'] ?? [],
                 'issued_at' => isset($token_data['iat']) ? date('Y-m-d H:i:s', $token_data['iat']) : null,
                 'expires_at' => isset($token_data['exp']) ? date('Y-m-d H:i:s', $token_data['exp']) : null,
             ],
@@ -886,4 +342,31 @@ class ConnectionController extends Controller
         ]);
     }
 
+    /**
+     * Get client IP address
+     *
+     * @param WP_REST_Request $request
+     * @return string
+     */
+    private function getClientIp(WP_REST_Request $request): string
+    {
+        $headers = [
+            'HTTP_CF_CONNECTING_IP',
+            'HTTP_X_REAL_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'REMOTE_ADDR'
+        ];
+
+        foreach ($headers as $header) {
+            if (!empty($_SERVER[$header])) {
+                $ips = explode(',', $_SERVER[$header]);
+                $ip = trim($ips[0]);
+                if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                    return $ip;
+                }
+            }
+        }
+
+        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    }
 }

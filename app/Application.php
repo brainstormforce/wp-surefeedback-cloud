@@ -163,11 +163,6 @@ class Application
         $this->register('securityService', function() {
             return new \SureFeedback\Services\SecurityService();
         });
-
-        // Initialize SaasClientService (always needed)
-        $this->register('saasClientService', function() {
-            return new \SureFeedback\Services\SaasClientService();
-        });
     }
 
     /**

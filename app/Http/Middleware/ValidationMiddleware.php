@@ -39,7 +39,6 @@ class ValidationMiddleware extends Middleware
         // Admin endpoints
         'POST:/surefeedback/v1/admin/verify' => 'SureFeedback\App\Http\Requests\Admin\VerificationRequest',
         'POST:/surefeedback/v1/admin/test-parent-site' => 'SureFeedback\App\Http\Requests\Admin\TestParentSiteRequest',
-        'DELETE:/surefeedback/v1/admin/disconnect' => 'SureFeedback\App\Http\Requests\Admin\DisconnectRequest',
     ];
 
     /**

@@ -4,7 +4,6 @@ namespace SureFeedback\Http\Controllers\Api;
 
 use SureFeedback\Http\Controllers\Controller;
 use SureFeedback\Http\Requests\Settings\UpdateSettingsRequest;
-use SureFeedback\Http\Requests\Settings\WhiteLabelRequest;
 use SureFeedback\Repositories\SettingsRepository;
 use WP_Error;
 use WP_REST_Request;
@@ -62,7 +61,6 @@ class SettingsController extends Controller
             
             $settings = [
                 'general' => $this->settingsRepository->getGeneralSettings(),
-                'white_label' => $this->settingsRepository->getWhiteLabelSettings(),
                 'availableRoles' => $this->getAvailableRoles(),
             ];
             
@@ -194,78 +192,6 @@ class SettingsController extends Controller
             return $this->error('Failed to update general settings', 500);
         }
     }
-    
-    /**
-     * Get white label settings
-     *
-     * @param WP_REST_Request $request
-     * @return WP_REST_Response|WP_Error
-     */
-    public function whiteLabel(WP_REST_Request $request)
-    {
-        try {
-            $nonce_result = $this->validateNonce($request);
-            if (is_wp_error($nonce_result)) {
-                return $nonce_result;
-            }
-            
-            $capability_result = $this->validateCapability('manage_options');
-            if (is_wp_error($capability_result)) {
-                return $capability_result;
-            }
-            
-            $settings = $this->settingsRepository->getWhiteLabelSettings();
-            
-            return $this->success($settings);
-            
-        } catch (\Exception $e) {
-            $this->logError('White label settings retrieval error: ' . $e->getMessage());
-            return $this->error('Failed to retrieve white label settings', 500);
-        }
-    }
-    
-    /**
-     * Update white label settings
-     *
-     * @param WP_REST_Request $request
-     * @return WP_REST_Response|WP_Error
-     */
-    public function updateWhiteLabel(WP_REST_Request $request)
-    {
-        try {
-            $nonce_result = $this->validateNonce($request);
-            if (is_wp_error($nonce_result)) {
-                return $nonce_result;
-            }
-            
-            $capability_result = $this->validateCapability('manage_options');
-            if (is_wp_error($capability_result)) {
-                return $capability_result;
-            }
-            
-            // Create and validate request
-            $whiteLabelRequest = WhiteLabelRequest::createFromWpRequest($request);
-            
-            if ($whiteLabelRequest->fails()) {
-                return $this->error('Validation failed', 422, $whiteLabelRequest->errors());
-            }
-            
-            $validated = $whiteLabelRequest->validated();
-            $settings = $this->settingsRepository->updateWhiteLabelSettings($validated);
-            
-            $this->logInfo('White label settings updated', $settings);
-            
-            return $this->success([
-                'message' => 'White label settings updated successfully',
-                'settings' => $settings
-            ]);
-            
-        } catch (\Exception $e) {
-            $this->logError('White label settings update error: ' . $e->getMessage());
-            return $this->error('Failed to update white label settings', 500);
-        }
-    }
-    
     /**
      * Get available WordPress roles
      *

@@ -26,27 +26,6 @@ class SettingsRepository extends BaseRepository
         'notification_email' => '',
         'webhook_url' => '',
         'widget_enabled' => true,
-        'debug_mode' => false,
-    ];
-
-    /**
-     * Default white label settings
-     *
-     * @var array
-     */
-    protected $defaultWhiteLabelSettings = [
-        'plugin_name' => 'SureFeedback',
-        'plugin_description' => 'Collect note-style feedback from your clients.',
-        'company_name' => 'Brainstorm Force',
-        'company_url' => 'https://www.brainstormforce.com',
-        'support_url' => 'https://surefeedback.com/support',
-        'documentation_url' => 'https://surefeedback.com/docs',
-        'logo_url' => '',
-        'primary_color' => '#3b82f6',
-        'secondary_color' => '#6b7280',
-        'hide_branding' => false,
-        'custom_css' => '',
-        'custom_footer_text' => '',
     ];
 
     /**
@@ -56,11 +35,7 @@ class SettingsRepository extends BaseRepository
      */
     public function getGeneralSettings(): array
     {
-        return [
-            'surefeedback_role_can_comment' => get_option('surefeedback_role_can_comment', ['administrator']),
-            'surefeedback_guest_comments_enabled' => (bool) get_option('surefeedback_guest_comments', false),
-            'surefeedback_admin' => (bool) get_option('surefeedback_admin_can_comment', true),
-        ];
+        return [];
     }
 
     /**
@@ -84,32 +59,7 @@ class SettingsRepository extends BaseRepository
      */
     public function updateGeneralSettings(array $settings): array
     {
-        $updated = [];
-        
-        // Update surefeedback_role_can_comment
-        if (isset($settings['surefeedback_role_can_comment'])) {
-            $roles = is_array($settings['surefeedback_role_can_comment']) 
-                ? array_map('sanitize_text_field', $settings['surefeedback_role_can_comment'])
-                : [];
-            update_option('surefeedback_role_can_comment', $roles);
-            $updated['surefeedback_role_can_comment'] = $roles;
-        }
-        
-        // Update surefeedback_guest_comments_enabled
-        if (isset($settings['surefeedback_guest_comments_enabled'])) {
-            $guest_comments = (bool) $settings['surefeedback_guest_comments_enabled'];
-            update_option('surefeedback_guest_comments', $guest_comments);
-            $updated['surefeedback_guest_comments_enabled'] = $guest_comments;
-        }
-        
-        // Update surefeedback_admin
-        if (isset($settings['surefeedback_admin'])) {
-            $admin_comments = (bool) $settings['surefeedback_admin'];
-            update_option('surefeedback_admin_can_comment', $admin_comments);
-            $updated['surefeedback_admin'] = $admin_comments;
-        }
-        
-        return $updated;
+        return [];
     }
 
     /**
@@ -127,30 +77,6 @@ class SettingsRepository extends BaseRepository
         return $this->setOption('settings', $settings);
     }
 
-    /**
-     * Get white label settings
-     *
-     * @return array
-     */
-    public function getWhiteLabelSettings(): array
-    {
-        $settings = $this->getOption('white_label_settings', []);
-        return array_merge($this->defaultWhiteLabelSettings, $settings);
-    }
-
-    /**
-     * Update white label settings
-     *
-     * @param array $settings
-     * @return bool
-     */
-    public function updateWhiteLabelSettings(array $settings): bool
-    {
-        $currentSettings = $this->getWhiteLabelSettings();
-        $newSettings = array_merge($currentSettings, $this->sanitizeData($settings));
-        
-        return $this->setOption('white_label_settings', $newSettings);
-    }
 
     /**
      * Get plugin roles
@@ -265,53 +191,25 @@ class SettingsRepository extends BaseRepository
     /**
      * Reset settings to default
      *
-     * @param string $type 'general', 'white_label', or 'all'
      * @return bool
      */
-    public function resetSettings(string $type = 'all'): bool
+    public function resetSettings(): bool
     {
-        $success = true;
-
-        switch ($type) {
-            case 'general':
-                $success = $this->setOption('settings', $this->defaultSettings);
-                break;
-            
-            case 'white_label':
-                $success = $this->setOption('white_label_settings', $this->defaultWhiteLabelSettings);
-                break;
-            
-            case 'all':
-                $success = $this->setOption('settings', $this->defaultSettings);
-                $success = $success && $this->setOption('white_label_settings', $this->defaultWhiteLabelSettings);
-                break;
-        }
-
-        return $success;
+        return $this->setOption('settings', $this->defaultSettings);
     }
 
     /**
      * Export settings
      *
-     * @param array $sections Sections to export ('general', 'white_label')
      * @return array
      */
-    public function exportSettings(array $sections = ['general', 'white_label']): array
+    public function exportSettings(): array
     {
-        $export = [
+        return [
             'timestamp' => current_time('mysql'),
             'version' => SUREFEEDBACK_VERSION ?? '1.0.0',
+            'general' => $this->getGeneralSettings(),
         ];
-
-        if (in_array('general', $sections)) {
-            $export['general'] = $this->getGeneralSettings();
-        }
-
-        if (in_array('white_label', $sections)) {
-            $export['white_label'] = $this->getWhiteLabelSettings();
-        }
-
-        return $export;
     }
 
     /**
@@ -323,25 +221,15 @@ class SettingsRepository extends BaseRepository
      */
     public function importSettings(array $data, bool $merge = true): bool
     {
-        $success = true;
-
         if (isset($data['general'])) {
             if ($merge) {
-                $success = $success && $this->updateGeneralSettings($data['general']);
+                return $this->updateGeneralSettings($data['general']);
             } else {
-                $success = $success && $this->setOption('settings', $this->sanitizeData($data['general']));
+                return $this->setOption('settings', $this->sanitizeData($data['general']));
             }
         }
 
-        if (isset($data['white_label'])) {
-            if ($merge) {
-                $success = $success && $this->updateWhiteLabelSettings($data['white_label']);
-            } else {
-                $success = $success && $this->setOption('white_label_settings', $this->sanitizeData($data['white_label']));
-            }
-        }
-
-        return $success;
+        return false;
     }
 
     /**
@@ -353,7 +241,6 @@ class SettingsRepository extends BaseRepository
     {
         return [
             'general' => $this->getGeneralSettings(),
-            'white_label' => $this->getWhiteLabelSettings(),
         ];
     }
 
@@ -392,16 +279,13 @@ class SettingsRepository extends BaseRepository
      * Validate settings data structure
      *
      * @param array $settings
-     * @param string $type
      * @return bool
      */
-    public function validateSettings(array $settings, string $type = 'general'): bool
+    public function validateSettings(array $settings): bool
     {
-        $defaults = $type === 'white_label' ? $this->defaultWhiteLabelSettings : $this->defaultSettings;
-        
         // Check if all provided keys exist in defaults (no unknown keys)
         foreach ($settings as $key => $value) {
-            if (!array_key_exists($key, $defaults)) {
+            if (!array_key_exists($key, $this->defaultSettings)) {
                 return false;
             }
         }

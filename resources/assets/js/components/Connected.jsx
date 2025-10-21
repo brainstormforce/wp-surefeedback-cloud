@@ -2,16 +2,6 @@ import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
-import { Checkbox } from "../components/ui/checkbox";
-import { Label } from "../components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
 import { __ } from "@wordpress/i18n";
 import {
   CheckCircle,
@@ -20,14 +10,11 @@ import {
   ExternalLink,
   Unplug,
 } from "lucide-react";
-import { disconnect } from "../index.js";
 
-const Connected = () => {
+const Connected = ({ connectionData, verificationResult }) => {
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [disconnectStatus, setDisconnectStatus] = useState(null); // null, 'success', 'error'
   const [errorMessage, setErrorMessage] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleDisconnectClick = () => {
     if (isDisconnecting) return;
@@ -36,48 +23,7 @@ const Connected = () => {
   };
 
   const confirmDisconnect = async () => {
-    setIsDialogOpen(false);
-    setIsDisconnecting(true);
-    setDisconnectStatus(null);
-    setErrorMessage("");
-
-    try {
-      const result = await disconnect({
-        user_initiated: true,
-        reason: "user_disconnect",
-        metadata: {
-          source: "admin_dashboard",
-          timestamp: Date.now(),
-        },
-      });
-
-      if (result.success) {
-        setDisconnectStatus("success");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        setDisconnectStatus("error");
-        setErrorMessage(
-          result.message ||
-            __(
-              "Failed to disconnect from parent site. Please try again.",
-              "surefeedback"
-            )
-        );
-      }
-    } catch (error) {
-      setDisconnectStatus("error");
-      setErrorMessage(
-        error.message ||
-          __(
-            "An unexpected error occurred. Please try again.",
-            "surefeedback"
-          )
-      );
-    } finally {
-      setIsDisconnecting(false);
-    }
+   // To Be Implemented
   };
 
   const handleGoToDashboard = () => {
@@ -194,56 +140,6 @@ const Connected = () => {
         </CardContent>
       </Card>
 
-      {/* Confirmation Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{__("Disconnect Site", "surefeedback")}</DialogTitle>
-            <DialogDescription>
-              {__(
-                "Are you sure you want to disconnect this site from SureFeedback? This will deactivate the widget and clear all connection data.",
-                "surefeedback"
-              )}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex items-start gap-3 py-4">
-            <Checkbox
-              id="terms"
-              checked={acceptedTerms}
-              onCheckedChange={setAcceptedTerms}
-              className="mt-0.5"
-            />
-            <Label
-              htmlFor="terms"
-              className="text-sm font-normal leading-normal cursor-pointer select-none"
-            >
-              {__(
-                "I understand that disconnecting will remove all connection data and deactivate the feedback widget on this site.",
-                "surefeedback"
-              )}
-            </Label>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDialogOpen(false)}
-            >
-              {__("Cancel", "surefeedback")}
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={confirmDisconnect}
-              disabled={!acceptedTerms}
-            >
-              {__("Yes, Disconnect", "surefeedback")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

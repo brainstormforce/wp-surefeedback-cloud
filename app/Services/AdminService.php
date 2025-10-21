@@ -3,10 +3,8 @@
 namespace SureFeedback\Services;
 
 use SureFeedback\Repositories\SettingsRepository;
-use SureFeedback\Repositories\ConnectionRepository;
-use SureFeedback\Repositories\DashboardRepository;
 use SureFeedback\Http\Requests\UpdateSettingsRequest;
-use SureFeedback\Http\Controllers\VerificationController;
+use SureFeedback\Http\Controllers\Api\VerificationController;
 
 /**
  * Admin Service
@@ -25,20 +23,6 @@ class AdminService
      * @var SettingsRepository
      */
     protected $settingsRepository;
-
-    /**
-     * Connection Repository
-     *
-     * @var ConnectionRepository
-     */
-    protected $connectionRepository;
-
-    /**
-     * Dashboard Repository
-     *
-     * @var DashboardRepository
-     */
-    protected $dashboardRepository;
 
     /**
      * Menu slug
@@ -67,8 +51,6 @@ class AdminService
     public function __construct()
     {
         $this->settingsRepository = new SettingsRepository();
-        $this->connectionRepository = new ConnectionRepository();
-        $this->dashboardRepository = new DashboardRepository();
         $this->init_hooks();
     }
 
@@ -165,8 +147,6 @@ class AdminService
         // Register settings sections and fields
         $this->register_general_settings();
         $this->register_connection_settings();
-        $this->register_white_label_settings();
-        $this->register_advanced_settings();
     }
 
     /**
@@ -256,10 +236,7 @@ class AdminService
             'presto_player_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/pplayer.svg',
             'suretriggers_icon' => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/rocket.svg',
             // Connection data
-            'connection' => $connection_data,
-            // Backward compatibility - add status fields at root level
-            'connection_status' => $connection_data['connected'] ? 'connected' : 'not_connected',
-            'verification_status' => $connection_data['verification_status']
+            'connection' => $connection_data
         ]);
 
         // Enqueue WordPress media uploader on settings page
@@ -325,11 +302,12 @@ class AdminService
      */
     public function display_admin_notices(): void
     {
-        // Get connection data from repository
-        $connectionData = $this->connectionRepository->getConnectionStatus();
-        
+        // Check connection status
+        $is_connected = !empty(get_option('surefeedback_parent_url', '')) &&
+                       !empty(get_option('surefeedback_access_token', ''));
+
         // Connection status notice
-        if (!$connectionData['connected'] && $this->is_plugin_page()) {
+        if (!$is_connected && $this->is_plugin_page()) {
             echo '<div class="notice notice-warning is-dismissible">';
             echo '<p>';
             echo esc_html__('SureFeedback is not connected to a parent site. ', 'surefeedback');
@@ -401,8 +379,9 @@ class AdminService
             return;
         }
 
-        $connectionData = $this->connectionRepository->getConnectionStatus();
-        $status_class = $connectionData['connected'] ? 'connected' : 'disconnected';
+        $is_connected = !empty(get_option('surefeedback_parent_url', '')) &&
+                       !empty(get_option('surefeedback_access_token', ''));
+        $status_class = $is_connected ? 'connected' : 'disconnected';
 
         $wp_admin_bar->add_node([
             'id' => 'surefeedback',
@@ -420,8 +399,8 @@ class AdminService
             'href' => admin_url('admin.php?page=' . $this->menu_slug . '-settings')
         ]);
 
-        if ($connectionData['connected']) {
-            $parent_url = $connectionData['parent_url'];
+        if ($is_connected) {
+            $parent_url = get_option('surefeedback_parent_url', '');
             if (!empty($parent_url)) {
                 $wp_admin_bar->add_node([
                     'parent' => 'surefeedback',
@@ -459,14 +438,14 @@ class AdminService
      */
     public function render_dashboard_widget(): void
     {
-        $connectionData = $this->connectionRepository->getConnectionStatus();
-        $dashboardData = $this->dashboardRepository->getDashboardData();
+        $is_connected = !empty(get_option('surefeedback_parent_url', '')) &&
+                       !empty(get_option('surefeedback_access_token', ''));
 
         echo '<div class="surefeedback-dashboard-widget">';
-        
+
         // Connection status
         echo '<p><strong>' . esc_html__('Connection Status:', 'surefeedback') . '</strong> ';
-        if ($connectionData['connected']) {
+        if ($is_connected) {
             echo '<span style="color: green;">' . esc_html__('Connected', 'surefeedback') . '</span>';
         } else {
             echo '<span style="color: red;">' . esc_html__('Disconnected', 'surefeedback') . '</span>';
@@ -474,17 +453,20 @@ class AdminService
         echo '</p>';
 
         // Last verification
-        if (!empty($connectionData['last_check'])) {
+        $last_verification = get_option('surefeedback_last_verification', '');
+        if (!empty($last_verification)) {
             echo '<p><strong>' . esc_html__('Last Verification:', 'surefeedback') . '</strong> ';
-            echo esc_html(human_time_diff(strtotime($connectionData['last_check']), time()) . ' ago');
+            echo esc_html(human_time_diff(strtotime($last_verification), time()) . ' ago');
             echo '</p>';
         }
 
-        // Pending feedback count
-        $pending_feedback = $dashboardData['stats']['pending_reviews'] ?? 0;
-        echo '<p><strong>' . esc_html__('Pending Feedback:', 'surefeedback') . '</strong> ';
-        echo esc_html($pending_feedback);
-        echo '</p>';
+        // Site name
+        $site_name = get_option('surefeedback_site_name', '');
+        if (!empty($site_name)) {
+            echo '<p><strong>' . esc_html__('Site Name:', 'surefeedback') . '</strong> ';
+            echo esc_html($site_name);
+            echo '</p>';
+        }
 
         // Quick actions
         echo '<p>';
@@ -492,7 +474,7 @@ class AdminService
         echo esc_html__('View Dashboard', 'surefeedback');
         echo '</a> ';
         
-        if (!$connectionData['connected']) {
+        if (!$is_connected) {
             echo '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-connection')) . '" class="button-primary">';
             echo esc_html__('Connect Now', 'surefeedback');
             echo '</a>';
@@ -509,12 +491,7 @@ class AdminService
      */
     private function register_general_settings(): void
     {
-        register_setting('surefeedback_general', 'surefeedback_widget_enabled');
-        register_setting('surefeedback_general', 'surefeedback_widget_position');
-        register_setting('surefeedback_general', 'surefeedback_widget_theme');
-        register_setting('surefeedback_general', 'surefeedback_allowed_roles');
-        register_setting('surefeedback_general', 'surefeedback_guest_comments');
-        register_setting('surefeedback_general', 'surefeedback_email_notifications');
+        // Settings managed via webhook
     }
 
     /**
@@ -526,37 +503,8 @@ class AdminService
     {
         register_setting('surefeedback_connection', 'surefeedback_parent_url');
         register_setting('surefeedback_connection', 'surefeedback_access_token');
-        register_setting('surefeedback_connection', 'surefeedback_site_token');
     }
 
-    /**
-     * Register white label settings
-     *
-     * @return void
-     */
-    private function register_white_label_settings(): void
-    {
-        register_setting('surefeedback_white_label', 'surefeedback_plugin_name');
-        register_setting('surefeedback_white_label', 'surefeedback_plugin_description');
-        register_setting('surefeedback_white_label', 'surefeedback_plugin_author');
-        register_setting('surefeedback_white_label', 'surefeedback_plugin_author_url');
-        register_setting('surefeedback_white_label', 'surefeedback_company_logo');
-        register_setting('surefeedback_white_label', 'surefeedback_hide_branding');
-    }
-
-    /**
-     * Register advanced settings
-     *
-     * @return void
-     */
-    private function register_advanced_settings(): void
-    {
-        register_setting('surefeedback_advanced', 'surefeedback_debug_mode');
-        register_setting('surefeedback_advanced', 'surefeedback_cache_duration');
-        register_setting('surefeedback_advanced', 'surefeedback_api_timeout');
-        register_setting('surefeedback_advanced', 'surefeedback_max_file_size');
-        register_setting('surefeedback_advanced', 'surefeedback_allowed_file_types');
-    }
 
     /**
      * Get menu icon
@@ -575,15 +523,15 @@ class AdminService
      */
     private function get_admin_settings(): array
     {
-        $connectionData = $this->connectionRepository->getConnectionStatus();
         $settingsData = $this->settingsRepository->getSettings();
-        
+
         return [
-            'connected' => $connectionData['connected'] === true,
-            'parentUrl' => $connectionData['parent_url'],
-            'siteId' => $connectionData['site_id'] ?? null,
-            'verificationStatus' => $connectionData['verification_status'] ?? null,
-            'lastVerification' => $connectionData['last_check'],
+            'connected' => !empty(get_option('surefeedback_parent_url', '')) &&
+                          !empty(get_option('surefeedback_access_token', '')),
+            'parentUrl' => get_option('surefeedback_parent_url', ''),
+            'siteId' => get_option('surefeedback_site_id', ''),
+            'verificationStatus' => null,
+            'lastVerification' => get_option('surefeedback_last_verification', ''),
             'widgetEnabled' => $settingsData['general']['widget_enabled'] ?? true,
             'debugMode' => $settingsData['general']['debug_mode'] ?? false
         ];
@@ -605,7 +553,6 @@ class AdminService
             'saved' => __('Saved', 'surefeedback'),
             'error' => __('Error', 'surefeedback'),
             'success' => __('Success', 'surefeedback'),
-            'confirmDisconnect' => __('Are you sure you want to disconnect? This will disable the feedback widget.', 'surefeedback'),
             'confirmReset' => __('Are you sure you want to reset all settings? This action cannot be undone.', 'surefeedback')
         ];
     }
@@ -696,21 +643,12 @@ class AdminService
             wp_send_json_error(__('Insufficient permissions', 'surefeedback'));
         }
 
-        // Get SaaS client service and test connection
-        try {
-            $saas_client = new SaasClientService();
-            $result = $saas_client->verify_script_integration();
-            
-            if ($result['success']) {
-                wp_send_json_success($result);
-            } else {
-                wp_send_json_error($result);
-            }
-        } catch (\Exception $e) {
-            wp_send_json_error([
-                'message' => $e->getMessage()
-            ]);
-        }
+        // Connection testing is handled via webhook
+        wp_send_json_success([
+            'message' => __('Connection is managed via webhook', 'surefeedback'),
+            'connected' => !empty(get_option('surefeedback_parent_url', '')) &&
+                          !empty(get_option('surefeedback_access_token', ''))
+        ]);
     }
 
     /**
@@ -728,7 +666,7 @@ class AdminService
 
         try {
             // Use the verification controller
-            $verification_controller = new \SureFeedback\Http\Controllers\VerificationController();
+            $verification_controller = new \SureFeedback\Http\Controllers\Api\VerificationController();
             $request = new \WP_REST_Request();
             
             $result = $verification_controller->verify_connection($request);
@@ -766,30 +704,12 @@ class AdminService
             wp_send_json_error(__('Insufficient permissions', 'surefeedback'));
         }
 
-        // Reset all plugin options
+        // Reset connection-specific options only
         $options_to_delete = [
-            'surefeedback_parent_url',
-            'surefeedback_site_token',
-            'surefeedback_id',
             'surefeedback_access_token',
-            'surefeedback_script_url',
-            'surefeedback_connection_status',
-            'surefeedback_connection_date',
+            'surefeedback_parent_url',
+            'surefeedback_site_id',
             'surefeedback_last_verification',
-            'surefeedback_verification_status',
-            'surefeedback_retry_count',
-            'surefeedback_last_heartbeat',
-            'surefeedback_widget_enabled',
-            'surefeedback_widget_position',
-            'surefeedback_widget_theme',
-            'surefeedback_allowed_roles',
-            'surefeedback_guest_comments',
-            'surefeedback_email_notifications',
-            'surefeedback_debug_mode',
-            'surefeedback_cache_duration',
-            'surefeedback_api_timeout',
-            'surefeedback_max_file_size',
-            'surefeedback_allowed_file_types'
         ];
 
         foreach ($options_to_delete as $option) {
@@ -820,13 +740,11 @@ class AdminService
 
         // Get all settings through repositories
         $settings = $this->settingsRepository->getSettings();
-        $connectionData = $this->connectionRepository->getConnectionStatus();
 
         // Combine settings for export
         $exportData = array_merge($settings, [
-            'connection_status' => $connectionData['connected'] ? 'connected' : 'disconnected',
-            'parent_url' => $connectionData['parent_url'],
-            'site_id' => $connectionData['site_id']
+            'parent_url' => get_option('surefeedback_parent_url', ''),
+            'site_id' => get_option('surefeedback_site_id', '')
         ]);
 
         wp_send_json_success([
@@ -860,7 +778,7 @@ class AdminService
             $connectionData = [];
 
             foreach ($settings as $key => $value) {
-                if (in_array($key, ['connection_status', 'parent_url', 'site_id'])) {
+                if (in_array($key, ['parent_url', 'site_id'])) {
                     $connectionData[$key] = $value;
                 } else {
                     $settingsData[$key] = $value;
@@ -871,14 +789,12 @@ class AdminService
             if (!empty($settingsData)) {
                 $this->settingsRepository->updateSettings($settingsData);
             }
-            
-            if (!empty($connectionData)) {
-                $this->connectionRepository->updateConnection($connectionData);
-            }
+
+            // Connection data is managed via webhook, not imported
 
             wp_send_json_success([
                 'message' => __('Settings imported successfully', 'surefeedback'),
-                'imported' => array_merge($settingsData, $connectionData)
+                'imported' => $settingsData
             ]);
         } catch (\Exception $e) {
             wp_send_json_error([
@@ -895,12 +811,10 @@ class AdminService
      */
     private function get_connection_data(): array
     {
-        // Get connection settings from database (use the correct option names saved by webhook)
-        $connection_status = get_option('surefeedback_connection_status', 'disconnected');
+        // Get connection settings from database
         $parent_url = get_option('surefeedback_parent_url', '');
-        $site_id = get_option('surefeedback_id', ''); // Use 'surefeedback_id' not 'surefeedback_site_id'
+        $site_id = get_option('surefeedback_site_id', '');
         $access_token = get_option('surefeedback_access_token', '');
-        $verification_status = get_option('surefeedback_verification_status', 'unverified');
         
         // Use environment-aware URLs
         $app_url = surefeedback_get_app_url();
@@ -920,30 +834,26 @@ class AdminService
             'active_plugins' => $this->get_active_plugins_list()
         ];
 
-        // Add site_id if connected (for internal use)
-        if ($connection_status === 'connected' && !empty($site_id)) {
-            $site_data['site_id'] = $site_id;
-        }
-
-        // Determine if connected - robust check including essential connection data
+        // Determine if connected - check for essential connection data
         // A site is only considered connected if it has essential tokens (access_token and site_id)
         $is_connected = !empty($access_token) && !empty($site_id);
         
-        // Update connection status based on essential data presence
-        if ($is_connected && $connection_status !== 'connected') {
-            update_option('surefeedback_connection_status', 'connected');
-            $connection_status = 'connected';
-        } elseif (!$is_connected && $connection_status === 'connected') {
-            update_option('surefeedback_connection_status', 'disconnected');
-            $connection_status = 'disconnected';
+        // Get verification status
+        $site_connected = (bool) get_option('surefeedback_site_connected', false);
+        $is_fully_verified = (int) get_option('surefeedback_is_fully_verified', 0);
+        $last_verification = get_option('surefeedback_last_verification', '');
+
+        // Add site_id if connected (for internal use)
+        if ($is_connected) {
+            $site_data['site_id'] = $site_id;
         }
 
-        // Get site token for API operations
-        $site_token = get_option('surefeedback_site_token', '');
-        
         $connection_data = [
             'connected' => $is_connected, // Boolean for JavaScript compatibility
-            'status' => $connection_status, // String status
+            'site_connected' => $site_connected, // Site webhook connection status
+            'is_fully_verified' => $is_fully_verified, // Verification status: 0=PENDING, 1=CONNECTED, 2=DISCONNECTED
+            'last_verification' => $last_verification, // Last verification timestamp
+            'connection_status' => $this->get_connection_status($site_connected, $is_fully_verified), // String status for UI
             'app_url' => $app_url,
             'api_url' => $api_url,
             'parent_url' => $parent_url,
@@ -952,12 +862,40 @@ class AdminService
             'site_data' => $site_data,
             'site_id' => $site_id,
             'access_token' => $access_token ? substr($access_token, 0, 10) . '...' : null, // Partial token for debugging
-            'site_token' => $site_token, // Full site token for disconnect/verification operations
-            // Keep verification status for backward compatibility but don't use it for connection logic
-            'verification_status' => $verification_status
         ];
 
         return $connection_data;
+    }
+    
+    /**
+     * Get connection status string based on verification flags
+     *
+     * @param bool $site_connected
+     * @param int $is_fully_verified
+     * @return string
+     */
+    private function get_connection_status(bool $site_connected, int $is_fully_verified): string
+    {
+        // Map connection status based on both site_connected and is_fully_verified:
+        // site_connected = 0 → not_connected (show NotConnected component)
+        // site_connected = 1 AND is_fully_verified = 0 → not_verified (show UnverifiedState component)
+        // site_connected = 1 AND is_fully_verified = 1 → connected (show Connected component)
+        // site_connected = 1 AND is_fully_verified = 2 → not_verified (show UnverifiedState component)
+
+        if (!$site_connected) {
+            return 'not_connected';
+        }
+
+        if ($site_connected && $is_fully_verified === 1) {
+            return 'connected';
+        }
+
+        if ($site_connected && ($is_fully_verified === 0 || $is_fully_verified === 2)) {
+            return 'not_verified';
+        }
+
+        // Default fallback
+        return 'not_connected';
     }
 
     /**

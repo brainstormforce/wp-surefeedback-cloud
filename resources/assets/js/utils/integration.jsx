@@ -14,7 +14,6 @@ import {
     apiServiceFactory,
     connectionService,
     settingsService,
-    dashboardService,
     adminService,
     errorHandler
 } from '../index.js';
@@ -53,7 +52,6 @@ export function ApiProvider({ children }) {
         services: {
             connection: connectionService,
             settings: settingsService,
-            dashboard: dashboardService,
             admin: adminService
         },
         errorHandler
@@ -97,7 +95,6 @@ export function attachToWindow() {
             services: {
                 connection: connectionService,
                 settings: settingsService,
-                dashboard: dashboardService,
                 admin: adminService
             },
             

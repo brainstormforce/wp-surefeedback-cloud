@@ -132,33 +132,6 @@ class ConnectionService {
     }
 
     /**
-     * Disconnect from parent site
-     * @returns {Promise<Object>}
-     */
-    async disconnect() {
-        try {
-            const response = await apiGateway.post(API_ENDPOINTS.CONNECTION.DISCONNECT);
-
-            // Update connection state
-            this.updateConnectionState({
-                connected: false,
-                parent_url: '',
-                access_token: false,
-                status: 'disconnected'
-            });
-
-            // Clear cache
-            cacheManager.delete(CACHE_CONFIG.KEYS.CONNECTION_STATUS);
-            
-            this.notifyListeners('connection_disconnected', response);
-            return response;
-        } catch (error) {
-            this.handleConnectionError(error, 'Failed to disconnect');
-            throw error;
-        }
-    }
-
-    /**
      * Get connection health status
      * @returns {Promise<Object>}
      */
@@ -364,13 +337,12 @@ export const {
     getStatus: getConnectionStatus,
     verify: verifyConnection,
     connect: connectToParent,
-    disconnect: disconnectFromParent,
     getHealth: getConnectionHealth,
     testConnection
 } = Object.fromEntries(
-    ['getStatus', 'verify', 'connect', 'disconnect', 'getHealth', 'testConnection']
+    ['getStatus', 'verify', 'connect', 'getHealth', 'testConnection']
         .map(method => [
-            method, 
+            method,
             withErrorHandling(
                 connectionService[method].bind(connectionService),
                 { service: 'connection', method }

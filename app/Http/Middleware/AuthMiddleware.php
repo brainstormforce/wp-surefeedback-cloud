@@ -89,23 +89,15 @@ class AuthMiddleware extends Middleware
             // Connection endpoints
             '/surefeedback/v1/connection/status' => ['read'],
             '/surefeedback/v1/connection/connect' => ['manage_options'],
-            '/surefeedback/v1/connection/disconnect' => ['manage_options'],
             '/surefeedback/v1/connection/verify' => ['manage_options'],
             
-            // Settings endpoints
+            // Settings 
             '/surefeedback/v1/settings' => $method === 'GET' ? ['read'] : ['manage_options'],
             '/surefeedback/v1/settings/general' => ['manage_options'],
-            '/surefeedback/v1/settings/white-label' => ['manage_options'],
             
-            // Dashboard endpoints
-            '/surefeedback/v1/dashboard/stats' => ['read'],
-            '/surefeedback/v1/dashboard/activity' => ['read'],
-            '/surefeedback/v1/dashboard/quick-access' => ['read'],
             
             // Admin endpoints
             '/surefeedback/v1/admin/verify' => ['manage_options'],
-            '/surefeedback/v1/admin/test-parent-site' => ['manage_options'],
-            '/surefeedback/v1/admin/disconnect' => ['manage_options'],
         ];
 
         $requiredCaps = $requirements[$route] ?? ['manage_options'];

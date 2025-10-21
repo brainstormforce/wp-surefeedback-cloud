@@ -22,8 +22,6 @@ export const authenticateRedirect = () => {
     site_data: btoa(JSON.stringify(connection.site_data)), // base64 encode like PHP version
   });
 
-  console.log('Connection', connection);
-
   // Construct the connection URL using localized app URL
   const connectUrl = `${connection.app_url}/connect?${params.toString()}`;
   

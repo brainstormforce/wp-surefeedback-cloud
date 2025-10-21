@@ -8,9 +8,16 @@ import { useVerification } from "../hooks";
 const UnverifiedState = ({ showLoading = false, onRetryVerification = null, verificationResult = null }) => {
   const { verifyConnection, isLoading: verificationLoading } = useVerification();
   const dbVerificationStatus = window.sureFeedbackAdmin?.verification_status || 'unverified';
-  const verificationStatus = verificationResult?.status || dbVerificationStatus;  
+  const verificationStatus = verificationResult?.status || dbVerificationStatus;
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const isLoading = isTestingConnection || verificationLoading || (showLoading && !verificationResult);
+
+  // Automatically call verification on mount if onRetryVerification is provided and not already loading
+  React.useEffect(() => {
+    if (onRetryVerification && !showLoading && !verificationResult) {
+      onRetryVerification();
+    }
+  }, []);
   
   const handleAction = () => {
     const appUrl = window.sureFeedbackAdmin?.connection?.app_url || 'http://localhost:3000';
@@ -104,7 +111,7 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
                   disabled={isLoading}
                   className="flex items-center"
                 >
-                  <span className="mr-2">🔄</span>
+                  <RefreshCw className="w-4 h-4 mr-2" />
                   {__("Test Connection", "surefeedback")}
                 </Button>
                 <Button
@@ -113,7 +120,7 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
                   onClick={handleAction}
                   className="flex items-center"
                 >
-                  <span className="mr-2">🔗</span>
+                  <ExternalLink className="w-4 h-4 mr-2" />
                   {getButtonText()}
                 </Button>
               </div>

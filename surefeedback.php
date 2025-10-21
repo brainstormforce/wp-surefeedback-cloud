@@ -91,48 +91,9 @@ add_action('plugins_loaded', function() use ($app) {
  * Plugin activation hook
  */
 register_activation_hook(SUREFEEDBACK_PLUGIN_FILE, function() {
-    // Set installation date for tracking
-    if (!get_option('surefeedback_installation_date')) {
-        update_option('surefeedback_installation_date', current_time('mysql'));
-    }
-    
-    // Set default settings
-    $defaults = [
-        'surefeedback_widget_enabled' => true,
-        'surefeedback_role_can_comment' => ['administrator'],
-        'surefeedback_guest_comments' => false,
-        'surefeedback_admin_can_comment' => true,
-        'surefeedback_show_on_admin' => false,
-        'surefeedback_disable_for_admin' => false,
-        'surefeedback_debug_mode' => false
-    ];
-    
-    foreach ($defaults as $option => $value) {
-        if (get_option($option) === false) {
-            update_option($option, $value);
-        }
-    }
-    
-    // Set activation redirect flag
-    update_option('surefeedback_activation_redirect', true);
+    // Activation tasks handled via webhook
 });
 
-/**
- * Redirect to welcome page after activation
- */
-add_action('admin_init', function() {
-    // Check if we should redirect to welcome page
-    if (get_option('surefeedback_activation_redirect', false)) {
-        // Clear the redirect flag
-        delete_option('surefeedback_activation_redirect');
-
-        // Only redirect if this is a single plugin activation (not bulk)
-        if (!isset($_GET['activate-multi']) && !wp_doing_ajax() && !wp_doing_cron()) {
-            wp_safe_redirect(admin_url('admin.php?page=surefeedback-connection#setup'));
-            exit;
-        }
-    }
-});
 
 /**
  * Plugin deactivation hook
@@ -155,32 +116,6 @@ add_action('init', function() {
 });
 
 /**
- * Handle automatic verification using application services
- */
-add_action('surefeedback_auto_verify', function() {
-    global $app;
-    try {
-        $saas_client = $app->make('SureFeedback\Services\SaasClientService');
-        $saas_client->verify_script_integration();
-    } catch (Exception $e) {
-        // Error handled silently
-    }
-});
-
-/**
- * Handle hourly verification updates
- */
-add_action('surefeedback_hourly_verify', function() {
-    global $app;
-    try {
-        $saas_client = $app->make('SureFeedback\Services\SaasClientService');
-        $saas_client->schedule_verification();
-    } catch (Exception $e) {
-        // Error handled silently
-    }
-});
-
-/**
  * Add settings link to plugin list table
  */
 add_filter('plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME, function($links) {
@@ -190,41 +125,4 @@ add_filter('plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME, function($link
     return $links;
 });
 
-/**
- * White label text replacement on plugins page
- */
-add_action('admin_init', function() {
-    global $pagenow;
-    if (is_admin() && 'plugins.php' === $pagenow) {
-        add_filter('gettext', function($translated_text, $untranslated_text, $domain) {
-            if ('surefeedback' !== $domain) {
-                return $translated_text;
-            }
-            
-            switch ($untranslated_text) {
-                case 'SureFeedback Client':
-                    $name = get_option('surefeedback_plugin_name');
-                    return $name ?: $translated_text;
-                    
-                case 'Collect note-style feedback from your client\'s websites and sync them with your SureFeedback parent project.':
-                    $description = get_option('surefeedback_plugin_description');
-                    return $description ?: $translated_text;
-                    
-                case 'Brainstorm Force':
-                    $author = get_option('surefeedback_plugin_author');
-                    return $author ?: $translated_text;
-                    
-                case 'https://www.brainstormforce.com':
-                    $author_url = get_option('surefeedback_plugin_author_url');
-                    return $author_url ?: $translated_text;
-                    
-                case 'http://surefeedback.com':
-                    $plugin_link = get_option('surefeedback_plugin_link');
-                    return $plugin_link ?: $translated_text;
-            }
-            
-            return $translated_text;
-        }, 20, 3);
-    }
-});
 
