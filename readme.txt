@@ -49,7 +49,7 @@ The purpose of this plugin is to make it simple to get targeted feedback from cl
 == Changelog ==
 
 = Version 1.0.1 – 27th October, 2025 =
-* Added compatibility for greater than PHP version 7.4
+* Added compatibility for PHP versions greater than or equal to 7.4
 
 = Version 1.0.0 – 17th October, 2025 =
 * Initial release with full feature set
