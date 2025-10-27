@@ -4,7 +4,7 @@ Donate link: https://surefeedback.com
 Tags: surefeedback, child, feedback, design
 Requires at least: 1.0
 Tested up to: 6.8
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -47,6 +47,9 @@ All you need to do is install the plugin on the site you want feedback on and it
 The purpose of this plugin is to make it simple to get targeted feedback from clients on web designs. All you have to do is install the [SureFeedback](https://surefeedback.com) plugin and let your clients select areas of your design to add their own comments. Everything is tracked within the plugin. It's so easy to use!
 
 == Changelog ==
+
+= Version 1.0.1 – 27th October, 2025 =
+* Added compatibility for PHP versions greater than or equal to 7.4
 
 = Version 1.0.0 – 17th October, 2025 =
 * Initial release with full feature set
