@@ -5,7 +5,7 @@
  * Description: Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.
  * Author: Brainstorm Force
  * Author URI: https://www.brainstormforce.com
- * Version: 1.0.0
+ * Version: 1.0.1
  * Developer: Anurag Singh <anurags@bsf.io>
  *
  * Requires at least: 4.7
@@ -46,7 +46,7 @@ if ( ! defined( 'SUREFEEDBACK_PLUGIN_FILE' ) ) {
 
 // Plugin Version.
 if ( ! defined( 'SUREFEEDBACK_VERSION' ) ) {
-	define( 'SUREFEEDBACK_VERSION', '1.0.0' );
+	define( 'SUREFEEDBACK_VERSION', '1.0.1' );
 }
 
 // Plugin Basename.
