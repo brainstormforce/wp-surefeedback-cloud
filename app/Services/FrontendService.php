@@ -373,11 +373,16 @@ class FrontendService
         // Construct widget loader URL
         $widget_loader_url = trailingslashit($api_url) . 'js/widget-loader.js';
 
-        // Get current user data (we know user is logged in and has permission at this point)
-        $current_user = wp_get_current_user();
+        // Get current user data - handle both logged in and guest users
+        $is_logged_in = is_user_logged_in();
+        $current_user = $is_logged_in ? wp_get_current_user() : null;
 
         echo "\n<!-- SureFeedback WordPress Integration -->\n";
-        echo "<!-- User: " . esc_html($current_user->display_name) . " (ID: " . esc_html($current_user->ID) . ") -->\n";
+        if ($is_logged_in) {
+            echo "<!-- User: " . esc_html($current_user->display_name) . " (ID: " . esc_html($current_user->ID) . ") -->\n";
+        } else {
+            echo "<!-- Guest User (Not Logged In) -->\n";
+        }
         ?>
         <script>
         // SureFeedback WordPress Integration Script
@@ -403,11 +408,20 @@ class FrontendService
           sf.setAttribute('data-page-title', '<?php echo esc_js(wp_get_document_title()); ?>');
           sf.setAttribute('data-page-id', '<?php echo esc_js(get_the_ID() ?: 0); ?>');
           
-          // Add user data (user is authenticated and has permission)
+          <?php if ($is_logged_in): ?>
+          // Add user data for logged in users
           sf.setAttribute('data-user-name', '<?php echo esc_js($current_user->display_name); ?>');
           sf.setAttribute('data-user-email', '<?php echo esc_js($current_user->user_email); ?>');
           sf.setAttribute('data-user-id', '<?php echo esc_js($current_user->ID); ?>');
           sf.setAttribute('data-user-roles', '<?php echo esc_js(implode(',', $current_user->roles)); ?>');
+          <?php else: ?>
+          // Guest user - no user data
+          sf.setAttribute('data-user-name', 'Guest');
+          sf.setAttribute('data-user-email', '');
+          sf.setAttribute('data-user-id', '0');
+          sf.setAttribute('data-user-roles', 'guest');
+          sf.setAttribute('data-is-guest', 'true');
+          <?php endif; ?>
           
           // Optional: Add restricted URL and required token if provided
           if (restrictedUrl) {
@@ -448,11 +462,6 @@ class FrontendService
             return true;
         }
 
-        // Skip if user doesn't have permission to see widget
-        if (!$this->user_can_see_widget()) {
-            return true;
-        }
-
         // Skip on preview pages
         if (is_preview()) {
             return true;
@@ -465,6 +474,11 @@ class FrontendService
 
         // Check for page builder preview modes
         if ($this->is_page_builder_preview()) {
+            return true;
+        }
+
+        // Check if user has permission to see widget (includes guest access check)
+        if (!$this->user_can_see_widget()) {
             return true;
         }
 
@@ -524,6 +538,14 @@ class FrontendService
      */
     private function user_can_see_widget(): bool
     {
+        // Check if guest access is allowed
+        $allow_guests = get_option('surefeedback_allow_guests', true);
+        
+        // If guest access is allowed and user is not logged in, allow widget
+        if ($allow_guests && !is_user_logged_in()) {
+            return true;
+        }
+        
         // Get allowed roles from settings with surefeedback_ prefix
         $allowed_roles = get_option('surefeedback_roles', []);
         
@@ -538,7 +560,7 @@ class FrontendService
         
         // Check if user is logged in
         if (!is_user_logged_in()) {
-            return false;
+            return $allow_guests;
         }
 
         $user = wp_get_current_user();
