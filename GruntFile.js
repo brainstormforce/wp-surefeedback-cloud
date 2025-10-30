@@ -160,7 +160,7 @@ module.exports = function (grunt) {
       // Production zip (WordPress.org release)
       production: {
         options: {
-          archive: "surefeedback-v<%= version %>.zip",
+          archive: "surefeedback-v<%= version %>-production.zip",
         },
         files: [
           {
@@ -239,8 +239,8 @@ module.exports = function (grunt) {
       release_production: {
         files: [
           {
-            src: "surefeedback-v<%= version %>.zip",
-            dest: "release/production/surefeedback-v<%= version %>.zip",
+            src: "surefeedback-v<%= version %>-production.zip",
+            dest: "release/production/surefeedback-v<%= version %>-production.zip",
           },
         ],
       },
