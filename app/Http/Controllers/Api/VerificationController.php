@@ -53,8 +53,11 @@ class VerificationController
                 );
             }
 
+            // Get stored JWT token for API authentication
+            $jwt_token = get_option('surefeedback_user_token', '');
+
             // Call Laravel API via Gateway Service
-            $response = $this->api_gateway->verifyIntegration($site_token);
+            $response = $this->api_gateway->verifyIntegration($site_token, $jwt_token);
 
             // Handle API errors
             if (is_wp_error($response)) {

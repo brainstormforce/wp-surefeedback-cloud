@@ -57,6 +57,18 @@ class VerificationService {
                 site_token: siteToken
             });
 
+            // Check for verification status from WordPress controller response first
+            if (data.is_fully_verified === true || data.verification_status === 'verified') {
+                return {
+                    success: true,
+                    status: 'verified',
+                    message: data.message || 'Connection verified successfully - script is loaded and working',
+                    data: data,
+                    is_fully_verified: true,
+                    verification_status: 'verified'
+                };
+            }
+
             // Handle the Laravel API response format
             // Check if script is integrated first
             if (data.data && data.data.integrated === true) {
@@ -64,7 +76,9 @@ class VerificationService {
                     success: true,
                     status: 'verified',
                     message: 'Connection verified successfully - script is loaded and working',
-                    data: data
+                    data: data,
+                    is_fully_verified: true,
+                    verification_status: 'verified'
                 };
             } else if (data.data && data.data.integrated === false) {
                 // Script token is valid but script not loaded

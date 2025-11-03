@@ -58,6 +58,16 @@ const ConnectionView = () => {
             return <UnverifiedState showLoading={true} onRetryVerification={checkApiVerificationStatus} />;
         }
 
+        // Check API verification result first - if verified, show Connected regardless of initial status
+        // Check multiple possible fields for verification status
+        if (verificationResult && (
+            verificationResult.is_fully_verified === true ||
+            verificationResult.verification_status === 'verified' ||
+            verificationResult.status === 'verified'
+        )) {
+            return <Connected connectionData={connectionData} verificationResult={verificationResult} />;
+        }
+
         // Use database connection status to render appropriate component
         // Connection status mapping:
         // site_connected = 0 → 'not_connected' → NotConnected component

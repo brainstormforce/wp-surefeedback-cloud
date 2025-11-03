@@ -52,9 +52,10 @@ class ApiGatewayService
      * and if the widget script is properly loaded.
      *
      * @param string $site_token Site access token
+     * @param string|null $jwt_token Optional JWT token for authentication
      * @return array|WP_Error
      */
-    public function verifyIntegration(string $site_token)
+    public function verifyIntegration(string $site_token, ?string $jwt_token = null)
     {
         $endpoint = '/api/v1/admin/verify-integration';
         
@@ -62,7 +63,13 @@ class ApiGatewayService
             'script_token' => $site_token
         ];
 
-        return $this->get($endpoint, $query_params);
+        // Add JWT token to headers for authentication if provided
+        $headers = [];
+        if (!empty($jwt_token)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt_token;
+        }
+
+        return $this->get($endpoint, $query_params, $headers);
     }
 
     /**
