@@ -20,6 +20,8 @@ import {
   ExternalLink,
   Unplug,
 } from "lucide-react";
+import ConnectedConnection from "../../../../assets/images/settings/connection-connected.svg";
+import PowerOff from "../../../../assets/images/settings/power_off.svg";
 
 const Connected = ({ connectionData, verificationResult }) => {
   const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -91,21 +93,16 @@ const Connected = ({ connectionData, verificationResult }) => {
 
   return (
     <div className="flex justify-center items-start bg-background p-4 pt-8">
-      <Card className="shadow-sm text-center max-w-2xl w-full">
-        <CardContent className="flex flex-col justify-center items-center space-y-6 px-6 py-8 min-h-[400px]">
+      <Card className="shadow-sm text-center max-w-2xl w-full rounded-lg border border-border">
+        <CardContent className="flex flex-col justify-center items-center space-y-6 px-16 py-8 min-h-[400px]">
           {/* Success Icon */}
-          <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
+            <img src={ConnectedConnection} alt="Connecting..." className="w-18 h-18" />
           {/* Message */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-green-600">
+          <div className="space-y-4 text-center">
+            <h2 className="text-2xl font-semibold text-[#0F172A] ">
               {__("Website Connected Successfully!", "surefeedback")}
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm max-w-[300px] mx-auto">
               {__(
                 "Your site is now linked with SureFeedback. Start gathering client feedback without friction.",
                 "surefeedback"
@@ -168,30 +165,32 @@ const Connected = ({ connectionData, verificationResult }) => {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 w-full">
-            <Button size="sm" onClick={handleGoToDashboard} className="flex-1">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              {__("Go to Dashboard", "surefeedback")}
-            </Button>
-
             <Button
-              variant="destructive"
               size="sm"
+              variant="destructive"
               onClick={handleDisconnectClick}
               disabled={isDisconnecting}
-              className="flex-1"
+              className="flex-1 h-[48px] text-sm rounded-lg bg-[#FF5C5C]"
             >
               {isDisconnecting ? (
                 <>
-                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  <Loader2 className="animate-spin h-4 w-4" />
                   {__("Disconnecting...", "surefeedback")}
                 </>
               ) : (
                 <>
-                  <Unplug className="mr-2 h-4 w-4" />
+                  {/* <Unplug className="mr-2 h-4 w-4" /> */}
+                  <img src={PowerOff} alt="Disconnect" className="h-4 w-4" />
                   {__("Disconnect", "surefeedback")}
                 </>
               )}
             </Button>
+
+            <Button variant="outline" size="sm" onClick={handleGoToDashboard} className="flex-1 h-[48px] text-sm rounded-lg border border-[#020617]">
+              <ExternalLink className=" h-4 w-4" />
+              {__("Go to Dashboard", "surefeedback")}
+            </Button>
+
           </div>
         </CardContent>
       </Card>

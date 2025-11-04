@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast, Toaster } from "@/components/ui/toast";
 import { __ } from "@wordpress/i18n";
-import { Loader2, Save, Shield, Trash2, AlertTriangle } from "lucide-react";
+import { Loader2, Save, Shield, Trash2, AlertTriangle, Ban } from "lucide-react";
 
 const ResetConnectionButton = () => {
   const [resetting, setResetting] = useState(false);
@@ -101,12 +101,12 @@ const ResetConnectionButton = () => {
   }
 
   return (
-    <div className="flex items-center justify-between p-4 border border-red-200 bg-red-50 rounded-lg">
+    <div className="flex items-center justify-between p-4 border border-[#FF5C5C] bg-[#FF5C5C1A] rounded-lg">
       <div>
-        <h4 className="font-semibold text-red-800 mb-1">
+        <h4 className="font-semibold text-base text-[#FF5C5C] mb-1">
           {__("Reset Site Connection", "surefeedback")}
         </h4>
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-[#FF5C5C]">
           {__("Permanently delete all SureFeedback data and disconnect from the parent site.", "surefeedback")}
         </p>
       </div>
@@ -116,7 +116,7 @@ const ResetConnectionButton = () => {
         onClick={handleResetConnection}
         disabled={resetting}
       >
-        <Trash2 className="mr-2 h-4 w-4" />
+        <Ban className=" h-4 w-4" />
         {__("Reset Connection", "surefeedback")}
       </Button>
     </div>
@@ -153,12 +153,12 @@ const GeneralSettings = () => {
         if (data.success) {
           const availableRolesList = data.data.availableRoles || [];
           const savedRoles = data.data.general?.roles || [];
-          
+
           // If no roles are saved yet, enable all roles by default
-          const defaultRoles = savedRoles.length === 0 
+          const defaultRoles = savedRoles.length === 0
             ? availableRolesList.map(role => role.name)
             : savedRoles;
-          
+
           setSettings({
             roles: defaultRoles
           });
@@ -234,97 +234,79 @@ const GeneralSettings = () => {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto pt-8 px-6 pb-8 space-y-6">
-        {/* Page Header */}
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-foreground">
-            {__("General Settings", "surefeedback")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {__("Manage permissions and access controls for your SureFeedback installation.", "surefeedback")}
-          </p>
-        </div>
+      <div className="flex flex-col justify-center items-center bg-background p-4 pt-8 w-full max-w-2xl mx-auto">
+        <Card className="shadow-sm w-full rounded-lg border border-border">
+          <CardContent className="flex flex-col space-y-6 py-8 w-full">
+            {/* Page Header */}
+            <div className="space-y-1 w-full">
+              <h4 className="text-xl font-semibold text-foreground">
+                {__("User Permissions", "surefeedback")}
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {__("Allow user roles to view comment widget on your site", "surefeedback")}
+              </p>
+            </div>
 
-        <Separator />
-
-        {/* User Permissions Card */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-4">
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <CardTitle className="text-lg font-semibold">
-                  {__("User Permissions", "surefeedback")}
-                </CardTitle>
-                <CardDescription className="mt-0.5">
-                  {__("Allow user roles to view comment widget on your site", "surefeedback")}
-                </CardDescription>
+            {/* User Permissions Card */}
+            <div className="w-full">
+              <div className="space-y-3">
+                {availableRoles.map((role) => (
+                  <div key={role.name} className="flex items-start justify-between p-4 border border-border rounded-lg">
+                    <div className="flex-1 pr-4">
+                      <Label
+                        htmlFor={`role-${role.name}`}
+                        className="text-sm font-semibold cursor-pointer capitalize block mb-1"
+                      >
+                        {role.label}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {__(`Enable ${role.label} role to view and interact with the feedback widget`, "surefeedback")}
+                      </p>
+                    </div>
+                    <Switch
+                      id={`role-${role.name}`}
+                      checked={settings.roles?.includes(role.name) || false}
+                      onCheckedChange={(checked) => handleRoleChange(role.name, checked)}
+                      className="flex-shrink-0"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-4">
-              {availableRoles.map((role) => (
-                <div key={role.name} className="flex items-start justify-between py-2 border-b last:border-b-0">
-                  <div className="flex-1 pr-4">
-                    <Label
-                      htmlFor={`role-${role.name}`}
-                      className="text-sm font-semibold cursor-pointer capitalize block mb-1"
-                    >
-                      {role.label}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {__(`Enable ${role.label} role to view and interact with the feedback widget`, "surefeedback")}
-                    </p>
-                  </div>
-                  <Switch
-                    id={`role-${role.name}`}
-                    checked={settings.roles?.includes(role.name) || false}
-                    onCheckedChange={(checked) => handleRoleChange(role.name, checked)}
-                    className="flex-shrink-0"
-                  />
-                </div>
-              ))}
+
+            {/* Save Button */}
+            <div className="flex justify-end pt-2 w-full">
+              <Button
+                size="sm"
+                onClick={handleSaveChanges}
+                disabled={saving || loading || !hasUnsavedChanges}
+                className="min-w-[120px]"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {__("Saving...", "surefeedback")}
+                  </>
+                ) : (
+                  <>
+                    {hasUnsavedChanges ? __("Save Changes", "surefeedback") : __("No Changes", "surefeedback")}
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Save Button */}
-        <div className="flex justify-end pt-2">
-          <Button
-            size="lg"
-            onClick={handleSaveChanges}
-            disabled={saving || loading || !hasUnsavedChanges}
-            className="min-w-[150px]"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {__("Saving...", "surefeedback")}
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                {hasUnsavedChanges ? __("Save Changes", "surefeedback") : __("No Changes", "surefeedback")}
-              </>
-            )}
-          </Button>
-        </div>
-
         {/* Danger Zone */}
-        <Separator className="my-6" />
-        <Card className="shadow-sm border-red-200">
+        <Card className="shadow-sm border-red-200 w-full mt-6 rounded-lg">
           <CardHeader className="pb-4">
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-red-500" />
-              <div>
-                <CardTitle className="text-lg font-semibold text-red-700">
-                  {__("Danger Zone", "surefeedback")}
-                </CardTitle>
-                <CardDescription className="mt-0.5">
-                  {__("Irreversible actions that will permanently delete data.", "surefeedback")}
-                </CardDescription>
-              </div>
+            <div className="space-y-1 w-full">
+              <h4 className="text-xl font-semibold text-foreground">
+                {__("Reset Connection", "surefeedback")}
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {__("Irreversible actions that will permanently delete data.", "surefeedback")}
+              </p>
             </div>
           </CardHeader>
           <CardContent className="pt-0">

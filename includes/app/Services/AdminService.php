@@ -141,6 +141,18 @@ class AdminService
 
         $this->menu_pages['settings'] = $settings_hook;
 
+        // Widget Control submenu
+        $widget_control_hook = add_submenu_page(
+            $this->menu_slug . '-connection',
+            __('Widget Control', 'surefeedback'),
+            __('Widget Control', 'surefeedback'),
+            'manage_options',
+            $this->menu_slug . '-widget-control',
+            [$this, 'render_widget_control_page']
+        );
+
+        $this->menu_pages['widget_control'] = $widget_control_hook;
+
         // Add page-specific hooks
         foreach ($this->menu_pages as $page => $hook) {
             add_action("load-{$hook}", [$this, 'admin_page_load']);
@@ -299,6 +311,19 @@ class AdminService
         $this->current_page = 'connection';
         echo '<div class="wrap">';
         echo '<div id="surefeedback-admin-connection"></div>';
+        echo '</div>';
+    }
+
+    /**
+     * Render widget control page
+     *
+     * @return void
+     */
+    public function render_widget_control_page(): void
+    {
+        $this->current_page = 'widget-control';
+        echo '<div class="wrap">';
+        echo '<div id="surefeedback-admin-widget-control"></div>';
         echo '</div>';
     }
 

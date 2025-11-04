@@ -4,6 +4,8 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { __ } from "@wordpress/i18n";
 import { useVerification } from "../hooks";
+import LoadingConnection from "../../../../assets/images/settings/connection-loading.svg";
+import VerifyConnection from "../../../../assets/images/settings/connections-verification.svg";
 
 const UnverifiedState = ({ showLoading = false, onRetryVerification = null, verificationResult = null }) => {
   const { verifyConnection, isLoading: verificationLoading } = useVerification();
@@ -70,37 +72,28 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
 
   return (
     <div className="flex justify-center items-start bg-background p-4 pt-8">
-      <Card className="shadow-sm text-center max-w-2xl w-full">
+      <Card className="shadow-sm text-center max-w-2xl w-full rounded-lg border border-border">
         <CardContent className="flex flex-col justify-center items-center space-y-6 px-6 py-8 min-h-[400px]">
           {isLoading ? (
-            // Testing Connection State
             <>
-              <div className="w-20 h-20 mx-auto bg-yellow-100 rounded-full flex items-center justify-center">
-                <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
-                </div>
-              </div>
+              <img src={LoadingConnection} alt="Connecting..." className="w-18 h-18 animate-spin" />
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-yellow-600">
-                  {__("Checking Connection", "surefeedback")}
+                <h2 className="text-2xl font-semibold text-[#0F172A]">
+                  {__("Connecting...", "surefeedback")}
                 </h2>
-                <p className="text-muted-foreground">
-                  {__("Verifying your WordPress site connection to SureFeedback. Please wait while we check the integration status.", "surefeedback")}
+                <p className="text-muted-foreground text-sm max-w-[300px]">
+                  {__("Please wait while we verify your website with SureFeedback servers.", "surefeedback")}
                 </p>
               </div>
             </>
           ) : (
             <>
-              <div className={`w-20 h-20 mx-auto ${bgColor} rounded-full flex items-center justify-center`}>
-                <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
+              <img src={VerifyConnection} alt="Vertifying Connection..." className="w-18 h-18" />
               <div className="space-y-4">
-                <h2 className={`text-xl font-semibold ${textColor}`}>
+                <h2 className="text-2xl font-semibold text-[#0F172A]">
                   {getTitle()}
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm max-w-[300px]">
                   {getDescription()}
                 </p>
               </div>
@@ -109,7 +102,7 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
                   size="default"
                   onClick={handleTestConnection}
                   disabled={isLoading}
-                  className="flex items-center"
+                  className="flex items-center bg-primary h-[48px] text-sm rounded-lg"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   {__("Test Connection", "surefeedback")}
@@ -118,7 +111,7 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
                   variant="outline"
                   size="default"
                   onClick={handleAction}
-                  className="flex items-center"
+                  className="flex items-center h-[48px] text-sm rounded-lg border border-[#020617]"
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   {getButtonText()}

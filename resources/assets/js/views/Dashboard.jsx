@@ -64,8 +64,9 @@ const Dashboard = ({ containerType = 'dashboard' }) => {
         // If we're on a specific page (settings, connection, tools), set that as default
         if (containerType === 'settings') return 'settings';
         if (containerType === 'connection') return 'connections';
+        if (containerType === 'widget-control') return 'widget-control';
         if (containerType === 'tools') return 'tools';
-        
+
         // For dashboard, check connection status
         const isConnected = window.sureFeedbackAdmin?.connection?.site_data?.site_url;
         return isConnected ? 'connections' : 'setup';
