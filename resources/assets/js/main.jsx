@@ -40,6 +40,7 @@ function initApp() {
       { id: 'surefeedback-admin-dashboard', type: 'dashboard' },
       { id: 'surefeedback-admin-settings', type: 'settings' },
       { id: 'surefeedback-admin-connection', type: 'connection' },
+      { id: 'surefeedback-admin-widget-control', type: 'widget-control' },
       { id: 'surefeedback-admin-tools', type: 'tools' }
     ]
     

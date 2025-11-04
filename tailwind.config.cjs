@@ -7,6 +7,10 @@ module.exports = {
     './resources/assets/js/**/*.{tsx,ts,js,jsx}',
   ],
    theme: {
+   	fontFamily: {
+   		sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+   		mono: ['Figtree', 'ui-monospace'],
+   	},
    	container: {
    		center: true,
    		padding: '2rem',
@@ -16,8 +20,9 @@ module.exports = {
    	},
    	extend: {
    		colors: {
+   			primary: '#455AFB',
    			brand: {
-   				DEFAULT: '#4353FF',
+   				DEFAULT: '#455AFB',
    				dark: '#3343e0'
    			},
    			border: 'hsl(var(--border))',
