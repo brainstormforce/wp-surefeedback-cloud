@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast, Toaster } from "@/components/ui/toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { __ } from "@wordpress/i18n";
 import { Loader2, Save, Shield, Trash2, AlertTriangle, Ban } from "lucide-react";
 
@@ -223,8 +224,49 @@ const GeneralSettings = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex flex-col justify-center items-center bg-background p-4 pt-8 w-full max-w-2xl mx-auto">
+        <Card className="shadow-sm w-full rounded-lg border border-border">
+          <CardContent className="flex flex-col space-y-6 py-8 w-full">
+            {/* Page Header Skeleton */}
+            <div className="space-y-1 w-full">
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-4 w-80" />
+            </div>
+
+            {/* User Permissions Card Skeleton */}
+            <div className="w-full">
+              <div className="space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-start justify-between p-4 border border-border rounded-lg">
+                    <div className="flex-1 pr-4 space-y-2">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                    <Skeleton className="h-6 w-11 rounded-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Save Button Skeleton */}
+            <div className="flex justify-end pt-2 w-full">
+              <Skeleton className="h-9 w-32" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone Skeleton */}
+        <Card className="shadow-sm border-red-200 w-full mt-6 rounded-lg">
+          <CardHeader className="pb-4">
+            <div className="space-y-1 w-full">
+              <Skeleton className="h-7 w-40" />
+              <Skeleton className="h-4 w-72" />
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Skeleton className="h-24 w-full rounded-lg" />
+          </CardContent>
+        </Card>
       </div>
     );
   }

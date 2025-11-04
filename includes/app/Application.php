@@ -16,239 +16,247 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Application class - Main plugin application
  */
-class Application
-{
-    /**
-     * Application version
-     *
-     * @var string
-     */
-    const VERSION = SUREFEEDBACK_VERSION;
+class Application {
 
-    /**
-     * Application instance
-     *
-     * @var static
-     */
-    protected static $instance;
+	/**
+	 * Application version
+	 *
+	 * @var string
+	 */
+	const VERSION = SUREFEEDBACK_VERSION;
 
-    /**
-     * Base path of the application
-     *
-     * @var string
-     */
-    protected $basePath;
+	/**
+	 * Application instance
+	 *
+	 * @var static
+	 */
+	protected static $instance;
 
-    /**
-     * Services registry
-     *
-     * @var array
-     */
-    protected $services = [];
+	/**
+	 * Base path of the application
+	 *
+	 * @var string
+	 */
+	protected $basePath;
 
-    /**
-     * Booted status
-     *
-     * @var bool
-     */
-    protected $booted = false;
+	/**
+	 * Services registry
+	 *
+	 * @var array
+	 */
+	protected $services = array();
 
-    /**
-     * Create a new application instance
-     *
-     * @param string|null $basePath Base path of the application.
-     */
-    public function __construct(?string $basePath = null)
-    {
-        if ($basePath) {
-            $this->basePath = rtrim($basePath, '\/');
-        }
+	/**
+	 * Booted status
+	 *
+	 * @var bool
+	 */
+	protected $booted = false;
 
-        static::$instance = $this;
-    }
+	/**
+	 * Create a new application instance
+	 *
+	 * @param string|null $basePath Base path of the application.
+	 */
+	public function __construct( ?string $basePath = null ) {
+		if ( $basePath ) {
+			$this->basePath = rtrim( $basePath, '\/' );
+		}
 
-    /**
-     * Register a service
-     *
-     * @param string $name Service name.
-     * @param mixed  $service Service instance or callable.
-     * @return void
-     */
-    public function register($name, $service = null): void
-    {
-        if (is_object($name) && method_exists($name, 'register')) {
-            // It's a service provider
-            $name->register();
-            if ($this->booted && method_exists($name, 'boot')) {
-                $name->boot();
-            }
-            return;
-        }
+		static::$instance = $this;
+	}
 
-        $this->services[$name] = $service;
-    }
+	/**
+	 * Register a service
+	 *
+	 * @param string $name Service name.
+	 * @param mixed  $service Service instance or callable.
+	 * @return void
+	 */
+	public function register( $name, $service = null ): void {
+		if ( is_object( $name ) && method_exists( $name, 'register' ) ) {
+			// It's a service provider
+			$name->register();
+			if ( $this->booted && method_exists( $name, 'boot' ) ) {
+				$name->boot();
+			}
+			return;
+		}
 
-    /**
-     * Get a service
-     *
-     * @param string $name Service name.
-     * @return mixed
-     */
-    public function make(string $name)
-    {
-        if (!isset($this->services[$name])) {
-            return null;
-        }
+		$this->services[ $name ] = $service;
+	}
 
-        $service = $this->services[$name];
+	/**
+	 * Get a service
+	 *
+	 * @param string $name Service name.
+	 * @return mixed
+	 */
+	public function make( string $name ) {
+		if ( ! isset( $this->services[ $name ] ) ) {
+			return null;
+		}
 
-        if (is_callable($service)) {
-            $this->services[$name] = $service($this);
-            return $this->services[$name];
-        }
+		$service = $this->services[ $name ];
 
-        return $service;
-    }
+		if ( is_callable( $service ) ) {
+			$this->services[ $name ] = $service( $this );
+			return $this->services[ $name ];
+		}
 
-    /**
-     * Boot the application
-     *
-     * @return void
-     */
-    public function boot(): void
-    {
-        if ($this->booted) {
-            return;
-        }
+		return $service;
+	}
 
-        // Register and initialize core services
-        $this->bootServices();
+	/**
+	 * Boot the application
+	 *
+	 * @return void
+	 */
+	public function boot(): void {
+		if ( $this->booted ) {
+			return;
+		}
 
-        $this->booted = true;
-    }
+		// Register and initialize core services
+		$this->bootServices();
 
-    /**
-     * Boot core services
-     *
-     * @return void
-     */
-    protected function bootServices(): void
-    {
-        // Setup CORS for development
-        $this->setupCors();
+		$this->booted = true;
+	}
 
-        // Register REST API routes first (must be done early)
-        $this->registerApiRoutes();
+	/**
+	 * Boot core services
+	 *
+	 * @return void
+	 */
+	protected function bootServices(): void {
+		// Setup CORS for development
+		$this->setupCors();
 
-        // Initialize AdminService only in admin area
-        if (is_admin()) {
-            $this->register('adminService', function() {
-                return new \SureFeedback\Services\AdminService();
-            });
-            // Instantiate the service to trigger its hooks
-            $this->make('adminService');
-        }
+		// Register REST API routes first (must be done early)
+		$this->registerApiRoutes();
 
-        // Initialize FrontendService for frontend
-        if (!is_admin()) {
-            $this->register('frontendService', function() {
-                return new \SureFeedback\Services\FrontendService();
-            });
-            // Instantiate the service to trigger its hooks
-            $this->make('frontendService');
-        }
+		// Initialize AdminService only in admin area
+		if ( is_admin() ) {
+			$this->register(
+				'adminService',
+				function () {
+					return new \SureFeedback\Services\AdminService();
+				}
+			);
+			// Instantiate the service to trigger its hooks
+			$this->make( 'adminService' );
+		}
 
-        // Initialize SecurityService (always needed)
-        $this->register('securityService', function() {
-            return new \SureFeedback\Services\SecurityService();
-        });
-    }
+		// Initialize FrontendService for frontend
+		if ( ! is_admin() ) {
+			$this->register(
+				'frontendService',
+				function () {
+					return new \SureFeedback\Services\FrontendService();
+				}
+			);
+			// Instantiate the service to trigger its hooks
+			$this->make( 'frontendService' );
+		}
 
-    /**
-     * Setup CORS headers for development
-     *
-     * @return void
-     */
-    protected function setupCors(): void
-    {
-        // Add CORS support for development
-        add_action('rest_api_init', function() {
-            // Remove default CORS filters to prevent conflicts
-            remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+		// Initialize SecurityService (always needed)
+		$this->register(
+			'securityService',
+			function () {
+				return new \SureFeedback\Services\SecurityService();
+			}
+		);
+	}
 
-            // Add custom CORS handling
-            add_filter('rest_pre_serve_request', function($value) {
-                $origin = get_http_origin();
+	/**
+	 * Setup CORS headers for development
+	 *
+	 * @return void
+	 */
+	protected function setupCors(): void {
+		// Add CORS support for development
+		add_action(
+			'rest_api_init',
+			function () {
+				// Remove default CORS filters to prevent conflicts
+				remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
 
-                // Allow requests from development server
-                if ($origin) {
-                    // Parse the origin to check if it's localhost or a dev server
-                    $parsed = parse_url($origin);
-                    $host = $parsed['host'] ?? '';
+				// Add custom CORS handling
+				add_filter(
+					'rest_pre_serve_request',
+					function ( $value ) {
+						$origin = get_http_origin();
 
-                    // Allow localhost and local dev domains
-                    $allowed_patterns = [
-                        'localhost',
-                        '127.0.0.1',
-                        '.local',
-                        '.test',
-                        '.dev'
-                    ];
+						// Allow requests from development server
+						if ( $origin ) {
+							// Parse the origin to check if it's localhost or a dev server
+							$parsed = parse_url( $origin );
+							$host   = $parsed['host'] ?? '';
 
-                    $is_dev = false;
-                    foreach ($allowed_patterns as $pattern) {
-                        if (strpos($host, $pattern) !== false) {
-                            $is_dev = true;
-                            break;
-                        }
-                    }
+							// Allow localhost and local dev domains
+							$allowed_patterns = array(
+								'localhost',
+								'127.0.0.1',
+								'.local',
+								'.test',
+								'.dev',
+							);
 
-                    if ($is_dev) {
-                        header('Access-Control-Allow-Origin: ' . $origin);
-                        header('Access-Control-Allow-Credentials: true');
-                        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH');
-                        header('Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce, X-Requested-With');
-                        header('Access-Control-Max-Age: 86400');
-                    }
-                }
+							$is_dev = false;
+							foreach ( $allowed_patterns as $pattern ) {
+								if ( strpos( $host, $pattern ) !== false ) {
+									$is_dev = true;
+									break;
+								}
+							}
 
-                // Handle preflight requests
-                if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-                    status_header(200);
-                    exit;
-                }
+							if ( $is_dev ) {
+								header( 'Access-Control-Allow-Origin: ' . $origin );
+								header( 'Access-Control-Allow-Credentials: true' );
+								header( 'Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH' );
+								header( 'Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce, X-Requested-With' );
+								header( 'Access-Control-Max-Age: 86400' );
+							}
+						}
 
-                return $value;
-            });
-        }, 15);
-    }
+						// Handle preflight requests
+						if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
+							status_header( 200 );
+							exit;
+						}
 
-    /**
-     * Register REST API routes
-     *
-     * @return void
-     */
-    protected function registerApiRoutes(): void
-    {
-        $router = new \SureFeedback\Http\Router();
+						return $value;
+					}
+				);
+			},
+			15
+		);
+	}
 
-        // Load the routes file
-        $routesFile = $this->basePath . '/routes/api.php';
-        if (file_exists($routesFile)) {
-            require $routesFile;
-        }
+	/**
+	 * Register REST API routes
+	 *
+	 * @return void
+	 */
+	protected function registerApiRoutes(): void {
+		$router = new \SureFeedback\Http\Router();
 
-        // Register all routes with WordPress
-        $router->register();
-    }
+		// Load the routes file
+		$routesFile = $this->basePath . '/routes/api.php';
+		if ( file_exists( $routesFile ) ) {
+			require $routesFile;
+		}
 
-    /**
-     * Get the application instance
-     *
-     * @return static
-     */
-    public static function getInstance(): self
-    {
-        return static::$instance;
-    }
+		// Register all routes with WordPress
+		$router->register();
+	}
+
+	/**
+	 * Get the application instance
+	 *
+	 * @return static
+	 */
+	public static function getInstance(): self {
+		return static::$instance;
+	}
 }

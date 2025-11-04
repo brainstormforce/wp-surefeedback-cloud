@@ -2,7 +2,7 @@
 
 namespace SureFeedback\Http\Controllers\Api;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use SureFeedback\Services\ApiGatewayService;
 use SureFeedback\Constants\VerificationStatus;
@@ -18,96 +18,97 @@ use WP_Error;
  * @package SureFeedback\Http\Controllers\Api
  * @author Anurag Singh <anurags@bsf.io>
  */
-class VerificationController
-{
-    /**
-     * API Gateway Service
-     *
-     * @var ApiGatewayService
-     */
-    private $api_gateway;
+class VerificationController {
 
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->api_gateway = new ApiGatewayService();
-    }
+	/**
+	 * API Gateway Service
+	 *
+	 * @var ApiGatewayService
+	 */
+	private $api_gateway;
 
-    /**
-     * Verify connection with SureFeedback Laravel API
-     *
-     * @param WP_REST_Request $request
-     * @return WP_REST_Response|WP_Error
-     */
-    public function verify_connection(WP_REST_Request $request)
-    {
-        try {
-            // Get site token from database
-            $site_token = get_option('surefeedback_access_token', '');
-            
-            if (empty($site_token)) {
-                return new WP_Error(
-                    'no_site_token',
-                    'Site token not found. Please reconnect your site.',
-                    ['status' => 400]
-                );
-            }
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->api_gateway = new ApiGatewayService();
+	}
 
-            // Get stored JWT token for API authentication
-            $jwt_token = get_option('surefeedback_user_token', '');
+	/**
+	 * Verify connection with SureFeedback Laravel API
+	 *
+	 * @param WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function verify_connection( WP_REST_Request $request ) {
+		try {
+			// Get site token from database
+			$site_token = get_option( 'surefeedback_access_token', '' );
 
-            // Call Laravel API via Gateway Service
-            $response = $this->api_gateway->verifyIntegration($site_token, $jwt_token);
+			if ( empty( $site_token ) ) {
+				return new WP_Error(
+					'no_site_token',
+					'Site token not found. Please reconnect your site.',
+					array( 'status' => 400 )
+				);
+			}
 
-            // Handle API errors
-            if (is_wp_error($response)) {
-                return $response;
-            }
+			// Get stored JWT token for API authentication
+			$jwt_token = get_option( 'surefeedback_user_token', '' );
 
-            // Extract response data
-            $decoded = $response['data'] ?? [];
-            $status_code = $response['status_code'] ?? 200;
+			// Call Laravel API via Gateway Service
+			$response = $this->api_gateway->verifyIntegration( $site_token, $jwt_token );
 
-            // Extract response data
-            $decoded = $response['data'] ?? [];
-            $status_code = $response['status_code'] ?? 200;
+			// Handle API errors
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
 
-            // Determine verification state from decoded response
-            $is_fully_verified = isset($decoded['verification']);
-            $is_script_not_loaded = isset($decoded['data']['integrated']) && !$decoded['data']['integrated'];
+			// Extract response data
+			$decoded     = $response['data'] ?? array();
+			$status_code = $response['status_code'] ?? 200;
 
-            // Update DB based on verification state
-            if ($is_fully_verified) {
-                update_option('surefeedback_last_verification', current_time('mysql'));
-                update_option('surefeedback_is_fully_verified', VerificationStatus::CONNECTED);
-                if (isset($decoded['site']['id'])) {
-                    update_option('surefeedback_site_id', $decoded['site']['id']);
-                }
-            } elseif ($is_script_not_loaded) {
-                update_option('surefeedback_is_fully_verified', VerificationStatus::PENDING);
-                if (isset($decoded['data']['site']['id'])) {
-                    update_option('surefeedback_site_id', $decoded['data']['site']['id']);
-                }
-            } else {
-                update_option('surefeedback_is_fully_verified', VerificationStatus::NOT_VERIFIED);
-            }
+			// Extract response data
+			$decoded     = $response['data'] ?? array();
+			$status_code = $response['status_code'] ?? 200;
 
-            $verification_status = $is_fully_verified ? 'verified' : ($is_script_not_loaded ? 'pending' : 'not_verified');
+			// Determine verification state from decoded response
+			$is_fully_verified    = isset( $decoded['verification'] );
+			$is_script_not_loaded = isset( $decoded['data']['integrated'] ) && ! $decoded['data']['integrated'];
 
-            return new WP_REST_Response([
-                'success' => $decoded['success'] ?? false,
-                'message' => $decoded['message'] ?? 'Verification completed',
-                'data' => $decoded,
-                'verification_status' => $verification_status,
-                'is_fully_verified' => $is_fully_verified,
-                'is_script_pending' => $is_script_not_loaded,
-                'integration_instructions' => $is_script_not_loaded ? ($decoded['data']['instructions'] ?? null) : null
-            ], $status_code);
+			// Update DB based on verification state
+			if ( $is_fully_verified ) {
+				update_option( 'surefeedback_last_verification', current_time( 'mysql' ) );
+				update_option( 'surefeedback_is_fully_verified', VerificationStatus::CONNECTED );
+				if ( isset( $decoded['site']['id'] ) ) {
+					update_option( 'surefeedback_site_id', $decoded['site']['id'] );
+				}
+			} elseif ( $is_script_not_loaded ) {
+				update_option( 'surefeedback_is_fully_verified', VerificationStatus::PENDING );
+				if ( isset( $decoded['data']['site']['id'] ) ) {
+					update_option( 'surefeedback_site_id', $decoded['data']['site']['id'] );
+				}
+			} else {
+				update_option( 'surefeedback_is_fully_verified', VerificationStatus::NOT_VERIFIED );
+			}
 
-        } catch (\Exception $e) {
-            return new WP_Error('verification_error', $e->getMessage(), ['status' => 500]);
-        }
-    }
+			$verification_status = $is_fully_verified ? 'verified' : ( $is_script_not_loaded ? 'pending' : 'not_verified' );
+
+			return new WP_REST_Response(
+				array(
+					'success'                  => $decoded['success'] ?? false,
+					'message'                  => $decoded['message'] ?? 'Verification completed',
+					'data'                     => $decoded,
+					'verification_status'      => $verification_status,
+					'is_fully_verified'        => $is_fully_verified,
+					'is_script_pending'        => $is_script_not_loaded,
+					'integration_instructions' => $is_script_not_loaded ? ( $decoded['data']['instructions'] ?? null ) : null,
+				),
+				$status_code
+			);
+
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'verification_error', $e->getMessage(), array( 'status' => 500 ) );
+		}
+	}
 }

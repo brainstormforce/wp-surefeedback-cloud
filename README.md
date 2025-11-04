@@ -49,10 +49,10 @@ The purpose of this plugin is to make it simple to get targeted feedback from cl
 ## Changelog ##
 
 ### Version 0.0.1 – 27th October, 2025 ###
-* Added compatibility for PHP versions greater than or equal to 7.4
-
-### Version 1.0.0 – 17th October, 2025 ###
-* Initial release with full feature set
+* Initial release
+* Connections - Secure connection to SureFeedback parent site with verification and status management
+* Widget Control - Per-page widget visibility control with search, filter, and bulk enable/disable options
+* Permission Management - User role permissions, site visitor access, dashboard commenting, and guest access control
 * Modern React-based admin interface
 * Secure API integration with SureFeedback platform
 * Comprehensive settings and configuration panel
@@ -60,3 +60,4 @@ The purpose of this plugin is to make it simple to get targeted feedback from cl
 * Role-based access control
 * Guest commenting capabilities
 * Built-in troubleshooting tools
+* PHP 7.4+ compatibility

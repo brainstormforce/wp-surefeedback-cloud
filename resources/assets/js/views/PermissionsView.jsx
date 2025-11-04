@@ -3,6 +3,7 @@ import { Container } from '../components/ui/container';
 import { Title } from '../components/ui/title';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
+import { Skeleton } from '../components/ui/skeleton';
 import { toast } from '../components/ui/toast';
 import { __ } from '@wordpress/i18n';
 import { Shield, Users, Eye, Settings as SettingsIcon, Loader2 } from 'lucide-react';
@@ -252,6 +253,52 @@ const PermissionsView = () => {
                 return renderUserRoles();
         }
     };
+    
+    if (loading) {
+        return (
+            <Container>
+                <div className="surefeedback-permissions-view">
+                    <div className="mb-6">
+                        <Skeleton className="h-8 w-64 mb-2" />
+                        <Skeleton className="h-5 w-96" />
+                    </div>
+                    
+                    {/* Tab Navigation Skeleton */}
+                    <div className="flex space-x-1 mb-6 border-b border-gray-200">
+                        <Skeleton className="h-9 w-32 rounded-b-none" />
+                        <Skeleton className="h-9 w-32 rounded-b-none" />
+                        <Skeleton className="h-9 w-32 rounded-b-none" />
+                    </div>
+                    
+                    {/* Content Skeleton */}
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <Skeleton className="h-5 w-5 rounded-full" />
+                            <Skeleton className="h-6 w-40" />
+                        </div>
+                        <Skeleton className="h-4 w-96 mb-6" />
+                        
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="flex items-start justify-between py-3 border-b last:border-b-0">
+                                    <div className="flex-1 pr-4 space-y-2">
+                                        <Skeleton className="h-5 w-32" />
+                                        <Skeleton className="h-4 w-full" />
+                                    </div>
+                                    <Skeleton className="h-6 w-11 rounded-full" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    {/* Save Button Skeleton */}
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                        <Skeleton className="h-10 w-32" />
+                    </div>
+                </div>
+            </Container>
+        );
+    }
     
     return (
         <Container>

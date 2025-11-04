@@ -11,8 +11,8 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /*
@@ -30,75 +30,104 @@ use SureFeedback\App\Http\Controllers\AdminController;
 use SureFeedback\App\Http\Controllers\SettingsController;
 
 // Admin dashboard routes
-$router->group(['prefix' => 'admin', 'middleware' => 'auth'], function ($router) {
+$router->group(
+	array(
+		'prefix'     => 'admin',
+		'middleware' => 'auth',
+	),
+	function ( $router ) {
 
-    // Settings pages
-    $router->get('settings', [SettingsController::class, 'index']);
-    $router->get('settings/general', [SettingsController::class, 'general']);
-    $router->get('settings/connection', [SettingsController::class, 'connection']);
-    
-    // Admin actions
-    $router->post('settings/save', [SettingsController::class, 'save']);
-    $router->post('connection/test', [AdminController::class, 'testConnection']);
-    $router->post('connection/reset', [AdminController::class, 'resetConnection']);
-});
+		// Settings pages
+		$router->get( 'settings', array( SettingsController::class, 'index' ) );
+		$router->get( 'settings/general', array( SettingsController::class, 'general' ) );
+		$router->get( 'settings/connection', array( SettingsController::class, 'connection' ) );
+
+		// Admin actions
+		$router->post( 'settings/save', array( SettingsController::class, 'save' ) );
+		$router->post( 'connection/test', array( AdminController::class, 'testConnection' ) );
+		$router->post( 'connection/reset', array( AdminController::class, 'resetConnection' ) );
+	}
+);
 
 // Setup wizard routes (accessible without full auth)
-$router->group(['prefix' => 'setup'], function ($router) {
-    $router->get('/', [AdminController::class, 'setupWizard']);
-    $router->get('step/{step}', [AdminController::class, 'setupStep']);
-    $router->post('complete', [AdminController::class, 'completeSetup']);
-});
+$router->group(
+	array( 'prefix' => 'setup' ),
+	function ( $router ) {
+		$router->get( '/', array( AdminController::class, 'setupWizard' ) );
+		$router->get( 'step/{step}', array( AdminController::class, 'setupStep' ) );
+		$router->post( 'complete', array( AdminController::class, 'completeSetup' ) );
+	}
+);
 
 // Public routes (no authentication required)
-$router->group(['prefix' => 'public'], function ($router) {
-    
-    // Widget endpoints
-    $router->get('widget/config', function () {
-        return wp_json_encode([
-            'connected' => !empty(get_option('surefeedback_access_token')),
-        ]);
-    });
-    
-    // Health check
-    $router->get('health', function () {
-        return wp_json_encode([
-            'status' => 'healthy',
-            'plugin_version' => SUREFEEDBACK_VERSION,
-            'wp_version' => get_bloginfo('version')
-        ]);
-    });
-});
+$router->group(
+	array( 'prefix' => 'public' ),
+	function ( $router ) {
+
+		// Widget endpoints
+		$router->get(
+			'widget/config',
+			function () {
+				return wp_json_encode(
+					array(
+						'connected' => ! empty( get_option( 'surefeedback_access_token' ) ),
+					)
+				);
+			}
+		);
+
+		// Health check
+		$router->get(
+			'health',
+			function () {
+				return wp_json_encode(
+					array(
+						'status'         => 'healthy',
+						'plugin_version' => SUREFEEDBACK_VERSION,
+						'wp_version'     => get_bloginfo( 'version' ),
+					)
+				);
+			}
+		);
+	}
+);
 
 // Ajax handlers for WordPress admin
-add_action('wp_ajax_surefeedback_save_settings', [SettingsController::class, 'ajaxSaveSettings']);
-add_action('wp_ajax_surefeedback_test_connection', [AdminController::class, 'ajaxTestConnection']);
-add_action('wp_ajax_surefeedback_reset_plugin', [AdminController::class, 'ajaxResetPlugin']);
+add_action( 'wp_ajax_surefeedback_save_settings', array( SettingsController::class, 'ajaxSaveSettings' ) );
+add_action( 'wp_ajax_surefeedback_test_connection', array( AdminController::class, 'ajaxTestConnection' ) );
+add_action( 'wp_ajax_surefeedback_reset_plugin', array( AdminController::class, 'ajaxResetPlugin' ) );
 
 // Frontend hooks
-add_action('wp_enqueue_scripts', function () {
-    $access_token = get_option('surefeedback_access_token');
-    if (!empty($access_token)) {
-        wp_enqueue_script(
-            'surefeedback-widget',
-            SUREFEEDBACK_PLUGIN_URL . 'assets/widget.js',
-            [],
-            SUREFEEDBACK_VERSION,
-            true
-        );
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		$access_token = get_option( 'surefeedback_access_token' );
+		if ( ! empty( $access_token ) ) {
+			wp_enqueue_script(
+				'surefeedback-widget',
+				SUREFEEDBACK_PLUGIN_URL . 'assets/widget.js',
+				array(),
+				SUREFEEDBACK_VERSION,
+				true
+			);
 
-        // Set script translations for frontend widget
-        wp_set_script_translations(
-            'surefeedback-widget',
-            'surefeedback',
-            SUREFEEDBACK_PLUGIN_DIR . 'languages'
-        );
+			// Set script translations for frontend widget
+			wp_set_script_translations(
+				'surefeedback-widget',
+				'surefeedback',
+				SUREFEEDBACK_PLUGIN_DIR . 'languages'
+			);
 
-        wp_localize_script('surefeedback-widget', 'surefeedbackConfig', [
-            'apiUrl' => rest_url('surefeedback/v1/'),
-            'nonce' => wp_create_nonce('wp_rest'),
-            'siteId' => get_option('surefeedback_site_id'),
-            'accessToken' => $access_token
-        ]);
-    }
-});
+			wp_localize_script(
+				'surefeedback-widget',
+				'surefeedbackConfig',
+				array(
+					'apiUrl'      => rest_url( 'surefeedback/v1/' ),
+					'nonce'       => wp_create_nonce( 'wp_rest' ),
+					'siteId'      => get_option( 'surefeedback_site_id' ),
+					'accessToken' => $access_token,
+				)
+			);
+		}
+	}
+);

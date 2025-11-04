@@ -2,7 +2,7 @@
 
 namespace SureFeedback\Repositories;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Connection Repository Class
@@ -109,12 +109,12 @@ class ConnectionRepository extends BaseRepository {
 	 */
 	public function setConnectionStatus( string $status ): bool {
 		$allowed_statuses = array( 'connected', 'disconnected', 'pending', 'error' );
-		$status = sanitize_text_field( $status );
-		
+		$status           = sanitize_text_field( $status );
+
 		if ( ! in_array( $status, $allowed_statuses, true ) ) {
 			return false;
 		}
-		
+
 		return $this->setOption( 'connection_status', $status );
 	}
 
@@ -125,8 +125,8 @@ class ConnectionRepository extends BaseRepository {
 	 */
 	public function isConnected(): bool {
 		$access_token = $this->getAccessToken();
-		$status = $this->getConnectionStatus();
-		
+		$status       = $this->getConnectionStatus();
+
 		return ! empty( $access_token ) && 'connected' === $status;
 	}
 
@@ -154,27 +154,27 @@ class ConnectionRepository extends BaseRepository {
 	 */
 	public function saveConnectionData( array $data ): bool {
 		$success = true;
-		
+
 		if ( isset( $data['site_id'] ) ) {
 			$success = $this->setSiteId( $data['site_id'] ) && $success;
 		}
-		
+
 		if ( isset( $data['access_token'] ) ) {
 			$success = $this->setAccessToken( $data['access_token'] ) && $success;
 		}
-		
+
 		if ( isset( $data['project_id'] ) ) {
 			$success = $this->setProjectId( $data['project_id'] ) && $success;
 		}
-		
+
 		if ( isset( $data['api_key'] ) ) {
 			$success = $this->setApiKey( $data['api_key'] ) && $success;
 		}
-		
+
 		if ( isset( $data['connection_status'] ) ) {
 			$success = $this->setConnectionStatus( $data['connection_status'] ) && $success;
 		}
-		
+
 		return $success;
 	}
 
@@ -185,13 +185,13 @@ class ConnectionRepository extends BaseRepository {
 	 */
 	public function clearConnection(): bool {
 		$success = true;
-		
+
 		$success = $this->deleteOption( 'site_id' ) && $success;
 		$success = $this->deleteOption( 'access_token' ) && $success;
 		$success = $this->deleteOption( 'project_id' ) && $success;
 		$success = $this->deleteOption( 'api_key' ) && $success;
 		$success = $this->setConnectionStatus( 'disconnected' ) && $success;
-		
+
 		return $success;
 	}
 
@@ -202,7 +202,7 @@ class ConnectionRepository extends BaseRepository {
 	 */
 	public function getJwtSecret(): string {
 		$jwt_secret = $this->getOption( 'jwt_secret' );
-		
+
 		if ( empty( $jwt_secret ) ) {
 			// Fallback to WordPress SECURE_AUTH_KEY.
 			if ( defined( 'SECURE_AUTH_KEY' ) && ! empty( SECURE_AUTH_KEY ) ) {
@@ -213,7 +213,7 @@ class ConnectionRepository extends BaseRepository {
 				$this->setJwtSecret( $jwt_secret );
 			}
 		}
-		
+
 		return $jwt_secret;
 	}
 

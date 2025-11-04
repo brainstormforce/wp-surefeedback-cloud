@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SureFeedback Client 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
-"POT-Creation-Date: 2025-11-04 11:01:07+00:00\n"
+"POT-Creation-Date: 2025-11-04 14:37:04+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -135,12 +135,12 @@ msgid "Invalid nonce"
 msgstr ""
 
 #: includes/app/Http/Controllers/Controller.php:413
-#: includes/app/Services/AdminService.php:629
-#: includes/app/Services/AdminService.php:662
-#: includes/app/Services/AdminService.php:682
-#: includes/app/Services/AdminService.php:722
-#: includes/app/Services/AdminService.php:756
-#: includes/app/Services/AdminService.php:784
+#: includes/app/Services/AdminService.php:652
+#: includes/app/Services/AdminService.php:685
+#: includes/app/Services/AdminService.php:705
+#: includes/app/Services/AdminService.php:745
+#: includes/app/Services/AdminService.php:779
+#: includes/app/Services/AdminService.php:807
 msgid "Insufficient permissions"
 msgstr ""
 
@@ -181,132 +181,135 @@ msgstr ""
 
 #: includes/app/Services/AdminService.php:125
 #: includes/app/Services/AdminService.php:126
-#: includes/app/Services/AdminService.php:380
 msgid "Connection"
 msgstr ""
 
 #: includes/app/Services/AdminService.php:135
 #: includes/app/Services/AdminService.php:136
-#: includes/app/Services/AdminService.php:382
-#: includes/app/Services/AdminService.php:417 surefeedback.php:146
+msgid "Widget Control"
+msgstr ""
+
+#: includes/app/Services/AdminService.php:147
+#: includes/app/Services/AdminService.php:148
+#: includes/app/Services/AdminService.php:440 surefeedback.php:167
 msgid "Settings"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:331
+#: includes/app/Services/AdminService.php:356
 msgid "SureFeedback is not connected to a parent site. "
 msgstr ""
 
-#: includes/app/Services/AdminService.php:333
+#: includes/app/Services/AdminService.php:358
 msgid "Connect now"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:356
+#: includes/app/Services/AdminService.php:381
 msgid "Settings saved successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:357
+#: includes/app/Services/AdminService.php:382
 msgid "Connection established successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:358
+#: includes/app/Services/AdminService.php:383
 msgid "Disconnected successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:359
+#: includes/app/Services/AdminService.php:384
 msgid "Plugin reset completed."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:427
+#: includes/app/Services/AdminService.php:450
 msgid "Open Parent Dashboard"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:448
+#: includes/app/Services/AdminService.php:471
 msgid "SureFeedback Status"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:467
+#: includes/app/Services/AdminService.php:490
 msgid "Connection Status:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:469
-#: includes/app/Services/AdminService.php:568
+#: includes/app/Services/AdminService.php:492
+#: includes/app/Services/AdminService.php:591
 msgid "Connected"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:471
-#: includes/app/Services/AdminService.php:569
+#: includes/app/Services/AdminService.php:494
+#: includes/app/Services/AdminService.php:592
 msgid "Disconnected"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:478
+#: includes/app/Services/AdminService.php:501
 msgid "Last Verification:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:486
+#: includes/app/Services/AdminService.php:509
 msgid "Site Name:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:494
+#: includes/app/Services/AdminService.php:517
 msgid "View Dashboard"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:499
+#: includes/app/Services/AdminService.php:522
 msgid "Connect Now"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:567
+#: includes/app/Services/AdminService.php:590
 msgid "Connecting..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:570
+#: includes/app/Services/AdminService.php:593
 msgid "Testing connection..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:571
+#: includes/app/Services/AdminService.php:594
 msgid "Saving..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:572
+#: includes/app/Services/AdminService.php:595
 msgid "Saved"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:573
+#: includes/app/Services/AdminService.php:596
 msgid "Error"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:574
+#: includes/app/Services/AdminService.php:597
 msgid "Success"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:575
+#: includes/app/Services/AdminService.php:598
 msgid "Are you sure you want to reset all settings? This action cannot be undone."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:641
+#: includes/app/Services/AdminService.php:664
 msgid "Settings saved successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:646
+#: includes/app/Services/AdminService.php:669
 msgid "Failed to save settings"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:667
+#: includes/app/Services/AdminService.php:690
 msgid "Connection is managed via webhook"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:742
+#: includes/app/Services/AdminService.php:765
 msgid "Plugin reset successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:791
+#: includes/app/Services/AdminService.php:814
 msgid "No settings provided"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:814
+#: includes/app/Services/AdminService.php:837
 msgid "Settings imported successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:819
+#: includes/app/Services/AdminService.php:842
 msgid "Failed to import settings"
 msgstr ""
 
@@ -330,7 +333,7 @@ msgstr ""
 msgid "Plugin activated successfully."
 msgstr ""
 
-#: surefeedback.php:145
+#: surefeedback.php:166
 msgid "Dashboard"
 msgstr ""
 

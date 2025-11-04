@@ -19,42 +19,39 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package SureFeedback\Providers
  * @author Anurag Singh <anurags@bsf.io>
  */
-class RouteServiceProvider
-{
-    /**
-     * Application instance
-     *
-     * @var \SureFeedback\Application
-     */
-    protected $app;
+class RouteServiceProvider {
 
-    /**
-     * Create a new service provider instance
-     *
-     * @param \SureFeedback\Application $app Application instance.
-     */
-    public function __construct($app)
-    {
-        $this->app = $app;
-    }
+	/**
+	 * Application instance
+	 *
+	 * @var \SureFeedback\Application
+	 */
+	protected $app;
 
-    /**
-     * Register services
-     *
-     * @return void
-     */
-    public function register(): void
-    {
-        // Register route-related services
-    }
+	/**
+	 * Create a new service provider instance
+	 *
+	 * @param \SureFeedback\Application $app Application instance.
+	 */
+	public function __construct( $app ) {
+		$this->app = $app;
+	}
 
-    /**
-     * Bootstrap services
-     *
-     * @return void
-     */
-    public function boot(): void
-    {
-        // Boot routes when needed
-    }
+	/**
+	 * Register services
+	 *
+	 * @return void
+	 */
+	public function register(): void {
+		// Register route-related services
+	}
+
+	/**
+	 * Bootstrap services
+	 *
+	 * @return void
+	 */
+	public function boot(): void {
+		// Boot routes when needed
+	}
 }

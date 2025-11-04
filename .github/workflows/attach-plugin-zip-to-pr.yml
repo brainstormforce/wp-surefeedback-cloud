@@ -1,0 +1,46 @@
+name: Attach plugin zip to PR
+
+on:
+  pull_request:
+    branches: [staging,main]
+
+env:
+  PLUGIN_SLUG: ${{ github.event.repository.name }}
+
+jobs:
+  generate-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use desired version of NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Generate ZIP
+        run: |
+          npm run zip
+
+      - name: Get version from plugin file
+        id: get_version
+        run: |
+          CURRENT_VERSION=$(sed -n -e 's/^.*Version: //p' ${{ env.PLUGIN_SLUG }}.php)
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PLUGIN_SLUG }}-plugin
+          path: release/production/${{ env.PLUGIN_SLUG }}.${{ steps.get_version.outputs.version }}.zip
+

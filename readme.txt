@@ -1,5 +1,5 @@
-=== SureFeedback  ===
-Contributors: brainstormforce, 2winfactor
+=== SureFeedback ===
+Contributors: brainstormforce
 Donate link: https://surefeedback.com
 Tags: surefeedback, child, feedback, design
 Requires at least: 4.7
@@ -50,17 +50,9 @@ The purpose of this plugin is to make it simple to get targeted feedback from cl
 
 = Version 0.0.1 – 27th October, 2025 =
 * Initial release
-* Fixed namespace declaration order issues for Linux compatibility
-* Fixed case sensitivity in composer autoload paths (includes/app/ vs includes/App/)
-* Fixed corrupted file references (null byte removal in SettingsController)
-* Fixed production API URL configuration - removed hardcoded localhost fallbacks
-* Updated production zip naming convention to use semantic versioning (surefeedback.0.0.1.zip)
-* Added production API endpoint fallbacks (https://api.surefeedback.com)
-* Added production App URL fallbacks (https://app.surefeedback.com)
-* PHP 7.4+ compatibility
-
-= Version 1.0.0 – 17th October, 2025 =
-* Initial release with full feature set
+* Connections - Secure connection to SureFeedback parent site with verification and status management
+* Widget Control - Per-page widget visibility control with search, filter, and bulk enable/disable options
+* Permission Management - User role permissions, site visitor access, dashboard commenting, and guest access control
 * Modern React-based admin interface
 * Secure API integration with SureFeedback platform
 * Comprehensive settings and configuration panel
@@ -68,3 +60,4 @@ The purpose of this plugin is to make it simple to get targeted feedback from cl
 * Role-based access control
 * Guest commenting capabilities
 * Built-in troubleshooting tools
+* PHP 7.4+ compatibility

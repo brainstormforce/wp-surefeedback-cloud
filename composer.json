@@ -7,9 +7,9 @@
     }
   },
   "require-dev": {
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "phpcompatibility/phpcompatibility-wp": "*",
-    "wp-coding-standards/wpcs": "^2.1.0",
+    "wp-coding-standards/wpcs": "^3.0",
     "szepeviktor/phpstan-wordpress": "^1.1",
     "phpstan/phpstan": "^1.0",
     "php-stubs/wordpress-stubs": "^6.0",
@@ -19,7 +19,7 @@
   "scripts": {
     "format": "phpcbf --standard=phpcs.xml.dist --report-summary --report-source",
     "lint": "phpcs --standard=phpcs.xml.dist --report-summary --report-source",
-    "gen-stubs": "php -d memory_limit=-1 vendor/bin/generate-stubs artifact/phpstan/surefeedback/ --out=tests/php/stubs/surefeedback-stubs.php && rm -rf artifact/phpstan",
+    "gen-stubs": "php -d memory_limit=-1 vendor/bin/generate-stubs includes/app --out=tests/php/stubs/surefeedback-stubs.php --force --header=\"Generated stubs for SureFeedback plugin classes. Do not edit manually.\"",
     "phpstan": "vendor/bin/phpstan --memory-limit=2048M analyse",
     "test": "vendor/bin/phpunit",
     "test-unit": "vendor/bin/phpunit --testsuite=\"Unit Tests\"",

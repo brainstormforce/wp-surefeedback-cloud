@@ -1,0 +1,31 @@
+name: Code Analysis
+
+'on':
+  pull_request:
+    branches:
+      - staging
+      - release
+      - main
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: Set composer token
+        env:
+            COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.PRIVATE_ACCESS_TOKEN }}"}}'
+        run: composer install --prefer-dist --no-progress && npm ci
+      - name: Check Phpstan
+        run: composer run phpstan
+      - name: Check PHPCS
+        run: composer run phpcs
+      - name: PR Title Check
+        uses: naveenk1223/action-pr-title@master
+        with:
+          regex: '^(SRT|SI|AB|SF)-\d+:\s.+'
+

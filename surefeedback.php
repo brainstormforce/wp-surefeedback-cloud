@@ -85,7 +85,7 @@ if ( ! defined( 'SUREFEEDBACK_APP_BASE_URL' ) ) {
 | Bootstrap The Application
 |--------------------------------------------------------------------------
 |
-| The first thing we will do is create a new Laravel-style application 
+| The first thing we will do is create a new Laravel-style application
 | instance which serves as the "glue" for all the components, and is
 | the IoC container for the system binding all of the various parts.
 |
@@ -106,67 +106,84 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 */
 
 // Boot the application when plugins are loaded
-add_action('plugins_loaded', function() use ($app) {
-    $app->boot();
-});
+add_action(
+	'plugins_loaded',
+	function () use ( $app ) {
+		$app->boot();
+	}
+);
 
 /**
  * Plugin activation hook
  */
-register_activation_hook(SUREFEEDBACK_PLUGIN_FILE, function() {
-    // Set a flag to redirect to setup on first activation
-    set_transient('surefeedback_activation_redirect', true, 30 * MINUTE_IN_SECONDS);
-});
+register_activation_hook(
+	SUREFEEDBACK_PLUGIN_FILE,
+	function () {
+		// Set a flag to redirect to setup on first activation
+		set_transient( 'surefeedback_activation_redirect', true, 30 * MINUTE_IN_SECONDS );
+	}
+);
 
 /**
  * Admin init - redirect to setup page after plugin activation
  */
-add_action('admin_init', function() {
-    // Only for admin users
-    if (!current_user_can('manage_options')) {
-        return;
-    }
+add_action(
+	'admin_init',
+	function () {
+		// Only for admin users
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
-    // Check for activation redirect transient
-    if (get_transient('surefeedback_activation_redirect')) {
-        delete_transient('surefeedback_activation_redirect');
+		// Check for activation redirect transient
+		if ( get_transient( 'surefeedback_activation_redirect' ) ) {
+			delete_transient( 'surefeedback_activation_redirect' );
 
-        // Redirect to setup page
-        wp_safe_remote_get(admin_url('admin.php?page=surefeedback-connection#setup'));
-        wp_redirect(admin_url('admin.php?page=surefeedback-connection#setup'));
-        exit;
-    }
-}, 20); // Priority 20 to ensure plugins are loaded
+			// Redirect to setup page
+			wp_safe_remote_get( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
+			wp_redirect( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
+			exit;
+		}
+	},
+	20
+); // Priority 20 to ensure plugins are loaded
 
 
 /**
  * Plugin deactivation hook
  */
-register_deactivation_hook(SUREFEEDBACK_PLUGIN_FILE, function() {
-    // Clear scheduled events
-    wp_clear_scheduled_hook('surefeedback_auto_verify');
-    wp_clear_scheduled_hook('surefeedback_hourly_verify');
-});
+register_deactivation_hook(
+	SUREFEEDBACK_PLUGIN_FILE,
+	function () {
+		// Clear scheduled events
+		wp_clear_scheduled_hook( 'surefeedback_auto_verify' );
+		wp_clear_scheduled_hook( 'surefeedback_hourly_verify' );
+	}
+);
 
 /**
  * Load plugin text domain for internationalization
  */
-add_action('init', function() {
-    load_plugin_textdomain(
-        'surefeedback',
-        false,
-        dirname(plugin_basename(SUREFEEDBACK_PLUGIN_FILE)) . '/languages/'
-    );
-});
+add_action(
+	'init',
+	function () {
+		load_plugin_textdomain(
+			'surefeedback',
+			false,
+			dirname( plugin_basename( SUREFEEDBACK_PLUGIN_FILE ) ) . '/languages/'
+		);
+	}
+);
 
 /**
  * Add settings link to plugin list table
  */
-add_filter('plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME, function($links) {
-    $dashboard_link = '<a href="' . admin_url('admin.php?page=surefeedback-connection') . '">' . __('Dashboard', 'surefeedback') . '</a>';
-    $settings_link = '<a href="' . admin_url('admin.php?page=surefeedback-settings') . '">' . __('Settings', 'surefeedback') . '</a>';
-    array_unshift($links, $dashboard_link, $settings_link);
-    return $links;
-});
-
-
+add_filter(
+	'plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME,
+	function ( $links ) {
+		$dashboard_link = '<a href="' . admin_url( 'admin.php?page=surefeedback-connection' ) . '">' . __( 'Dashboard', 'surefeedback' ) . '</a>';
+		$settings_link  = '<a href="' . admin_url( 'admin.php?page=surefeedback-settings' ) . '">' . __( 'Settings', 'surefeedback' ) . '</a>';
+		array_unshift( $links, $dashboard_link, $settings_link );
+		return $links;
+	}
+);

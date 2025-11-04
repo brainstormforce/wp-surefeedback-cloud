@@ -2,7 +2,7 @@
 
 namespace SureFeedback\Http\Requests\Settings;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use SureFeedback\Http\Requests\Request;
 
@@ -14,43 +14,40 @@ use SureFeedback\Http\Requests\Request;
  * @package SureFeedback\App\Http\Requests\Settings
  * @author Anurag Singh <anurags@bsf.io>
  */
-class UpdateSettingsRequest extends Request
-{
-    /**
-     * Get validation rules
-     *
-     * @return array
-     */
-    public function rules(): array
-    {
-        return [
-            'roles' => 'array',
-            'roles.*' => 'string',
-        ];
-    }
+class UpdateSettingsRequest extends Request {
 
-    /**
-     * Get custom error messages
-     *
-     * @return array
-     */
-    public function messages(): array
-    {
-        return [
-            'roles.array' => 'Roles must be an array.',
-            'roles.*.string' => 'Each role must be a string.',
-        ];
-    }
+	/**
+	 * Get validation rules
+	 *
+	 * @return array
+	 */
+	public function rules(): array {
+		return array(
+			'roles'   => 'array',
+			'roles.*' => 'string',
+		);
+	}
 
-    /**
-     * Get custom attribute names
-     *
-     * @return array
-     */
-    public function attributes(): array
-    {
-        return [
-            'roles' => 'User Roles',
-        ];
-    }
+	/**
+	 * Get custom error messages
+	 *
+	 * @return array
+	 */
+	public function messages(): array {
+		return array(
+			'roles.array'    => 'Roles must be an array.',
+			'roles.*.string' => 'Each role must be a string.',
+		);
+	}
+
+	/**
+	 * Get custom attribute names
+	 *
+	 * @return array
+	 */
+	public function attributes(): array {
+		return array(
+			'roles' => 'User Roles',
+		);
+	}
 }

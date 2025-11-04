@@ -14,21 +14,6 @@ parameters:
 	scanFiles:
 	bootstrapFiles:
 		- vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
-		- tests/php/stubs/surefeedback-stubs.php
 	paths:
 		- surefeedback.php
-		- surefeedback-functions.php
-
-	ignoreErrors:
-		- '#Call to an undefined method [a-zA-Z0-9\\_]+\:\:add_control\(\).$#'
-		- '#Call to an undefined method [^\s]+\.$#'
-		- '#Call to method [^\s]+ on an unknown class Elementor\\[^\s]+\.$#'
-		- '#Cannot access [^\s]+#'
-		- '#Parameter [^\s]+#'
-		- '#Function [^\s]+ not found.#'
-		- '#Access to an undefined property [^\s]+#'  
-		- '#Static property [^\s]+#'
-		- '#Call to static method [^\s]+#'
-		- '#Offset [^\s]+#'
-		- '#Access to [^\s]+#'
-		- '#Strict comparison using \=\=\= between ''no'' and true will always evaluate to false.#'
+		- includes/

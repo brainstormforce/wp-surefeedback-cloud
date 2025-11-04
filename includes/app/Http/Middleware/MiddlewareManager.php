@@ -2,7 +2,7 @@
 
 namespace SureFeedback\Http\Middleware;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use WP_REST_Request;
 use WP_Error;
@@ -15,287 +15,274 @@ use WP_Error;
  * @package SureFeedback\App\Http\Middleware
  * @author Anurag Singh <anurags@bsf.io>
  */
-class MiddlewareManager
-{
-    /**
-     * Registered middleware stack
-     *
-     * @var array
-     */
-    protected $middleware = [];
+class MiddlewareManager {
 
-    /**
-     * Global middleware applied to all routes
-     *
-     * @var array
-     */
-    protected $globalMiddleware = [
-        RateLimitMiddleware::class,
-        AuthMiddleware::class,
-        ValidationMiddleware::class,
-    ];
+	/**
+	 * Registered middleware stack
+	 *
+	 * @var array
+	 */
+	protected $middleware = array();
 
-    /**
-     * Route-specific middleware
-     *
-     * @var array
-     */
-    protected $routeMiddleware = [];
+	/**
+	 * Global middleware applied to all routes
+	 *
+	 * @var array
+	 */
+	protected $globalMiddleware = array(
+		RateLimitMiddleware::class,
+		AuthMiddleware::class,
+		ValidationMiddleware::class,
+	);
 
-    /**
-     * Middleware instances cache
-     *
-     * @var array
-     */
-    protected $instances = [];
+	/**
+	 * Route-specific middleware
+	 *
+	 * @var array
+	 */
+	protected $routeMiddleware = array();
 
-    /**
-     * Add global middleware
-     *
-     * @param string $middleware
-     * @return void
-     */
-    public function addGlobalMiddleware(string $middleware): void
-    {
-        if (!in_array($middleware, $this->globalMiddleware)) {
-            $this->globalMiddleware[] = $middleware;
-        }
-    }
+	/**
+	 * Middleware instances cache
+	 *
+	 * @var array
+	 */
+	protected $instances = array();
 
-    /**
-     * Add route-specific middleware
-     *
-     * @param string $route
-     * @param string|array $middleware
-     * @return void
-     */
-    public function addRouteMiddleware(string $route, $middleware): void
-    {
-        if (!isset($this->routeMiddleware[$route])) {
-            $this->routeMiddleware[$route] = [];
-        }
+	/**
+	 * Add global middleware
+	 *
+	 * @param string $middleware
+	 * @return void
+	 */
+	public function addGlobalMiddleware( string $middleware ): void {
+		if ( ! in_array( $middleware, $this->globalMiddleware ) ) {
+			$this->globalMiddleware[] = $middleware;
+		}
+	}
 
-        $middlewareList = is_array($middleware) ? $middleware : [$middleware];
-        
-        foreach ($middlewareList as $mw) {
-            if (!in_array($mw, $this->routeMiddleware[$route])) {
-                $this->routeMiddleware[$route][] = $mw;
-            }
-        }
-    }
+	/**
+	 * Add route-specific middleware
+	 *
+	 * @param string       $route
+	 * @param string|array $middleware
+	 * @return void
+	 */
+	public function addRouteMiddleware( string $route, $middleware ): void {
+		if ( ! isset( $this->routeMiddleware[ $route ] ) ) {
+			$this->routeMiddleware[ $route ] = array();
+		}
 
-    /**
-     * Process middleware stack for a request
-     *
-     * @param WP_REST_Request $request
-     * @param callable $controller
-     * @return mixed
-     */
-    public function process(WP_REST_Request $request, callable $controller)
-    {
-        $route = $request->get_route();
-        $middlewareStack = $this->getMiddlewareStack($route);
+		$middlewareList = is_array( $middleware ) ? $middleware : array( $middleware );
 
-        return $this->executeMiddleware($middlewareStack, $request, $controller);
-    }
+		foreach ( $middlewareList as $mw ) {
+			if ( ! in_array( $mw, $this->routeMiddleware[ $route ] ) ) {
+				$this->routeMiddleware[ $route ][] = $mw;
+			}
+		}
+	}
 
-    /**
-     * Get middleware stack for a route
-     *
-     * @param string $route
-     * @return array
-     */
-    protected function getMiddlewareStack(string $route): array
-    {
-        $stack = $this->globalMiddleware;
+	/**
+	 * Process middleware stack for a request
+	 *
+	 * @param WP_REST_Request $request
+	 * @param callable        $controller
+	 * @return mixed
+	 */
+	public function process( WP_REST_Request $request, callable $controller ) {
+		$route           = $request->get_route();
+		$middlewareStack = $this->getMiddlewareStack( $route );
 
-        // Add route-specific middleware
-        if (isset($this->routeMiddleware[$route])) {
-            $stack = array_merge($stack, $this->routeMiddleware[$route]);
-        }
+		return $this->executeMiddleware( $middlewareStack, $request, $controller );
+	}
 
-        // Check for pattern-based middleware
-        foreach ($this->routeMiddleware as $pattern => $middleware) {
-            if ($pattern !== $route && $this->matchesPattern($route, $pattern)) {
-                $stack = array_merge($stack, $middleware);
-            }
-        }
+	/**
+	 * Get middleware stack for a route
+	 *
+	 * @param string $route
+	 * @return array
+	 */
+	protected function getMiddlewareStack( string $route ): array {
+		$stack = $this->globalMiddleware;
 
-        return array_unique($stack);
-    }
+		// Add route-specific middleware
+		if ( isset( $this->routeMiddleware[ $route ] ) ) {
+			$stack = array_merge( $stack, $this->routeMiddleware[ $route ] );
+		}
 
-    /**
-     * Execute middleware stack
-     *
-     * @param array $middlewareStack
-     * @param WP_REST_Request $request
-     * @param callable $controller
-     * @return mixed
-     */
-    protected function executeMiddleware(array $middlewareStack, WP_REST_Request $request, callable $controller)
-    {
-        $index = 0;
+		// Check for pattern-based middleware
+		foreach ( $this->routeMiddleware as $pattern => $middleware ) {
+			if ( $pattern !== $route && $this->matchesPattern( $route, $pattern ) ) {
+				$stack = array_merge( $stack, $middleware );
+			}
+		}
 
-        $next = function($request) use (&$middlewareStack, &$index, &$next, $controller) {
-            if ($index >= count($middlewareStack)) {
-                // All middleware executed, call the controller
-                return $controller($request);
-            }
+		return array_unique( $stack );
+	}
 
-            $middlewareClass = $middlewareStack[$index++];
-            $middleware = $this->getMiddlewareInstance($middlewareClass);
+	/**
+	 * Execute middleware stack
+	 *
+	 * @param array           $middlewareStack
+	 * @param WP_REST_Request $request
+	 * @param callable        $controller
+	 * @return mixed
+	 */
+	protected function executeMiddleware( array $middlewareStack, WP_REST_Request $request, callable $controller ) {
+		$index = 0;
 
-            if (!$middleware) {
-                // Skip invalid middleware
-                return $next($request);
-            }
+		$next = function ( $request ) use ( &$middlewareStack, &$index, &$next, $controller ) {
+			if ( $index >= count( $middlewareStack ) ) {
+				// All middleware executed, call the controller
+				return $controller( $request );
+			}
 
-            return $middleware->handle($request, $next);
-        };
+			$middlewareClass = $middlewareStack[ $index++ ];
+			$middleware      = $this->getMiddlewareInstance( $middlewareClass );
 
-        return $next($request);
-    }
+			if ( ! $middleware ) {
+				// Skip invalid middleware
+				return $next( $request );
+			}
 
-    /**
-     * Get middleware instance
-     *
-     * @param string $middlewareClass
-     * @return Middleware|null
-     */
-    protected function getMiddlewareInstance(string $middlewareClass): ?Middleware
-    {
-        if (isset($this->instances[$middlewareClass])) {
-            return $this->instances[$middlewareClass];
-        }
+			return $middleware->handle( $request, $next );
+		};
 
-        if (!class_exists($middlewareClass)) {
-            return null;
-        }
+		return $next( $request );
+	}
 
-        try {
-            $instance = new $middlewareClass();
+	/**
+	 * Get middleware instance
+	 *
+	 * @param string $middlewareClass
+	 * @return Middleware|null
+	 */
+	protected function getMiddlewareInstance( string $middlewareClass ): ?Middleware {
+		if ( isset( $this->instances[ $middlewareClass ] ) ) {
+			return $this->instances[ $middlewareClass ];
+		}
 
-            if (!$instance instanceof Middleware) {
-                return null;
-            }
+		if ( ! class_exists( $middlewareClass ) ) {
+			return null;
+		}
 
-            $this->instances[$middlewareClass] = $instance;
-            return $instance;
+		try {
+			$instance = new $middlewareClass();
 
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
+			if ( ! $instance instanceof Middleware ) {
+				return null;
+			}
 
-    /**
-     * Check if route matches pattern
-     *
-     * @param string $route
-     * @param string $pattern
-     * @return bool
-     */
-    protected function matchesPattern(string $route, string $pattern): bool
-    {
-        // Convert pattern to regex
-        $regex = str_replace(
-            ['*', '/'],
-            ['[^/]*', '\/'],
-            preg_quote($pattern, '/')
-        );
+			$this->instances[ $middlewareClass ] = $instance;
+			return $instance;
 
-        return preg_match("/^{$regex}$/", $route) === 1;
-    }
+		} catch ( \Exception $e ) {
+			return null;
+		}
+	}
 
-    /**
-     * Remove middleware from global stack
-     *
-     * @param string $middleware
-     * @return void
-     */
-    public function removeGlobalMiddleware(string $middleware): void
-    {
-        $key = array_search($middleware, $this->globalMiddleware);
-        if ($key !== false) {
-            unset($this->globalMiddleware[$key]);
-            $this->globalMiddleware = array_values($this->globalMiddleware);
-        }
-    }
+	/**
+	 * Check if route matches pattern
+	 *
+	 * @param string $route
+	 * @param string $pattern
+	 * @return bool
+	 */
+	protected function matchesPattern( string $route, string $pattern ): bool {
+		// Convert pattern to regex
+		$regex = str_replace(
+			array( '*', '/' ),
+			array( '[^/]*', '\/' ),
+			preg_quote( $pattern, '/' )
+		);
 
-    /**
-     * Remove route-specific middleware
-     *
-     * @param string $route
-     * @param string|null $middleware
-     * @return void
-     */
-    public function removeRouteMiddleware(string $route, ?string $middleware = null): void
-    {
-        if ($middleware === null) {
-            // Remove all middleware for the route
-            unset($this->routeMiddleware[$route]);
-        } else {
-            // Remove specific middleware
-            if (isset($this->routeMiddleware[$route])) {
-                $key = array_search($middleware, $this->routeMiddleware[$route]);
-                if ($key !== false) {
-                    unset($this->routeMiddleware[$route][$key]);
-                    $this->routeMiddleware[$route] = array_values($this->routeMiddleware[$route]);
-                }
-            }
-        }
-    }
+		return preg_match( "/^{$regex}$/", $route ) === 1;
+	}
 
-    /**
-     * Get all registered middleware
-     *
-     * @return array
-     */
-    public function getAllMiddleware(): array
-    {
-        return [
-            'global' => $this->globalMiddleware,
-            'route' => $this->routeMiddleware,
-        ];
-    }
+	/**
+	 * Remove middleware from global stack
+	 *
+	 * @param string $middleware
+	 * @return void
+	 */
+	public function removeGlobalMiddleware( string $middleware ): void {
+		$key = array_search( $middleware, $this->globalMiddleware );
+		if ( $key !== false ) {
+			unset( $this->globalMiddleware[ $key ] );
+			$this->globalMiddleware = array_values( $this->globalMiddleware );
+		}
+	}
 
-    /**
-     * Clear all middleware instances cache
-     *
-     * @return void
-     */
-    public function clearCache(): void
-    {
-        $this->instances = [];
-    }
+	/**
+	 * Remove route-specific middleware
+	 *
+	 * @param string      $route
+	 * @param string|null $middleware
+	 * @return void
+	 */
+	public function removeRouteMiddleware( string $route, ?string $middleware = null ): void {
+		if ( $middleware === null ) {
+			// Remove all middleware for the route
+			unset( $this->routeMiddleware[ $route ] );
+		} else {
+			// Remove specific middleware
+			if ( isset( $this->routeMiddleware[ $route ] ) ) {
+				$key = array_search( $middleware, $this->routeMiddleware[ $route ] );
+				if ( $key !== false ) {
+					unset( $this->routeMiddleware[ $route ][ $key ] );
+					$this->routeMiddleware[ $route ] = array_values( $this->routeMiddleware[ $route ] );
+				}
+			}
+		}
+	}
 
-    /**
-     * Get middleware for specific route
-     *
-     * @param string $route
-     * @return array
-     */
-    public function getRouteMiddleware(string $route): array
-    {
-        return $this->getMiddlewareStack($route);
-    }
+	/**
+	 * Get all registered middleware
+	 *
+	 * @return array
+	 */
+	public function getAllMiddleware(): array {
+		return array(
+			'global' => $this->globalMiddleware,
+			'route'  => $this->routeMiddleware,
+		);
+	}
 
-    /**
-     * Check if middleware is enabled
-     *
-     * @param string $middlewareClass
-     * @param string|null $route
-     * @return bool
-     */
-    public function isMiddlewareEnabled(string $middlewareClass, ?string $route = null): bool
-    {
-        if (in_array($middlewareClass, $this->globalMiddleware)) {
-            return true;
-        }
+	/**
+	 * Clear all middleware instances cache
+	 *
+	 * @return void
+	 */
+	public function clearCache(): void {
+		$this->instances = array();
+	}
 
-        if ($route && isset($this->routeMiddleware[$route])) {
-            return in_array($middlewareClass, $this->routeMiddleware[$route]);
-        }
+	/**
+	 * Get middleware for specific route
+	 *
+	 * @param string $route
+	 * @return array
+	 */
+	public function getRouteMiddleware( string $route ): array {
+		return $this->getMiddlewareStack( $route );
+	}
 
-        return false;
-    }
+	/**
+	 * Check if middleware is enabled
+	 *
+	 * @param string      $middlewareClass
+	 * @param string|null $route
+	 * @return bool
+	 */
+	public function isMiddlewareEnabled( string $middlewareClass, ?string $route = null ): bool {
+		if ( in_array( $middlewareClass, $this->globalMiddleware ) ) {
+			return true;
+		}
+
+		if ( $route && isset( $this->routeMiddleware[ $route ] ) ) {
+			return in_array( $middlewareClass, $this->routeMiddleware[ $route ] );
+		}
+
+		return false;
+	}
 }

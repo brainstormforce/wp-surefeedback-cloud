@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2, Search, CheckCircle2, XCircle, Globe, FileText, Archive, AlertCircle, CheckCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   AlertDialog,
@@ -16,7 +17,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast, Toaster } from '@/components/ui/toast';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import axios from 'axios';
 import SyncedMonitor from "../../../../assets/images/settings/sync_saved_locally.svg";
 import SyncedMonitorOff from "../../../../assets/images/settings/sync_saved_locally_off.svg";
@@ -201,8 +202,79 @@ const WidgetControl = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex justify-center items-start bg-background p-4 pt-8">
+        <Card className="shadow-sm w-full rounded-lg border border-border max-w-4xl">
+          <CardContent className="flex flex-col space-y-6 py-8 w-full">
+            <div className="space-y-4 sm:space-y-6">
+              {/* Header Skeleton */}
+              <div>
+                <Skeleton className="h-7 w-40 mb-2" />
+                <Skeleton className="h-4 w-80" />
+              </div>
+
+              {/* Stats Cards Skeleton */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
+                    <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-8 w-12" />
+                      </div>
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Page List Card Skeleton */}
+              <Card className="w-full rounded-lg border border-border shadow-none">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-6 !pb-0">
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-4 w-64" />
+                  </div>
+                  <Skeleton className="h-9 w-32" />
+                </CardHeader>
+                <CardContent className="px-6 !pt-4">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
+                    <Skeleton className="h-10 flex-1" />
+                    <Skeleton className="h-10 w-32" />
+                  </div>
+
+                  {/* Pages List Skeleton */}
+                  <div className="space-y-2 mb-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 border-[0.5px] border-[#E5E7EB] rounded-lg h-auto sm:h-[72px]">
+                        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 space-y-2">
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <Skeleton className="h-5 w-48" />
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                          <Skeleton className="h-5 w-20 rounded-full" />
+                          <Skeleton className="h-6 w-11 rounded-full" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Save Actions Bar Skeleton */}
+                  <div className="border-t pt-3 sm:pt-4 mt-4 bg-gray-50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 pb-4 sm:pb-6 rounded-b-lg">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                      <Skeleton className="h-6 w-32" />
+                      <div className="flex gap-2 sm:gap-3">
+                        <Skeleton className="h-9 w-24" />
+                        <Skeleton className="h-9 w-32" />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -214,9 +286,9 @@ const WidgetControl = () => {
           <div className="space-y-4 sm:space-y-6">
             {/* Header */}
             <div>
-              <h2 className="text-xl font-semibold text-foreground">Widget Control</h2>
+              <h2 className="text-xl font-semibold text-foreground">{__('Widget Control', 'surefeedback')}</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Control which pages display the SureFeedback widget
+                {__('Control which pages display the SureFeedback widget', 'surefeedback')}
               </p>
             </div>
 
@@ -225,7 +297,7 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">Total Sites</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Total Sites', 'surefeedback')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{pages.length}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
@@ -237,11 +309,11 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">Enabled Sites</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Enabled Sites', 'surefeedback')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{enabledCount}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
-                    <img src={SyncedMonitor} alt="synced" className="w-8 h-8" />
+                    <img src={SyncedMonitor} alt={__('synced', 'surefeedback')} className="w-8 h-8" />
                   </div>
                 </CardContent>
               </Card>
@@ -249,11 +321,11 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">Disabled Sites</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Disabled Sites', 'surefeedback')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{disabledCount}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
-                    <img src={SyncedMonitorOff} alt="off - synced" className="w-8 h-8" />
+                    <img src={SyncedMonitorOff} alt={__('off - synced', 'surefeedback')} className="w-8 h-8" />
                   </div>
                 </CardContent>
               </Card>
@@ -263,8 +335,8 @@ const WidgetControl = () => {
             <Card className="w-full rounded-lg border border-border shadow-none">
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-6 !pb-0">
                 <div className="flex-1">
-                  <CardTitle className="text-base sm:text-lg">Page List</CardTitle>
-                  <CardDescription className="text-xs sm:text-sm mt-1">Toggle widget visibility for individual pages</CardDescription>
+                  <CardTitle className="text-base sm:text-lg">{__('Page List', 'surefeedback')}</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm mt-1">{__('Toggle widget visibility for individual pages', 'surefeedback')}</CardDescription>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                   {enabledCount === pages.length ? (
@@ -306,7 +378,7 @@ const WidgetControl = () => {
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search pages..."
+                      placeholder={__('Search pages...', 'surefeedback')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-8 sm:pl-10 text-sm h-9 sm:h-10"
@@ -317,13 +389,13 @@ const WidgetControl = () => {
                     onChange={(e) => setFilterType(e.target.value)}
                     className="px-4 text-sm border rounded-lg bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary h-10"
                   >
-                    <option value="all">All Types</option>
-                    <option value="enabled">Enabled Only</option>
-                    <option value="disabled">Disabled Only</option>
-                    <option value="home">Homepage</option>
-                    <option value="page">Pages</option>
-                    <option value="post">Posts</option>
-                    <option value="archive">Archives</option>
+                    <option value="all">{__('All Types', 'surefeedback')}</option>
+                    <option value="enabled">{__('Enabled Only', 'surefeedback')}</option>
+                    <option value="disabled">{__('Disabled Only', 'surefeedback')}</option>
+                    <option value="home">{__('Homepage', 'surefeedback')}</option>
+                    <option value="page">{__('Pages', 'surefeedback')}</option>
+                    <option value="post">{__('Posts', 'surefeedback')}</option>
+                    <option value="archive">{__('Archives', 'surefeedback')}</option>
                   </select>
                 </div>
 
@@ -332,7 +404,7 @@ const WidgetControl = () => {
                   {paginatedPages.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" />
-                      <p className="text-sm">No pages found</p>
+                      <p className="text-sm">{__('No pages found', 'surefeedback')}</p>
                     </div>
                   ) : (
                     paginatedPages.map((page) => (
@@ -370,7 +442,7 @@ const WidgetControl = () => {
                 {!searchTerm && totalPages > 1 && (
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t pt-4 mb-4">
                     <div className="text-xs sm:text-sm text-muted-foreground">
-                      Showing {startIndex + 1}-{Math.min(endIndex, filteredPages.length)} of {filteredPages.length} pages
+                      {sprintf(__('Showing %1$d-%2$d of %3$d pages', 'surefeedback'), startIndex + 1, Math.min(endIndex, filteredPages.length), filteredPages.length)}
                     </div>
                     <div className="flex gap-1 sm:gap-2 w-full sm:w-auto justify-end">
                       <Button
@@ -380,7 +452,7 @@ const WidgetControl = () => {
                         disabled={currentPage === 1}
                         className="text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
                       >
-                        <span className="hidden sm:inline">Previous</span>
+                        <span className="hidden sm:inline">{__('Previous', 'surefeedback')}</span>
                         <ChevronLeft className="h-4 w-4 sm:hidden" />
                       </Button>
                       <div className="hidden sm:flex items-center gap-1">
@@ -418,7 +490,7 @@ const WidgetControl = () => {
                         disabled={currentPage === totalPages}
                         className="text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
                       >
-                        <span className="hidden sm:inline">Next</span>
+                        <span className="hidden sm:inline">{__('Next', 'surefeedback')}</span>
                         <ChevronRight className="h-4 w-4 sm:hidden" />
                       </Button>
                     </div>
@@ -432,13 +504,13 @@ const WidgetControl = () => {
                       {hasUnsavedChanges && (
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-orange-600 bg-orange-50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border border-orange-200">
                           <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                          <span className="font-medium">Unsaved changes</span>
+                          <span className="font-medium">{__('Unsaved changes', 'surefeedback')}</span>
                         </div>
                       )}
                       {!hasUnsavedChanges && (
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                           <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
-                          <span>All changes saved</span>
+                          <span>{__('All changes saved', 'surefeedback')}</span>
                         </div>
                       )}
                     </div>
@@ -449,7 +521,7 @@ const WidgetControl = () => {
                         disabled={saving || !hasUnsavedChanges}
                         className="flex-1 sm:flex-initial sm:min-w-[100px] text-xs sm:text-sm h-9"
                       >
-                        Cancel
+                        {__('Cancel', 'surefeedback')}
                       </Button>
                       <Button
                         onClick={saveSettings}
@@ -459,13 +531,13 @@ const WidgetControl = () => {
                         {saving ? (
                           <>
                             <Loader2 className=" h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                            <span className="hidden sm:inline">Saving...</span>
-                            <span className="sm:hidden">Saving...</span>
+                            <span className="hidden sm:inline">{__('Saving...', 'surefeedback')}</span>
+                            <span className="sm:hidden">{__('Saving...', 'surefeedback')}</span>
                           </>
                         ) : (
                           <>
-                            <span className="hidden sm:inline">Save Changes</span>
-                            <span className="sm:hidden">Save</span>
+                            <span className="hidden sm:inline">{__('Save Changes', 'surefeedback')}</span>
+                            <span className="sm:hidden">{__('Save', 'surefeedback')}</span>
                           </>
                         )}
                       </Button>
@@ -488,21 +560,21 @@ const WidgetControl = () => {
             <AlertDialog open={showEnableAllDialog} onOpenChange={setShowEnableAllDialog}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Enable Widget for All Pages?</AlertDialogTitle>
+                  <AlertDialogTitle>{__('Enable Widget for All Pages?', 'surefeedback')}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will enable the SureFeedback widget on all pages of your website. This action can be undone.
+                    {__('This will enable the SureFeedback widget on all pages of your website. This action can be undone.', 'surefeedback')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel disabled={saving}>{__('Cancel', 'surefeedback')}</AlertDialogCancel>
                   <AlertDialogAction onClick={confirmEnableAll} disabled={saving}>
                     {saving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Enabling...
+                        {__('Enabling...', 'surefeedback')}
                       </>
                     ) : (
-                      'Enable All'
+                      __('Enable All', 'surefeedback')
                     )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -513,21 +585,21 @@ const WidgetControl = () => {
             <AlertDialog open={showDisableAllDialog} onOpenChange={setShowDisableAllDialog}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Disable Widget for All Pages?</AlertDialogTitle>
+                  <AlertDialogTitle>{__('Disable Widget for All Pages?', 'surefeedback')}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will disable the SureFeedback widget on all pages of your website. Users will not be able to leave feedback. This action can be undone.
+                    {__('This will disable the SureFeedback widget on all pages of your website. Users will not be able to leave feedback. This action can be undone.', 'surefeedback')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel disabled={saving}>{__('Cancel', 'surefeedback')}</AlertDialogCancel>
                   <AlertDialogAction onClick={confirmDisableAll} disabled={saving} className="bg-red-600 hover:bg-red-700">
                     {saving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Disabling...
+                        {__('Disabling...', 'surefeedback')}
                       </>
                     ) : (
-                      'Disable All'
+                      __('Disable All', 'surefeedback')
                     )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
