@@ -1,39 +1,29 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Property SureFeedback\\\\Application\\:\\:\\$services type has no value type specified in iterable type array\\.$#"
+			message: "#^Constant DB_CHARSET not found\\.$#"
+			count: 1
+			path: config/app.php
+
+		-
+			message: "#^Constant DB_COLLATE not found\\.$#"
+			count: 1
+			path: config/app.php
+
+		-
+			message: "#^Constant WP_CONTENT_URL not found\\.$#"
+			count: 1
+			path: config/app.php
+
+		-
+			message: "#^Call to function is_object\\(\\) with string will always evaluate to false\\.$#"
 			count: 1
 			path: includes/app/Application.php
 
 		-
-			message: "#^Method SureFeedback\\\\Constants\\\\VerificationStatus\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Result of && is always false\\.$#"
 			count: 1
-			path: includes/app/Constants/VerificationStatus.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\ApiException\\:\\:__construct\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ApiException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\ApiException\\:\\:__construct\\(\\) has parameter \\$response_data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ApiException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\ApiException\\:\\:getResponseData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ApiException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\ApiException\\:\\:setResponseData\\(\\) has parameter \\$response_data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ApiException.php
-
-		-
-			message: "#^Property SureFeedback\\\\Exceptions\\\\ApiException\\:\\:\\$response_data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ApiException.php
+			path: includes/app/Application.php
 
 		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
@@ -41,39 +31,9 @@ parameters:
 			path: includes/app/Exceptions/ApiException.php
 
 		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\ConfigException\\:\\:invalidValue\\(\\) has parameter \\$valid_values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ConfigException.php
-
-		-
-			message: "#^Part \\$max \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
-			count: 2
-			path: includes/app/Exceptions/ConfigException.php
-
-		-
-			message: "#^Part \\$min \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
-			count: 2
-			path: includes/app/Exceptions/ConfigException.php
-
-		-
-			message: "#^Part \\$value \\(mixed\\) of encapsed string cannot be cast to string\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ConfigException.php
-
-		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 8
 			path: includes/app/Exceptions/ConfigException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\ContainerException\\:\\:circularDependency\\(\\) has parameter \\$dependency_chain with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ContainerException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\ContainerException\\:\\:missingDependencies\\(\\) has parameter \\$missing_dependencies with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/ContainerException.php
 
 		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
@@ -81,107 +41,12 @@ parameters:
 			path: includes/app/Exceptions/ContainerException.php
 
 		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:__construct\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:apiError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:authenticationError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:authorizationError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:getContext\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:invalidConfiguration\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:notFoundError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:rateLimitError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:serviceUnavailable\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:setContext\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Method SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:validationError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
-			message: "#^Property SureFeedback\\\\Exceptions\\\\SureFeedbackException\\:\\:\\$context type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Exceptions/SureFeedbackException.php
-
-		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 9
 			path: includes/app/Exceptions/SureFeedbackException.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\AdminApiController\\:\\:getConnectionStatus\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/AdminApiController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\AdminApiController\\:\\:getSettings\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/AdminApiController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\AdminApiController\\:\\:saveGeneralSettings\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/AdminApiController.php
-
-		-
 			message: "#^Constant SECURE_AUTH_KEY not found\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:connect\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:disconnect_webhook\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:getClientIp\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
 			count: 1
 			path: includes/app/Http/Controllers/Api/ConnectionController.php
 
@@ -191,58 +56,13 @@ parameters:
 			path: includes/app/Http/Controllers/Api/ConnectionController.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:reset\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:status\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:validate_token\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:webhook\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
 			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\ConnectionController\\:\\:webhook\\(\\) should return WP_REST_Response but returns WP_Error\\.$#"
 			count: 3
 			path: includes/app/Http/Controllers/Api/ConnectionController.php
 
 		-
-			message: "#^Parameter \\#1 \\$known_string of function hash_equals expects string, mixed given\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Parameter \\#2 \\$site_token of method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:disconnectSite\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Parameter \\#3 \\$domain of method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:disconnectSite\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/ConnectionController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:disableAll\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/PageSettingsController.php
-
-		-
 			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:disableAll\\(\\) should return WP_REST_Response but returns WP_Error\\.$#"
 			count: 2
-			path: includes/app/Http/Controllers/Api/PageSettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:disablePage\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
 			path: includes/app/Http/Controllers/Api/PageSettingsController.php
 
 		-
@@ -251,18 +71,8 @@ parameters:
 			path: includes/app/Http/Controllers/Api/PageSettingsController.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:enableAll\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/PageSettingsController.php
-
-		-
 			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:enableAll\\(\\) should return WP_REST_Response but returns WP_Error\\.$#"
 			count: 2
-			path: includes/app/Http/Controllers/Api/PageSettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:enablePage\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
 			path: includes/app/Http/Controllers/Api/PageSettingsController.php
 
 		-
@@ -271,17 +81,7 @@ parameters:
 			path: includes/app/Http/Controllers/Api/PageSettingsController.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:index\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/PageSettingsController.php
-
-		-
 			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:index\\(\\) should return WP_REST_Response but returns WP_Error\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/PageSettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\PageSettingsController\\:\\:update\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
 			count: 1
 			path: includes/app/Http/Controllers/Api/PageSettingsController.php
 
@@ -296,49 +96,9 @@ parameters:
 			path: includes/app/Http/Controllers/Api/PageSettingsController.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\SettingsController\\:\\:general\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/SettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\SettingsController\\:\\:getAvailableRoles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/SettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\SettingsController\\:\\:index\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/SettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\SettingsController\\:\\:update\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/SettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\SettingsController\\:\\:updateGeneral\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/SettingsController.php
-
-		-
 			message: "#^Parameter \\#3 \\$status of method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:error\\(\\) expects int, array given\\.$#"
 			count: 2
 			path: includes/app/Http/Controllers/Api/SettingsController.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Api\\\\VerificationController\\:\\:verify_connection\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/VerificationController.php
-
-		-
-			message: "#^Parameter \\#1 \\$site_token of method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:verifyIntegration\\(\\) expects string, mixed given\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/VerificationController.php
-
-		-
-			message: "#^Parameter \\#2 \\$jwt_token of method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:verifyIntegration\\(\\) expects string\\|null, mixed given\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Api/VerificationController.php
 
 		-
 			message: "#^Call to an undefined method SureFeedback\\\\Application\\:\\:isEnvironment\\(\\)\\.$#"
@@ -366,78 +126,8 @@ parameters:
 			path: includes/app/Http/Controllers/Controller.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:log\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:logError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:logInfo\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:paginate\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:paginate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:sanitizeData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:sanitizeData\\(\\) has parameter \\$rules with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:sanitizeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:validate\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:validate\\(\\) has parameter \\$rules with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:validateField\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:validateNonce\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Parameter \\#1 \\$email of function is_email expects string, mixed given\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|null given\\.$#"
-			count: 1
+			message: "#^If condition is always true\\.$#"
+			count: 2
 			path: includes/app/Http/Controllers/Controller.php
 
 		-
@@ -451,22 +141,7 @@ parameters:
 			path: includes/app/Http/Controllers/Controller.php
 
 		-
-			message: "#^Property SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:\\$app \\(SureFeedback\\\\Application\\) does not accept SureFeedback\\\\Application\\|null\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:\\$config \\(SureFeedback\\\\Contracts\\\\Config_Interface\\) does not accept SureFeedback\\\\Contracts\\\\Config_Interface\\|null\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
 			message: "#^Property SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:\\$config has unknown class SureFeedback\\\\Contracts\\\\Config_Interface as its type\\.$#"
-			count: 1
-			path: includes/app/Http/Controllers/Controller.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Controllers\\\\Controller\\:\\:\\$logger \\(SureFeedback\\\\Contracts\\\\Logger_Interface\\) does not accept SureFeedback\\\\Contracts\\\\Logger_Interface\\|null\\.$#"
 			count: 1
 			path: includes/app/Http/Controllers/Controller.php
 
@@ -476,364 +151,9 @@ parameters:
 			path: includes/app/Http/Controllers/Controller.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\AuthMiddleware\\:\\:getUserRoles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/AuthMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\AuthMiddleware\\:\\:handle\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/AuthMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\AuthMiddleware\\:\\:hasAnyRole\\(\\) has parameter \\$roles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/AuthMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\AuthMiddleware\\:\\:hasRequiredCapabilities\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/AuthMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\AuthMiddleware\\:\\:requiresNonceVerification\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/AuthMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\AuthMiddleware\\:\\:verifyNonce\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/AuthMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\AuthMiddleware\\:\\:verifyNonce\\(\\) should return bool but returns int\\|false\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/AuthMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\Middleware\\:\\:error\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/Middleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\Middleware\\:\\:getClientIp\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/Middleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\Middleware\\:\\:handle\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/Middleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\Middleware\\:\\:log\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/Middleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:addRouteMiddleware\\(\\) has parameter \\$middleware with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:executeMiddleware\\(\\) has parameter \\$middlewareStack with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:executeMiddleware\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:getAllMiddleware\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:getMiddlewareStack\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:getRouteMiddleware\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:process\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:\\$globalMiddleware type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:\\$instances type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:\\$middleware type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Middleware\\\\MiddlewareManager\\:\\:\\$routeMiddleware type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/MiddlewareManager.php
-
-		-
-			message: "#^Cannot access an offset on mixed\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:getClientIdentifier\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:getRateLimitConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:getRateLimitStatus\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:getRetryAfter\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:getRetryAfter\\(\\) should return int but returns float\\|int\\<0, max\\>\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:handle\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:isRateLimitExceeded\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:recordRequest\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of function array_filter expects array, mixed given\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, mixed given\\.$#"
-			count: 2
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Parameter \\#1 \\.\\.\\.\\$arg1 of function min expects array, mixed given\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Middleware\\\\RateLimitMiddleware\\:\\:\\$rateLimits type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/RateLimitMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:getRequestInstance\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:getRequestMappings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:getValidatedData\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:getValidatedData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:handle\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:validateData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:validateData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:validateFiles\\(\\) has parameter \\$allowedTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:validateFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:validateFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Middleware\\\\ValidationMiddleware\\:\\:\\$requestMappings type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Middleware/ValidationMiddleware.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Admin\\\\VerificationRequest\\:\\:rules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Admin/VerificationRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Connection\\\\ConnectRequest\\:\\:attributes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Connection/ConnectRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Connection\\\\ConnectRequest\\:\\:messages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Connection/ConnectRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Connection\\\\ConnectRequest\\:\\:rules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Connection/ConnectRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Connection\\\\StatusRequest\\:\\:messages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Connection/StatusRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Connection\\\\StatusRequest\\:\\:rules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Connection/StatusRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Connection\\\\VerifyRequest\\:\\:messages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Connection/VerifyRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Connection\\\\VerifyRequest\\:\\:rules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Connection/VerifyRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:attributes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:createFromWpRequest\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:errors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:getErrorMessage\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:messages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:rules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:setData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:validated\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Parameter \\#1 \\$email of function is_email expects string, mixed given\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Parameter \\#1 \\$string of function strlen expects string, mixed given\\.$#"
-			count: 2
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Requests\\\\Request\\:\\:\\$errors type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Request.php
-
-		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 1
 			path: includes/app/Http/Requests/Request.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Settings\\\\UpdateSettingsRequest\\:\\:attributes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Settings/UpdateSettingsRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Settings\\\\UpdateSettingsRequest\\:\\:messages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Settings/UpdateSettingsRequest.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Requests\\\\Settings\\\\UpdateSettingsRequest\\:\\:rules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Requests/Settings/UpdateSettingsRequest.php
 
 		-
 			message: "#^Anonymous function has an unused use \\$options\\.$#"
@@ -841,282 +161,12 @@ parameters:
 			path: includes/app/Http/Router.php
 
 		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:addRoute\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:addRoute\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:checkJWTPermissions\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:checkPermissions\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:delete\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:deleteJWT\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:get\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:getJWT\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:group\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:post\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:postJWT\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:prepareCallback\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:prepareCallback\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:prepareCallback\\(\\) should return callable\\(\\)\\: mixed but returns array\\|\\(callable\\(\\)\\: mixed\\)\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:put\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Http\\\\Router\\:\\:putJWT\\(\\) has parameter \\$callback with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Property SureFeedback\\\\Http\\\\Router\\:\\:\\$routes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Http/Router.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\BaseRepository\\:\\:getOptionsWithPattern\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/BaseRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\BaseRepository\\:\\:setMultipleOptions\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/BaseRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\BaseRepository\\:\\:validateDataStructure\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/BaseRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\BaseRepository\\:\\:validateDataStructure\\(\\) has parameter \\$required with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/BaseRepository.php
-
-		-
-			message: "#^Possibly invalid array key type \\(array\\<int, string\\>\\|string\\)\\.$#"
-			count: 1
-			path: includes/app/Repositories/BaseRepository.php
-
-		-
-			message: "#^Property SureFeedback\\\\Repositories\\\\BaseRepository\\:\\:\\$cache type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/BaseRepository.php
-
-		-
-			message: "#^Cannot cast mixed to int\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getAccessToken\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getApiKey\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getConnectionData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getConnectionStatus\\(\\) should return string but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getCreatedAt\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getDomain\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getLastVerification\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getOrganizationId\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getParentUrl\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getProjectId\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getSignature\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getSiteId\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getSiteName\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:getUserToken\\(\\) should return string\\|null but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\ConnectionRepository\\:\\:saveConnectionData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/ConnectionRepository.php
-
-		-
 			message: "#^Right side of && is always true\\.$#"
 			count: 2
 			path: includes/app/Repositories/ConnectionRepository.php
 
 		-
-			message: "#^Argument of an invalid type array\\<WP_Post\\>\\|false supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: includes/app/Repositories/PageSettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\PageSettingsRepository\\:\\:getAllPages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/PageSettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\PageSettingsRepository\\:\\:getAllPagesWithStatus\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/PageSettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\PageSettingsRepository\\:\\:getPageSettings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/PageSettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\PageSettingsRepository\\:\\:isWidgetEnabledForPage\\(\\) has parameter \\$settings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/PageSettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\PageSettingsRepository\\:\\:updatePageSettings\\(\\) has parameter \\$settings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/PageSettingsRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$post of function get_permalink expects int\\|WP_Post, mixed given\\.$#"
-			count: 1
-			path: includes/app/Repositories/PageSettingsRepository.php
-
-		-
-			message: "#^Cannot access offset 'settings' on mixed\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:exportSettings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:getAllAvailableRoleNames\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:getAllSettings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:getGeneralSettings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:getPluginRoles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:getSettings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:importSettings\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: includes/app/Repositories/SettingsRepository.php
 
@@ -1126,52 +176,12 @@ parameters:
 			path: includes/app/Repositories/SettingsRepository.php
 
 		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:setPluginRoles\\(\\) has parameter \\$roles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:updateGeneralSettings\\(\\) has parameter \\$settings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:updateGeneralSettings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:validateSettings\\(\\) has parameter \\$settings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:importSettings\\(\\) expects array, mixed given\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Property SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:\\$defaultSettings type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Repositories/SettingsRepository.php
-
-		-
-			message: "#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
 			message: "#^Call to an undefined method SureFeedback\\\\Repositories\\\\SettingsRepository\\:\\:updateSettings\\(\\)\\.$#"
 			count: 2
 			path: includes/app/Services/AdminService.php
 
 		-
 			message: "#^Call to method validated\\(\\) on an unknown class SureFeedback\\\\Http\\\\Requests\\\\UpdateSettingsRequest\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Cannot access offset 'success' on mixed\\.$#"
 			count: 1
 			path: includes/app/Services/AdminService.php
 
@@ -1196,69 +206,9 @@ parameters:
 			path: includes/app/Services/AdminService.php
 
 		-
-			message: "#^Method SureFeedback\\\\Services\\\\AdminService\\:\\:get_active_plugins_list\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\AdminService\\:\\:get_admin_settings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\AdminService\\:\\:get_connection_data\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\AdminService\\:\\:get_environment_info\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\AdminService\\:\\:get_localized_strings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\AdminService\\:\\:get_user_capabilities\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Parameter \\#1 \\$from of function human_time_diff expects int, int\\|false given\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, mixed given\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
 			message: "#^Property SureFeedback\\\\Services\\\\AdminService\\:\\:\\$current_page is never read, only written\\.$#"
 			count: 1
 			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Property SureFeedback\\\\Services\\\\AdminService\\:\\:\\$menu_pages type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/AdminService.php
-
-		-
-			message: "#^Cannot access offset 'error_code' on mixed\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Cannot access offset 'message' on mixed\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Cannot access offset 'success' on mixed\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
 
 		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
@@ -1266,188 +216,8 @@ parameters:
 			path: includes/app/Services/ApiGatewayService.php
 
 		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:buildDefaultHeaders\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:buildUrl\\(\\) has parameter \\$query_params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:delete\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:delete\\(\\) has parameter \\$query_params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:delete\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:disconnectSite\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:executeRequest\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:executeRequest\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:get\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:get\\(\\) has parameter \\$query_params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:getHeaders\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:logError\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:logRequest\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:logResponse\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:parseResponse\\(\\) has parameter \\$response with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:parseResponse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:post\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:post\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:post\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:put\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:put\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:put\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:verifyIntegration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Parameter \\#1 \\$code of class WP_Error constructor expects int\\|string, mixed given\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Parameter \\#2 \\$message of class WP_Error constructor expects string, mixed given\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Parameter \\#3 \\$status_code of method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:logResponse\\(\\) expects int, int\\|string given\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Parameter \\#4 \\$data of method SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:logResponse\\(\\) expects array, mixed given\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Property SureFeedback\\\\Services\\\\ApiGatewayService\\:\\:\\$default_headers type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/ApiGatewayService.php
-
-		-
-			message: "#^Cannot access property \\$ID on WP_User\\|null\\.$#"
-			count: 2
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Cannot access property \\$display_name on WP_User\\|null\\.$#"
-			count: 2
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Cannot access property \\$roles on WP_User\\|null\\.$#"
-			count: 1
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Cannot access property \\$user_email on WP_User\\|null\\.$#"
-			count: 1
-			path: includes/app/Services/FrontendService.php
-
-		-
 			message: "#^Function surefeedback_get_base_api_url not found\\.$#"
 			count: 2
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\FrontendService\\:\\:get_current_page_data\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\FrontendService\\:\\:get_current_user_data\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\FrontendService\\:\\:get_widget_status\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
 			path: includes/app/Services/FrontendService.php
 
 		-
@@ -1461,17 +231,7 @@ parameters:
 			path: includes/app/Services/FrontendService.php
 
 		-
-			message: "#^Method SureFeedback\\\\Services\\\\FrontendService\\:\\:test_widget\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/FrontendService.php
-
-		-
 			message: "#^Parameter \\#1 \\$text of function esc_html expects string, int given\\.$#"
-			count: 1
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Parameter \\#1 \\$text of function esc_html expects string, string\\|null given\\.$#"
 			count: 1
 			path: includes/app/Services/FrontendService.php
 
@@ -1486,16 +246,6 @@ parameters:
 			path: includes/app/Services/FrontendService.php
 
 		-
-			message: "#^Parameter \\#1 \\$text of function esc_js expects string, string\\|false given\\.$#"
-			count: 1
-			path: includes/app/Services/FrontendService.php
-
-		-
-			message: "#^Parameter \\#1 \\$text of function esc_js expects string, string\\|null given\\.$#"
-			count: 3
-			path: includes/app/Services/FrontendService.php
-
-		-
 			message: "#^Property SureFeedback\\\\Services\\\\FrontendService\\:\\:\\$page_settings_repository is never read, only written\\.$#"
 			count: 1
 			path: includes/app/Services/FrontendService.php
@@ -1506,101 +256,36 @@ parameters:
 			path: includes/app/Services/FrontendService.php
 
 		-
-			message: "#^Method SureFeedback\\\\Services\\\\JWTService\\:\\:check_permission\\(\\) has parameter \\$token_data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/JWTService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\JWTService\\:\\:generate_token\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/JWTService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\JWTService\\:\\:validate_token\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/JWTService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\JWTService\\:\\:validate_token\\(\\) should return array\\|false but returns mixed\\.$#"
-			count: 1
-			path: includes/app/Services/JWTService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\JWTService\\:\\:validate_token_from_request\\(\\) has parameter \\$request with generic class WP_REST_Request but does not specify its types\\: T$#"
-			count: 1
-			path: includes/app/Services/JWTService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\JWTService\\:\\:validate_token_from_request\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/JWTService.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: includes/app/Services/JWTService.php
-
-		-
-			message: "#^Cannot access an offset on mixed\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:getRecentSecurityEvents\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:getSecurityHeaders\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:isAllowedFileType\\(\\) has parameter \\$allowed_types with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:logSecurityEvent\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:storeSecurityLog\\(\\) has parameter \\$log_data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:userCan\\(\\) has parameter \\$capability with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:validateApiKey\\(\\) should return bool but returns int\\|false\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Method SureFeedback\\\\Services\\\\SecurityService\\:\\:validateUrl\\(\\) has parameter \\$allowed_schemes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of function bin2hex expects string, string\\|false given\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of function array_slice expects array, mixed given\\.$#"
+			message: "#^Constant SUREFEEDBACK_PLUGIN_BASENAME not found\\.$#"
 			count: 2
-			path: includes/app/Services/SecurityService.php
+			path: routes/api.php
 
 		-
-			message: "#^Parameter \\#1 \\$length of function random_bytes expects int\\<1, max\\>, \\(float\\|int\\) given\\.$#"
-			count: 1
-			path: includes/app/Services/SecurityService.php
+			message: "#^Variable \\$router might not be defined\\.$#"
+			count: 11
+			path: routes/api.php
 
 		-
-			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, mixed given\\.$#"
+			message: "#^Class SureFeedback\\\\App\\\\Http\\\\Controllers\\\\AdminController not found\\.$#"
+			count: 7
+			path: routes/web.php
+
+		-
+			message: "#^Class SureFeedback\\\\App\\\\Http\\\\Controllers\\\\SettingsController not found\\.$#"
+			count: 5
+			path: routes/web.php
+
+		-
+			message: "#^Constant SUREFEEDBACK_PLUGIN_DIR not found\\.$#"
 			count: 1
-			path: includes/app/Services/SecurityService.php
+			path: routes/web.php
+
+		-
+			message: "#^Constant SUREFEEDBACK_PLUGIN_URL not found\\.$#"
+			count: 1
+			path: routes/web.php
+
+		-
+			message: "#^Variable \\$router might not be defined\\.$#"
+			count: 3
+			path: routes/web.php
