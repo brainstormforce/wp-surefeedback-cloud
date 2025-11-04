@@ -3,8 +3,7 @@ name: Code Analysis
 'on':
   pull_request:
     branches:
-      - Staging
-      - Master
+      - master
 
 jobs:
   build:

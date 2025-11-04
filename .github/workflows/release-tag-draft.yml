@@ -3,7 +3,7 @@ name: Create a release tag
 on:
   push:
     branches:
-      - Master
+      - master
     paths:
       # Release happens only if the version number in main file is updated.
       - 'surefeedback.php'
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: Master
+          ref: master
 
       - name: Use desired version of NodeJS
         uses: actions/setup-node@v2
@@ -90,7 +90,7 @@ jobs:
         with:
           name: Version ${{ steps.get_release_version.outputs.version }}
           tag_name: 'v${{ steps.get_release_version.outputs.version }}'
-          target_commitish: Master
+          target_commitish: master
           draft: true
           prerelease: false
           body: 'Replace changelog here'

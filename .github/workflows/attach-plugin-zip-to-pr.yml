@@ -2,7 +2,7 @@ name: Attach plugin zip to PR
 
 on:
   pull_request:
-    branches: [Staging,Master]
+    branches: [master]
 
 env:
   PLUGIN_SLUG: ${{ github.event.repository.name }}
