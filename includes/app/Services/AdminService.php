@@ -904,7 +904,8 @@ class AdminService {
 			'environment'       => ( defined( 'WP_DEBUG' ) && WP_DEBUG ? 'development' : 'production' ),
 			'site_data'         => $site_data,
 			'site_id'           => $site_id,
-			'access_token'      => $access_token ? substr( $access_token, 0, 10 ) . '...' : null, // Partial token for debugging
+			'access_token'      => $access_token, // Full access token for API calls
+			'site_token'        => $access_token, // Alias for compatibility with verification service
 		);
 
 		return $connection_data;
