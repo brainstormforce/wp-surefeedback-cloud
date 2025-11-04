@@ -61,6 +61,8 @@ module.exports = function (grunt) {
       local: {
         options: {
           archive: "surefeedback-v<%= version %>-local.zip",
+          mode: 'zip',
+          level: 9,
         },
         files: [
           {
@@ -184,6 +186,8 @@ module.exports = function (grunt) {
       staging: {
         options: {
           archive: "surefeedback-v<%= version %>-staging.zip",
+          mode: 'zip',
+          level: 9,
         },
         files: [
           {
@@ -307,6 +311,8 @@ module.exports = function (grunt) {
       production: {
         options: {
           archive: "surefeedback.<%= version %>.zip",
+          mode: 'zip',
+          level: 9,
         },
         files: [
           {
@@ -507,6 +513,72 @@ module.exports = function (grunt) {
     });
   });
 
+  // Custom task to remove empty directories
+  grunt.registerTask("remove-empty-dirs", "Remove empty directories before compression", function() {
+    var fs = require('fs');
+    var path = require('path');
+    
+    function isEmptyDir(dirPath) {
+      try {
+        var files = fs.readdirSync(dirPath);
+        if (files.length === 0) {
+          return true;
+        }
+        // Check if all items are empty directories
+        return files.every(function(file) {
+          var filePath = path.join(dirPath, file);
+          var stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return isEmptyDir(filePath);
+          }
+          return false;
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function removeEmptyDirs(dirPath, rootPath) {
+      try {
+        var files = fs.readdirSync(dirPath);
+        files.forEach(function(file) {
+          var filePath = path.join(dirPath, file);
+          var stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            // Recursively check subdirectories
+            removeEmptyDirs(filePath, rootPath);
+            // Check if directory is now empty
+            if (isEmptyDir(filePath)) {
+              // Don't remove certain directories that should exist even if empty
+              var relativePath = path.relative(rootPath, filePath);
+              var shouldKeep = [
+                'languages',
+                'assets',
+                'includes',
+                'resources',
+                'vendor',
+              ].some(function(keepDir) {
+                return relativePath.split(path.sep)[0] === keepDir;
+              });
+              
+              if (!shouldKeep) {
+                fs.rmdirSync(filePath);
+                grunt.log.writeln("Removed empty directory: " + relativePath);
+              }
+            }
+          }
+        });
+      } catch (e) {
+        // Ignore errors for directories that don't exist or can't be read
+      }
+    }
+
+    var rootPath = process.cwd();
+    grunt.log.writeln("Removing empty directories...");
+    removeEmptyDirs(rootPath, rootPath);
+    grunt.log.writeln("Empty directories removed.");
+  });
+
   // Note: Environment configuration uses WordPress constants (Sigmize pattern)
   // - Constants defined in surefeedback.php with production defaults
   // - Can be overridden in wp-config.php per environment
@@ -523,6 +595,7 @@ module.exports = function (grunt) {
   // - No auto-detection, no .env files - WordPress.org compliant
   grunt.registerTask("release:local", [
     "build",
+    "remove-empty-dirs",
     "clean:release_local",
     "compress:local",
     "copy:release_local",
@@ -531,6 +604,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask("release:staging", [
     "build",
+    "remove-empty-dirs",
     "clean:release_staging",
     "compress:staging",
     "copy:release_staging",
@@ -539,6 +613,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask("release:production", [
     "build",
+    "remove-empty-dirs",
     "clean:release_production",
     "compress:production",
     "copy:release_production",
@@ -547,6 +622,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask("release:all", [
     "build",
+    "remove-empty-dirs",
     "clean:release_all",
     "compress:local",
     "copy:release_local",
