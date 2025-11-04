@@ -90,7 +90,7 @@ class AdminService
         add_action('admin_notices', [$this, 'display_admin_notices']);
         
         // Plugin action links
-        add_filter('plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME, [$this, 'add_plugin_action_links']);
+        // add_filter('plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME, [$this, 'add_plugin_action_links']);
         
         // Admin bar
         add_action('admin_bar_menu', [$this, 'add_admin_bar_menu'], 100);
@@ -398,17 +398,15 @@ class AdminService
      * @param array $links Existing action links
      * @return array Modified action links
      */
-    public function add_plugin_action_links(array $links): array
-    {
-        $plugin_links = [
-            '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-connection')) . '">' .
-            esc_html__('Connection', 'surefeedback') . '</a>',
-            '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-settings')) . '">' .
-            esc_html__('Settings', 'surefeedback') . '</a>'
-        ];
+    // public function add_plugin_action_links(array $links): array
+    // {
+    //     $plugin_links = [
+    //         '<a href="' . esc_url(admin_url('admin.php?page=' . $this->menu_slug . '-connection')) . '">' .
+    //         esc_html__('Connection', 'surefeedback') . '</a>',
+    //     ];
 
-        return array_merge($plugin_links, $links);
-    }
+    //     return array_merge($plugin_links, $links);
+    // }
 
     /**
      * Add admin bar menu
