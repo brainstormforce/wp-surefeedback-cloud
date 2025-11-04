@@ -16,15 +16,42 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-// delete our options.
-delete_option( 'surefeedback_api_key' );
-delete_option( 'surefeedback_access_token' );
-delete_option( 'surefeedback_project_id' );
-delete_option( 'surefeedback_parent_url' );
-delete_option( 'surefeedback_signature' );
-delete_option( 'surefeedback_installed' );
-delete_option( 'surefeedback_admin_enabled' );
-delete_option( 'surefeedback_allow_guests' );
-delete_option( 'surefeedback_connection_status' );
-delete_option( 'surefeedback_commenters' );
-delete_option( 'surefeedback_manual_connection' );
+// Delete all plugin options.
+// Using direct delete_option calls for reliability during uninstall.
+$options_to_delete = array(
+	// Connection data.
+	'surefeedback_site_id',
+	'surefeedback_access_token',
+	'surefeedback_project_id',
+	'surefeedback_api_key',
+	'surefeedback_parent_url',
+	'surefeedback_signature',
+	'surefeedback_connection_status',
+	'surefeedback_site_name',
+	'surefeedback_domain',
+	'surefeedback_organization_id',
+	'surefeedback_is_active',
+	'surefeedback_created_at',
+	'surefeedback_site_connected',
+	'surefeedback_last_verification',
+	'surefeedback_is_fully_verified',
+	'surefeedback_user_token',
+	// Settings data.
+	'surefeedback_installed',
+	'surefeedback_admin_enabled',
+	'surefeedback_allow_guests',
+	'surefeedback_commenters',
+	'surefeedback_manual_connection',
+	'surefeedback_jwt_secret',
+	'surefeedback_roles',
+	'surefeedback_page_widget_settings',
+	'surefeedback_settings_backup',
+);
+
+foreach ( $options_to_delete as $option ) {
+	delete_option( $option );
+}
+
+// Clear transients.
+delete_transient( 'surefeedback_connection_check' );
+wp_cache_delete( 'surefeedback_settings' );

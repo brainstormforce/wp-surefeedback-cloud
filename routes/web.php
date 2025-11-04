@@ -86,7 +86,14 @@ add_action('wp_enqueue_scripts', function () {
             SUREFEEDBACK_VERSION,
             true
         );
-        
+
+        // Set script translations for frontend widget
+        wp_set_script_translations(
+            'surefeedback-widget',
+            'surefeedback',
+            SUREFEEDBACK_PLUGIN_DIR . 'languages'
+        );
+
         wp_localize_script('surefeedback-widget', 'surefeedbackConfig', [
             'apiUrl' => rest_url('surefeedback/v1/'),
             'nonce' => wp_create_nonce('wp_rest'),

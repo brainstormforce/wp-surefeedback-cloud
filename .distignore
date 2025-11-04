@@ -1,0 +1,132 @@
+# Directories
+.git
+.github
+node_modules
+tests
+bin
+
+# Environment & Config Files
+.env
+.env.*
+.env.local
+.env.production
+.env.staging
+.env.development
+
+# Git Files
+.gitignore
+.gitattributes
+.gitmodules
+
+# Development Tools
+phpcs.xml
+phpcs.xml.dist
+phpstan.neon
+phpstan-baseline.neon
+phpunit.xml
+phpunit.xml.dist
+.phpcs.xml
+.phpunit.result.cache
+
+# Composer (keep vendor, exclude dev files)
+composer.json
+composer.lock
+composer.phar
+
+# NPM/Node
+package.json
+package-lock.json
+yarn.lock
+.npmrc
+.nvmrc
+
+# Build Tools & Configs
+webpack.config.js
+vite.config.js
+rollup.config.js
+postcss.config.js
+postcss.config.cjs
+tailwind.config.js
+tailwind.config.cjs
+babel.config.js
+.babelrc
+tsconfig.json
+jsconfig.json
+GruntFile.js
+Gruntfile.js
+gulpfile.js
+
+# IDE & Editor Files
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+.project
+.settings
+*.tmproj
+*.esproj
+nbproject
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Documentation (dev only)
+CLAUDE.md
+GithubCopilot.md
+README.md
+WPORG_READINESS.md
+CONTRIBUTING.md
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+
+# Log Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+error_log
+debug.log
+
+# Temporary Files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.cache
+
+# Source Files (if you have compiled versions)
+# Uncomment these if your assets/dist/ contains compiled versions
+# resources/assets/js/
+# resources/assets/css/
+# src/
+
+# Test Files
+*.test.js
+*.spec.js
+__tests__
+coverage
+
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+circle.yml
+.circleci
+.codeclimate.yml
+.scrutinizer.yml
+
+# Misc
+*.zip
+*.tar.gz
+*.rar
+*.sql
+*.sqlite
+stubs-generator.php
+components.json

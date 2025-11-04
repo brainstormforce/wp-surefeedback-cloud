@@ -35,7 +35,7 @@ class VerificationService {
     getApiUrl() {
         return window.sureFeedbackAdmin?.connection?.app_url || 
                window.sureFeedbackAdmin?.app_url ||
-               'http://localhost:8000';
+               'https://api.surefeedback.com';
     }
 
     /**

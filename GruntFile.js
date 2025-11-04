@@ -9,7 +9,7 @@ module.exports = function (grunt) {
     version: (function() {
       var phpFile = grunt.file.read('surefeedback.php');
       var versionMatch = phpFile.match(/\* Version:\s*([0-9.]+)/);
-      return versionMatch ? versionMatch[1] : '1.0.0';
+      return versionMatch ? versionMatch[1] : '0.0.1';
     })(),
 
     addtextdomain: {
@@ -66,7 +66,6 @@ module.exports = function (grunt) {
           {
             src: [
               "**/*",
-              ".env", // Explicitly include .env file (it's in .gitignore)
               "!node_modules/**",
               "!tests/**",
               "!.git/**",
@@ -75,7 +74,9 @@ module.exports = function (grunt) {
               "!bin/**",
               "!src/**",
               "!resources/assets/**",
+              "!resources/views/**",
               "!release/**",
+              "!database/**",
               "!vite.config.js",
               "!postcss.config.cjs",
               "!tailwind.config.cjs",
@@ -91,10 +92,8 @@ module.exports = function (grunt) {
               "!jsconfig.json",
               "!components.json",
               "!GruntFile.js",
-              "!CLAUDE.md",
-              "!GithubCopilot.md",
-              "!README.md",
-              "!.env.example",
+              "!*.md",
+              "!.env*",
               "!*.log",
               "!*.tmp",
               "!.DS_Store",
@@ -102,6 +101,80 @@ module.exports = function (grunt) {
               "!.phpunit.cache/**",
               "!surefeedback-*.zip",
               "!surefeedback.zip",
+              "!*.map",
+              "!*.test.*",
+              "!*.spec.*",
+              "!__tests__/**",
+              "!coverage/**",
+              "!.git/**",
+              "!.github/**",
+              "!.vscode/**",
+              "!.idea/**",
+              "!*.sublime-*",
+              "!.editorconfig",
+              "!.eslintrc*",
+              "!.prettierrc*",
+              "!babel.config.*",
+              "!.babelrc*",
+              "!tsconfig.json",
+              "!eslint.config.*",
+              "!prettier.config.*",
+              "!jest.config.*",
+              "!webpack.config.*",
+              "!rollup.config.*",
+              "!*.config.js",
+              "!*.config.cjs",
+              "!*.config.mjs",
+              "!*.config.ts",
+              "!vendor/bin/**",
+              "!vendor/*/tests/**",
+              "!vendor/*/test/**",
+              "!vendor/*/docs/**",
+              "!vendor/*/doc/**",
+              "!vendor/*/.git/**",
+              "!vendor/*/phpunit.xml*",
+              "!vendor/*/phpcs.xml*",
+              "!vendor/*/.php-cs-fixer*",
+              "!vendor/*/CHANGELOG*",
+              "!vendor/*/README*",
+              "!vendor/*/LICENSE*",
+              "!vendor/*/LICENCE*",
+              "!vendor/*/CONTRIBUTING*",
+              "!vendor/*/CODE_OF_CONDUCT*",
+              "!vendor/*/.github/**",
+              "!vendor/*/.gitignore",
+              "!vendor/*/.gitattributes",
+              "!vendor/*/composer.json",
+              "!vendor/*/composer.lock",
+              "!vendor/*/package.json",
+              "!vendor/*/package-lock.json",
+              "!vendor/*/yarn.lock",
+              "!vendor/*/Gruntfile.js",
+              "!vendor/*/gulpfile.js",
+              "!vendor/*/webpack.config.js",
+              "!vendor/*/babel.config.js",
+              "!vendor/*/.eslintrc*",
+              "!vendor/*/.prettierrc*",
+              "!vendor/*/tsconfig.json",
+              "!vendor/*/jsconfig.json",
+              "!vendor/*/*.map",
+              "!vendor/*/node_modules/**",
+              "!vendor/*/tests/**",
+              "!vendor/*/test/**",
+              "!vendor/*/docs/**",
+              "!vendor/*/doc/**",
+              "!vendor/*/examples/**",
+              "!vendor/*/example/**",
+              "!vendor/*/samples/**",
+              "!vendor/*/sample/**",
+              "!vendor/*/demo/**",
+              "!vendor/*/demos/**",
+              "!vendor/*/benchmarks/**",
+              "!vendor/*/benchmark/**",
+              "!vendor/*/tools/**",
+              "!vendor/*/tool/**",
+              "!vendor/*/scripts/**",
+              "!vendor/*/script/**",
             ],
             dest: "surefeedback/",
           },
@@ -116,7 +189,6 @@ module.exports = function (grunt) {
           {
             src: [
               "**/*",
-              ".env", // Explicitly include .env file (it's in .gitignore)
               "!node_modules/**",
               "!tests/**",
               "!.git/**",
@@ -125,7 +197,9 @@ module.exports = function (grunt) {
               "!bin/**",
               "!src/**",
               "!resources/assets/**",
+              "!resources/views/**",
               "!release/**",
+              "!database/**",
               "!vite.config.js",
               "!postcss.config.cjs",
               "!tailwind.config.cjs",
@@ -141,10 +215,8 @@ module.exports = function (grunt) {
               "!jsconfig.json",
               "!components.json",
               "!GruntFile.js",
-              "!CLAUDE.md",
-              "!GithubCopilot.md",
-              "!README.md",
-              "!.env.example",
+              "!*.md",
+              "!.env*",
               "!*.log",
               "!*.tmp",
               "!.DS_Store",
@@ -152,6 +224,80 @@ module.exports = function (grunt) {
               "!.phpunit.cache/**",
               "!surefeedback-*.zip",
               "!surefeedback.zip",
+              "!*.map",
+              "!*.test.*",
+              "!*.spec.*",
+              "!__tests__/**",
+              "!coverage/**",
+              "!.git/**",
+              "!.github/**",
+              "!.vscode/**",
+              "!.idea/**",
+              "!*.sublime-*",
+              "!.editorconfig",
+              "!.eslintrc*",
+              "!.prettierrc*",
+              "!babel.config.*",
+              "!.babelrc*",
+              "!tsconfig.json",
+              "!eslint.config.*",
+              "!prettier.config.*",
+              "!jest.config.*",
+              "!webpack.config.*",
+              "!rollup.config.*",
+              "!*.config.js",
+              "!*.config.cjs",
+              "!*.config.mjs",
+              "!*.config.ts",
+              "!vendor/bin/**",
+              "!vendor/*/tests/**",
+              "!vendor/*/test/**",
+              "!vendor/*/docs/**",
+              "!vendor/*/doc/**",
+              "!vendor/*/.git/**",
+              "!vendor/*/phpunit.xml*",
+              "!vendor/*/phpcs.xml*",
+              "!vendor/*/.php-cs-fixer*",
+              "!vendor/*/CHANGELOG*",
+              "!vendor/*/README*",
+              "!vendor/*/LICENSE*",
+              "!vendor/*/LICENCE*",
+              "!vendor/*/CONTRIBUTING*",
+              "!vendor/*/CODE_OF_CONDUCT*",
+              "!vendor/*/.github/**",
+              "!vendor/*/.gitignore",
+              "!vendor/*/.gitattributes",
+              "!vendor/*/composer.json",
+              "!vendor/*/composer.lock",
+              "!vendor/*/package.json",
+              "!vendor/*/package-lock.json",
+              "!vendor/*/yarn.lock",
+              "!vendor/*/Gruntfile.js",
+              "!vendor/*/gulpfile.js",
+              "!vendor/*/webpack.config.js",
+              "!vendor/*/babel.config.js",
+              "!vendor/*/.eslintrc*",
+              "!vendor/*/.prettierrc*",
+              "!vendor/*/tsconfig.json",
+              "!vendor/*/jsconfig.json",
+              "!vendor/*/*.map",
+              "!vendor/*/node_modules/**",
+              "!vendor/*/tests/**",
+              "!vendor/*/test/**",
+              "!vendor/*/docs/**",
+              "!vendor/*/doc/**",
+              "!vendor/*/examples/**",
+              "!vendor/*/example/**",
+              "!vendor/*/samples/**",
+              "!vendor/*/sample/**",
+              "!vendor/*/demo/**",
+              "!vendor/*/demos/**",
+              "!vendor/*/benchmarks/**",
+              "!vendor/*/benchmark/**",
+              "!vendor/*/tools/**",
+              "!vendor/*/tool/**",
+              "!vendor/*/scripts/**",
+              "!vendor/*/script/**",
             ],
             dest: "surefeedback/",
           },
@@ -160,7 +306,7 @@ module.exports = function (grunt) {
       // Production zip (WordPress.org release)
       production: {
         options: {
-          archive: "surefeedback-v<%= version %>-production.zip",
+          archive: "surefeedback.<%= version %>.zip",
         },
         files: [
           {
@@ -174,7 +320,9 @@ module.exports = function (grunt) {
               "!bin/**",
               "!src/**",
               "!resources/assets/**",
+              "!resources/views/**",
               "!release/**",
+              "!database/**",
               "!vite.config.js",
               "!postcss.config.cjs",
               "!tailwind.config.cjs",
@@ -190,17 +338,93 @@ module.exports = function (grunt) {
               "!jsconfig.json",
               "!components.json",
               "!GruntFile.js",
-              "!CLAUDE.md",
-              "!GithubCopilot.md",
-              "!README.md",
-              "!.env.example",
+              "!*.md",
+              "!.env*",
               "!*.log",
               "!*.tmp",
               "!.DS_Store",
               "!Thumbs.db",
               "!.phpunit.cache/**",
+              "!database/**",
+              "!resources/views/**",
+              "!resources/assets/**",
               "!surefeedback-*.zip",
+              "!surefeedback.*.zip",
               "!surefeedback.zip",
+              "!*.map",
+              "!*.test.*",
+              "!*.spec.*",
+              "!__tests__/**",
+              "!coverage/**",
+              "!.git/**",
+              "!.github/**",
+              "!.vscode/**",
+              "!.idea/**",
+              "!*.sublime-*",
+              "!.editorconfig",
+              "!.eslintrc*",
+              "!.prettierrc*",
+              "!babel.config.*",
+              "!.babelrc*",
+              "!tsconfig.json",
+              "!eslint.config.*",
+              "!prettier.config.*",
+              "!jest.config.*",
+              "!webpack.config.*",
+              "!rollup.config.*",
+              "!*.config.js",
+              "!*.config.cjs",
+              "!*.config.mjs",
+              "!*.config.ts",
+              "!vendor/bin/**",
+              "!vendor/*/tests/**",
+              "!vendor/*/test/**",
+              "!vendor/*/docs/**",
+              "!vendor/*/doc/**",
+              "!vendor/*/.git/**",
+              "!vendor/*/phpunit.xml*",
+              "!vendor/*/phpcs.xml*",
+              "!vendor/*/.php-cs-fixer*",
+              "!vendor/*/CHANGELOG*",
+              "!vendor/*/README*",
+              "!vendor/*/LICENSE*",
+              "!vendor/*/LICENCE*",
+              "!vendor/*/CONTRIBUTING*",
+              "!vendor/*/CODE_OF_CONDUCT*",
+              "!vendor/*/.github/**",
+              "!vendor/*/.gitignore",
+              "!vendor/*/.gitattributes",
+              "!vendor/*/composer.json",
+              "!vendor/*/composer.lock",
+              "!vendor/*/package.json",
+              "!vendor/*/package-lock.json",
+              "!vendor/*/yarn.lock",
+              "!vendor/*/Gruntfile.js",
+              "!vendor/*/gulpfile.js",
+              "!vendor/*/webpack.config.js",
+              "!vendor/*/babel.config.js",
+              "!vendor/*/.eslintrc*",
+              "!vendor/*/.prettierrc*",
+              "!vendor/*/tsconfig.json",
+              "!vendor/*/jsconfig.json",
+              "!vendor/*/*.map",
+              "!vendor/*/node_modules/**",
+              "!vendor/*/tests/**",
+              "!vendor/*/test/**",
+              "!vendor/*/docs/**",
+              "!vendor/*/doc/**",
+              "!vendor/*/examples/**",
+              "!vendor/*/example/**",
+              "!vendor/*/samples/**",
+              "!vendor/*/sample/**",
+              "!vendor/*/demo/**",
+              "!vendor/*/demos/**",
+              "!vendor/*/benchmarks/**",
+              "!vendor/*/benchmark/**",
+              "!vendor/*/tools/**",
+              "!vendor/*/tool/**",
+              "!vendor/*/scripts/**",
+              "!vendor/*/script/**",
             ],
             dest: "surefeedback/",
           },
@@ -239,8 +463,8 @@ module.exports = function (grunt) {
       release_production: {
         files: [
           {
-            src: "surefeedback-v<%= version %>-production.zip",
-            dest: "release/production/surefeedback-v<%= version %>-production.zip",
+            src: "surefeedback.<%= version %>.zip",
+            dest: "release/production/surefeedback.<%= version %>.zip",
           },
         ],
       },
@@ -283,42 +507,23 @@ module.exports = function (grunt) {
     });
   });
 
-  // Custom task to copy environment file for staging
-  grunt.registerTask("copy-env-staging", "Copy .env.staging to .env", function() {
-    var fs = require('fs');
-    if (fs.existsSync('.env.staging')) {
-      fs.copyFileSync('.env.staging', '.env');
-      grunt.log.writeln("Copied .env.staging to .env for staging release.");
-    } else {
-      grunt.log.warn(".env.staging file not found!");
-    }
-  });
-
-  // Custom task to copy environment file for production
-  grunt.registerTask("copy-env-production", "Copy .env.production to .env", function() {
-    var fs = require('fs');
-    if (fs.existsSync('.env.production')) {
-      fs.copyFileSync('.env.production', '.env');
-      grunt.log.writeln("Copied .env.production to .env for production release.");
-    } else {
-      grunt.log.warn(".env.production file not found!");
-    }
-  });
-
-  // Custom task to restore original .env for development
-  grunt.registerTask("restore-env-dev", "Restore .env for development", function() {
-    grunt.log.writeln(".env kept as is for local development.");
-  });
+  // Note: Environment configuration uses WordPress constants (Sigmize pattern)
+  // - Constants defined in surefeedback.php with production defaults
+  // - Can be overridden in wp-config.php per environment
+  // - No .env files needed - WordPress.org compliant
 
   grunt.registerTask("i18n", ["addtextdomain", "makepot"]);
   grunt.registerTask("readme", ["wp_readme_to_markdown"]);
   grunt.registerTask("build", ["composer-install", "build-assets", "i18n"]);
 
   // Release tasks for different environments
+  // Note: Using simple constants pattern (Sigmize style)
+  // - Constants defined in surefeedback.php with production defaults
+  // - Users can override in wp-config.php if needed
+  // - No auto-detection, no .env files - WordPress.org compliant
   grunt.registerTask("release:local", [
     "build",
     "clean:release_local",
-    "restore-env-dev",
     "compress:local",
     "copy:release_local",
     "clean:root_zips"
@@ -327,7 +532,6 @@ module.exports = function (grunt) {
   grunt.registerTask("release:staging", [
     "build",
     "clean:release_staging",
-    "copy-env-staging",
     "compress:staging",
     "copy:release_staging",
     "clean:root_zips"
@@ -336,7 +540,6 @@ module.exports = function (grunt) {
   grunt.registerTask("release:production", [
     "build",
     "clean:release_production",
-    "copy-env-production",
     "compress:production",
     "copy:release_production",
     "clean:root_zips"
@@ -345,13 +548,10 @@ module.exports = function (grunt) {
   grunt.registerTask("release:all", [
     "build",
     "clean:release_all",
-    "restore-env-dev",
     "compress:local",
     "copy:release_local",
-    "copy-env-staging",
     "compress:staging",
     "copy:release_staging",
-    "copy-env-production",
     "compress:production",
     "copy:release_production",
     "clean:root_zips"

@@ -87,7 +87,7 @@ const Connected = ({ connectionData, verificationResult }) => {
   const handleGoToDashboard = () => {
     const appUrl =
       window.sureFeedbackAdmin?.connection?.app_url ||
-      "http://localhost:3000";
+      "https://app.surefeedback.com";
     window.open(`${appUrl}/sites`, "_blank");
   };
 
