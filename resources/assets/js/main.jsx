@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client'
 import Dashboard from './views/Dashboard'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import { Toaster } from './components/ui/toast'
 import './assets/tailwind.css'
 import './assets/dashboard.css'
 import './styles.css'
@@ -26,6 +27,13 @@ function App({ containerType }) {
             <Dashboard containerType={containerType} />
           </ApiProvider>
         </div>
+        {/* Global Toast Notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+          }}
+        />
       </div>
     </ErrorBoundary>
   )

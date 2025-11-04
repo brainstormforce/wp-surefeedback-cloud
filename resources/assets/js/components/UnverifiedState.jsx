@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AlertTriangle, CheckCircle, Loader2, RefreshCw, ExternalLink } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
+import { toast } from "../components/ui/toast";
 import { __ } from "@wordpress/i18n";
 import { useVerification } from "../hooks";
 import LoadingConnection from "../../../../assets/images/settings/connection-loading.svg";
@@ -31,14 +32,23 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
     try {
       const result = await verifyConnection({});
       if (result.status === 'verified') {
-        window.location.reload();
+        toast.success(__('Connection verified successfully!', 'surefeedback'));
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else if (result.status === 'pending') {
-        window.location.reload();
+        toast.info(__('Verification is still pending. Please check your connection settings.', 'surefeedback'));
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
-        window.location.reload();
+        toast.warning(__('Connection verification failed. Please try again.', 'surefeedback'));
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     } catch (error) {
-      // Error handling without alert
+      toast.error(__('An error occurred while testing the connection. Please try again.', 'surefeedback'));
     } finally {
       setIsTestingConnection(false);
     }

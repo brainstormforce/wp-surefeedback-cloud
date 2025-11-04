@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
+import { toast } from "../components/ui/toast";
 import { __ } from "@wordpress/i18n";
 import {
   CheckCircle,
@@ -25,8 +26,6 @@ import PowerOff from "../../../../assets/images/settings/power_off.svg";
 
 const Connected = ({ connectionData, verificationResult }) => {
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const [disconnectStatus, setDisconnectStatus] = useState(null); // null, 'success', 'error'
-  const [errorMessage, setErrorMessage] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDisconnectClick = () => {
@@ -36,8 +35,6 @@ const Connected = ({ connectionData, verificationResult }) => {
 
   const confirmDisconnect = async () => {
     setIsDisconnecting(true);
-    setDisconnectStatus(null);
-    setErrorMessage("");
 
     try {
       const response = await fetch(
@@ -54,7 +51,7 @@ const Connected = ({ connectionData, verificationResult }) => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setDisconnectStatus("success");
+        toast.success(__("Site disconnected successfully! Redirecting...", "surefeedback"));
         setIsDialogOpen(false);
         
         // Redirect to the connection setup page after a brief delay
@@ -62,8 +59,7 @@ const Connected = ({ connectionData, verificationResult }) => {
           window.location.href = window.sureFeedbackAdmin.admin_url + 'admin.php?page=surefeedback-connection#setup';
         }, 1500);
       } else {
-        setDisconnectStatus("error");
-        setErrorMessage(
+        toast.error(
           data.message ||
             __("Failed to disconnect. Please try again.", "surefeedback")
         );
@@ -71,8 +67,7 @@ const Connected = ({ connectionData, verificationResult }) => {
       }
     } catch (error) {
       console.error("Disconnect error:", error);
-      setDisconnectStatus("error");
-      setErrorMessage(
+      toast.error(
         __(
           "An error occurred while disconnecting. Please try again.",
           "surefeedback"
@@ -109,34 +104,6 @@ const Connected = ({ connectionData, verificationResult }) => {
               )}
             </p>
           </div>
-
-          {/* Status Feedback */}
-          {disconnectStatus && (
-            <div
-              className={`p-4 rounded-lg w-full ${
-                disconnectStatus === "success"
-                  ? "bg-green-50 border border-green-200"
-                  : "bg-red-50 border border-red-200"
-              }`}
-            >
-              {disconnectStatus === "success" ? (
-                <div className="flex items-center justify-center gap-2 text-green-700">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="text-sm font-medium">
-                    {__(
-                      "Site disconnected successfully! Redirecting...",
-                      "surefeedback"
-                    )}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center gap-2 text-red-700">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span className="text-sm font-medium">{errorMessage}</span>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Connection Info */}
           <div className="w-full bg-muted border border-border rounded-lg p-4 space-y-4">

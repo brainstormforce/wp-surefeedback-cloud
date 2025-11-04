@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container } from '../components/ui/container';
 import { Title } from '../components/ui/title';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
+import { toast } from '../components/ui/toast';
 import { __ } from '@wordpress/i18n';
-import { Shield, Users, Eye, Settings as SettingsIcon } from 'lucide-react';
+import { Shield, Users, Eye, Settings as SettingsIcon, Loader2 } from 'lucide-react';
 
 /**
  * Permissions View - Manages user permissions and access control
@@ -17,6 +18,9 @@ import { Shield, Users, Eye, Settings as SettingsIcon } from 'lucide-react';
  */
 const PermissionsView = () => {
     const [activeTab, setActiveTab] = useState('user-roles');
+    const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     
     // Get current settings from global state
     const settings = window.sureFeedbackAdmin?.settings || {};
@@ -28,11 +32,91 @@ const PermissionsView = () => {
         guestAccess: settings.guest_access || false,
     });
     
+    // Load settings on mount
+    useEffect(() => {
+        loadSettings();
+    }, []);
+    
+    const loadSettings = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/settings', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const settingsData = data.data.general || {};
+                    const availableRolesList = data.data.availableRoles || [];
+                    const savedRoles = settingsData.roles || [];
+                    
+                    // If no roles are saved yet, enable all roles by default
+                    const defaultRoles = savedRoles.length === 0
+                        ? availableRolesList.map(role => role.name)
+                        : savedRoles;
+
+                    setPermissions({
+                        allowSiteVisitors: settingsData.allow_site_visitors || false,
+                        dashboardCommenting: settingsData.dashboard_commenting || false,
+                        userRoles: defaultRoles,
+                        guestAccess: settingsData.guest_access || false,
+                    });
+                }
+            }
+        } catch (error) {
+            toast.error(__('Failed to load settings', 'surefeedback'));
+        } finally {
+            setLoading(false);
+        }
+    };
+    
     const handlePermissionChange = (key, value) => {
         setPermissions(prev => ({
             ...prev,
             [key]: value
         }));
+        setHasUnsavedChanges(true);
+    };
+    
+    const savePermissions = async () => {
+        try {
+            setSaving(true);
+            
+            const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/settings/general', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
+                },
+                body: JSON.stringify({
+                    roles: permissions.userRoles,
+                    allow_site_visitors: permissions.allowSiteVisitors,
+                    dashboard_commenting: permissions.dashboardCommenting,
+                    guest_access: permissions.guestAccess,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    toast.success(__('Permissions saved successfully!', 'surefeedback'));
+                    setHasUnsavedChanges(false);
+                } else {
+                    throw new Error(data.message || 'Save failed');
+                }
+            } else {
+                throw new Error('Save request failed');
+            }
+        } catch (error) {
+            toast.error(__('Failed to save permissions', 'surefeedback'));
+        } finally {
+            setSaving(false);
+        }
     };
     
     // Get available roles from WordPress
@@ -217,8 +301,20 @@ const PermissionsView = () => {
                 
                 {/* Save Button */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                    <Button variant="primary" size="md">
-                        {__('Save Changes', 'surefeedback')}
+                    <Button 
+                        variant="primary" 
+                        size="md"
+                        onClick={savePermissions}
+                        disabled={saving || loading || !hasUnsavedChanges}
+                    >
+                        {saving ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {__('Saving...', 'surefeedback')}
+                            </>
+                        ) : (
+                            hasUnsavedChanges ? __('Save Changes', 'surefeedback') : __('No Changes', 'surefeedback')
+                        )}
                     </Button>
                 </div>
             </div>
