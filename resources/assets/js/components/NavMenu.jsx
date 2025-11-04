@@ -14,9 +14,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { CircleHelp, FileText, Headset, User, Link, Settings, Sliders } from "lucide-react";
+import { CircleHelp, FileText, Headset, User } from "lucide-react";
 import { __ } from "@wordpress/i18n";
 import { NavLink, useRouter } from "@/utils/Router";
+import SFLogo from "../../../../assets/images/settings/surefeedback-logo-img.svg"
+import AutomationIcon from "../../../../assets/images/settings/automation.svg"
+import SettingsIcon from "../../../../assets/images/settings/settings.svg"
+import DashboardCustomizeIcon from "../../../../assets/images/settings/dashboard_customize.svg"
+
+// Create icon components that accept className prop
+const ConnectionIcon = ({ className }) => <img src={AutomationIcon} alt="" className={className} />;
+const SettingsIconComponent = ({ className }) => <img src={SettingsIcon} alt="" className={className} />;
+const WidgetControlIcon = ({ className }) => <img src={DashboardCustomizeIcon} alt="" className={className} />;
 
 const NavMenu = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -34,9 +43,9 @@ const NavMenu = () => {
 
   // Filter nav items based on connection status
   const allNavItems = [
-    { label: __("Connections", "surefeedback"), path: "connections", icon: Link, showWhenConnected: true },
-    { label: __("Settings", "surefeedback"), path: "settings", icon: Settings, showWhenConnected: true },
-    { label: __("Widget Control", "surefeedback"), path: "widget-control", icon: Sliders, showWhenConnected: true },
+    { label: __("Connections", "surefeedback"), path: "connections", icon: ConnectionIcon, showWhenConnected: true },
+    { label: __("Widget Control", "surefeedback"), path: "widget-control", icon: WidgetControlIcon, showWhenConnected: true },
+    { label: __("Settings", "surefeedback"), path: "settings", icon: SettingsIconComponent, showWhenConnected: true },
   ];
 
   const navItems = allNavItems.filter(item =>
@@ -52,7 +61,7 @@ const NavMenu = () => {
       <div className="flex items-center justify-start min-w-0">
         <NavLink to="connections" className="focus:outline-none flex-shrink-0">
           <img
-            src={window.sureFeedbackAdmin?.surefeedback_icon || window.sureFeedbackAdmin?.pluginUrl + 'assets/images/settings/surefeedback.svg'}
+            src={window.sureFeedbackAdmin?.surefeedback_icon || window.sureFeedbackAdmin?.pluginUrl + 'assets/images/settings/surefeedback-logo-img.svg'}
             alt="SureFeedback"
             className="h-[25px] w-auto cursor-pointer focus:outline-none"
           />
@@ -70,7 +79,7 @@ const NavMenu = () => {
                     className={cn(
                       "px-2 py-1.5 text-sm font-medium transition-colors border-b-2 focus:outline-none focus-visible:outline-none whitespace-nowrap flex items-center gap-1.5",
                       isActive(path)
-                        ? "text-gray-900 border-[#6005FF]"
+                        ? "text-gray-900 border-[#455AFB]"
                         : "text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300"
                     )}
                   >
@@ -86,22 +95,6 @@ const NavMenu = () => {
 
       {/* Right: Actions */}
       <div className="flex items-center justify-end gap-3 min-w-0">
-        {/* Plan Badge */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Badge
-              variant="secondary"
-              className="cursor-pointer select-none flex-shrink-0 rounded-full"
-            >
-              {__("Free", "surefeedback")}
-            </Badge>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48">
-            <DropdownMenuItem>
-              {__("Version", "surefeedback")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         {/* Help Dropdown */}
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>

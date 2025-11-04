@@ -129,18 +129,6 @@ class AdminService
             [$this, 'render_connection_page']
         );
 
-        // Settings submenu
-        $settings_hook = add_submenu_page(
-            $this->menu_slug . '-connection',
-            __('Settings', 'surefeedback'),
-            __('Settings', 'surefeedback'),
-            'manage_options',
-            $this->menu_slug . '-settings',
-            [$this, 'render_settings_page']
-        );
-
-        $this->menu_pages['settings'] = $settings_hook;
-
         // Widget Control submenu
         $widget_control_hook = add_submenu_page(
             $this->menu_slug . '-connection',
@@ -152,6 +140,18 @@ class AdminService
         );
 
         $this->menu_pages['widget_control'] = $widget_control_hook;
+
+        // Settings submenu
+        $settings_hook = add_submenu_page(
+            $this->menu_slug . '-connection',
+            __('Settings', 'surefeedback'),
+            __('Settings', 'surefeedback'),
+            'manage_options',
+            $this->menu_slug . '-settings',
+            [$this, 'render_settings_page']
+        );
+
+        $this->menu_pages['settings'] = $settings_hook;
 
         // Add page-specific hooks
         foreach ($this->menu_pages as $page => $hook) {
