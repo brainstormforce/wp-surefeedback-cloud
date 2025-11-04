@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { CircleHelp, FileText, Headset, User, Rocket, Link, Settings, Sliders } from "lucide-react";
+import { CircleHelp, FileText, Headset, User, Link, Settings, Sliders } from "lucide-react";
 import { __ } from "@wordpress/i18n";
 import { NavLink, useRouter } from "@/utils/Router";
 
@@ -34,7 +34,6 @@ const NavMenu = () => {
 
   // Filter nav items based on connection status
   const allNavItems = [
-    { label: __("Setup", "surefeedback"), path: "setup", icon: Rocket, showWhenConnected: false },
     { label: __("Connections", "surefeedback"), path: "connections", icon: Link, showWhenConnected: true },
     { label: __("Settings", "surefeedback"), path: "settings", icon: Settings, showWhenConnected: true },
     { label: __("Widget Control", "surefeedback"), path: "widget-control", icon: Sliders, showWhenConnected: true },
@@ -51,7 +50,7 @@ const NavMenu = () => {
     >
       {/* Left: Logo */}
       <div className="flex items-center justify-start min-w-0">
-        <NavLink to="setup" className="focus:outline-none flex-shrink-0">
+        <NavLink to="connections" className="focus:outline-none flex-shrink-0">
           <img
             src={window.sureFeedbackAdmin?.surefeedback_icon || window.sureFeedbackAdmin?.pluginUrl + 'assets/images/settings/surefeedback.svg'}
             alt="SureFeedback"
@@ -92,7 +91,7 @@ const NavMenu = () => {
           <DropdownMenuTrigger asChild>
             <Badge
               variant="secondary"
-              className="cursor-pointer select-none flex-shrink-0"
+              className="cursor-pointer select-none flex-shrink-0 rounded-full"
             >
               {__("Free", "surefeedback")}
             </Badge>
@@ -116,27 +115,17 @@ const NavMenu = () => {
             {[
               {
                 label: __("Getting Started", "surefeedback"),
-                url: "https://ultimateelementor.com/docs/getting-started-with-ultimate-addons-for-elementor-lite/",
+                url: "https://surefeedback.com/docs/plugin-set-up-guide/",
                 icon: <FileText />,
               },
               {
-                label: __("How to use widgets", "surefeedback"),
-                url: "https://ultimateelementor.com/docs-category/widgets/",
-                icon: <FileText />,
-              },
-              {
-                label: __("How to use features", "surefeedback"),
-                url: "https://ultimateelementor.com/docs-category/features/",
-                icon: <FileText />,
-              },
-              {
-                label: __("How to use templates", "surefeedback"),
-                url: "https://ultimateelementor.com/docs-category/templates/",
+                label: __("Start adding comments", "surefeedback"),
+                url: "https://surefeedback.com/docs/start-adding-comments/",
                 icon: <FileText />,
               },
               {
                 label: __("Contact us", "surefeedback"),
-                url: "https://ultimateelementor.com/contact/",
+                url: "https://surefeedback.com/contact-us/",
                 icon: <Headset />,
               },
             ].map(({ label, url, icon }) => (
@@ -152,10 +141,6 @@ const NavMenu = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* User Icon */}
-        <NavLink to="settings" className="focus:outline-none">
-          <User className="cursor-pointer text-gray-900 focus:outline-none flex-shrink-0 w-5 h-5" />
-        </NavLink>
       </div>
     </div>
   );

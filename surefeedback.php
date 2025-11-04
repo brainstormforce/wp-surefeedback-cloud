@@ -114,8 +114,29 @@ add_action('plugins_loaded', function() use ($app) {
  * Plugin activation hook
  */
 register_activation_hook(SUREFEEDBACK_PLUGIN_FILE, function() {
-    // Activation tasks handled via webhook
+    // Set a flag to redirect to setup on first activation
+    set_transient('surefeedback_activation_redirect', true, 30 * MINUTE_IN_SECONDS);
 });
+
+/**
+ * Admin init - redirect to setup page after plugin activation
+ */
+add_action('admin_init', function() {
+    // Only for admin users
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    // Check for activation redirect transient
+    if (get_transient('surefeedback_activation_redirect')) {
+        delete_transient('surefeedback_activation_redirect');
+
+        // Redirect to setup page
+        wp_safe_remote_get(admin_url('admin.php?page=surefeedback-connection#setup'));
+        wp_redirect(admin_url('admin.php?page=surefeedback-connection#setup'));
+        exit;
+    }
+}, 20); // Priority 20 to ensure plugins are loaded
 
 
 /**
