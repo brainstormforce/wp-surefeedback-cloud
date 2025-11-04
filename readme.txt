@@ -2,9 +2,9 @@
 Contributors: brainstormforce, 2winfactor
 Donate link: https://surefeedback.com
 Tags: surefeedback, child, feedback, design
-Requires at least: 1.0
+Requires at least: 4.7
 Tested up to: 6.8
-Stable tag: 1.0.1
+Stable tag: 0.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -48,7 +48,7 @@ The purpose of this plugin is to make it simple to get targeted feedback from cl
 
 == Changelog ==
 
-= Version 1.0.1 – 27th October, 2025 =
+= Version 0.0.1 – 27th October, 2025 =
 * Added compatibility for PHP versions greater than or equal to 7.4
 
 = Version 1.0.0 – 17th October, 2025 =

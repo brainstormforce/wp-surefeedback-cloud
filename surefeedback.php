@@ -5,11 +5,13 @@
  * Description: Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.
  * Author: Brainstorm Force
  * Author URI: https://www.brainstormforce.com
- * Version: 1.0.1
+ * Version: 0.0.1
  * Developer: Anurag Singh <anurags@bsf.io>
  *
  * Requires at least: 4.7
  * Tested up to: 6.8
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * Text Domain: surefeedback
  * Domain Path: languages
@@ -46,7 +48,7 @@ if ( ! defined( 'SUREFEEDBACK_PLUGIN_FILE' ) ) {
 
 // Plugin Version.
 if ( ! defined( 'SUREFEEDBACK_VERSION' ) ) {
-	define( 'SUREFEEDBACK_VERSION', '1.0.1' );
+	define( 'SUREFEEDBACK_VERSION', '0.0.1' );
 }
 
 // Plugin Basename.
@@ -54,8 +56,29 @@ if ( ! defined( 'SUREFEEDBACK_PLUGIN_BASENAME' ) ) {
 	define( 'SUREFEEDBACK_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 }
 
-// Include Environment Helper
-require_once SUREFEEDBACK_PLUGIN_DIR . 'includes/env-helper.php';
+/**
+ * SureFeedback API Base URL constant
+ *
+ * Defaults to production API URL.
+ * Can be overridden in wp-config.php for different environments.
+ *
+ * @since 0.0.1
+ */
+if ( ! defined( 'SUREFEEDBACK_API_BASE_URL' ) ) {
+	define( 'SUREFEEDBACK_API_BASE_URL', 'https://api.surefeedback.com' );
+}
+
+/**
+ * SureFeedback App Base URL constant
+ *
+ * Defaults to production app URL.
+ * Can be overridden in wp-config.php for different environments.
+ *
+ * @since 0.0.1
+ */
+if ( ! defined( 'SUREFEEDBACK_APP_BASE_URL' ) ) {
+	define( 'SUREFEEDBACK_APP_BASE_URL', 'https://app.surefeedback.com' );
+}
 
 /*
 |--------------------------------------------------------------------------

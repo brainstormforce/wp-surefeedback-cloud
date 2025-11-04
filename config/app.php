@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Application Configuration
  *
@@ -9,6 +8,11 @@
  *
  * @package SureFeedback
  */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 return [
     
@@ -36,7 +40,7 @@ return [
     |
     */
     
-    'env' => $_ENV['APP_ENV'] ?? (defined('WP_DEBUG') && WP_DEBUG ? 'development' : 'production'),
+    'env' => ( defined( 'WP_DEBUG' ) && WP_DEBUG ? 'development' : 'production' ),
     
     /*
     |--------------------------------------------------------------------------
@@ -49,7 +53,7 @@ return [
     |
     */
     
-    'debug' => $_ENV['APP_DEBUG'] ?? (defined('WP_DEBUG') && WP_DEBUG),
+    'debug' => ( defined( 'WP_DEBUG' ) && WP_DEBUG ),
     
     /*
     |--------------------------------------------------------------------------
@@ -62,7 +66,7 @@ return [
     |
     */
     
-    'url' => $_ENV['APP_URL'] ?? get_site_url(),
+    'url' => get_site_url(),
     
     /*
     |--------------------------------------------------------------------------
@@ -189,7 +193,7 @@ return [
         'channels' => [
             'wordpress' => [
                 'driver' => 'wordpress',
-                'level' => $_ENV['LOG_LEVEL'] ?? (defined('WP_DEBUG') && WP_DEBUG ? 'debug' : 'error'),
+                'level' => ( defined( 'WP_DEBUG' ) && WP_DEBUG ? 'debug' : 'error' ),
             ],
             'file' => [
                 'driver' => 'file',

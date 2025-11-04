@@ -3,7 +3,7 @@
   "description": "Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.",
   "autoload": {
     "psr-4": {
-      "SureFeedback\\": "app/"
+      "SureFeedback\\": "includes/App/"
     }
   },
   "require-dev": {
@@ -36,10 +36,6 @@
   },
   "require": {
     "php": "^7.4",
-    "php-stubs/wordpress-stubs": "^6.0",
-    "symfony/http-kernel": "^5.4",
-    "symfony/dependency-injection": "^5.4",
-    "symfony/translation-contracts": "^2.5",
     "firebase/php-jwt": "^6.3"
   }
 }
