@@ -359,8 +359,13 @@ class ApiGatewayService
             return str_replace('app.', 'api.', $app_url);
         }
 
-        // Fallback to localhost for development
-        return 'http://localhost:8000';
+        // Use constant if available, otherwise fallback to production URL
+        if (defined('SUREFEEDBACK_API_BASE_URL')) {
+            return SUREFEEDBACK_API_BASE_URL;
+        }
+
+        // Final fallback to production API URL
+        return 'https://api.surefeedback.com';
     }
 
     /**

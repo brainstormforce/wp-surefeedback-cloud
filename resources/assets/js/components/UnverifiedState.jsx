@@ -20,7 +20,7 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
   }, []);
   
   const handleAction = () => {
-    const appUrl = window.sureFeedbackAdmin?.connection?.app_url || 'http://localhost:3000';
+    const appUrl = window.sureFeedbackAdmin?.connection?.app_url || 'https://app.surefeedback.com';
     window.open(`${appUrl}/sites`, '_blank');
   };
 

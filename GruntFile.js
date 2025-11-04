@@ -349,6 +349,7 @@ module.exports = function (grunt) {
               "!resources/views/**",
               "!resources/assets/**",
               "!surefeedback-*.zip",
+              "!surefeedback.*.zip",
               "!surefeedback.zip",
               "!*.map",
               "!*.test.*",
