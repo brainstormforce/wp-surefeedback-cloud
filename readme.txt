@@ -49,7 +49,15 @@ The purpose of this plugin is to make it simple to get targeted feedback from cl
 == Changelog ==
 
 = Version 0.0.1 – 27th October, 2025 =
-* Added compatibility for PHP versions greater than or equal to 7.4
+* Initial release
+* Fixed namespace declaration order issues for Linux compatibility
+* Fixed case sensitivity in composer autoload paths (includes/app/ vs includes/App/)
+* Fixed corrupted file references (null byte removal in SettingsController)
+* Fixed production API URL configuration - removed hardcoded localhost fallbacks
+* Updated production zip naming convention to use semantic versioning (surefeedback.0.0.1.zip)
+* Added production API endpoint fallbacks (https://api.surefeedback.com)
+* Added production App URL fallbacks (https://app.surefeedback.com)
+* PHP 7.4+ compatibility
 
 = Version 1.0.0 – 17th October, 2025 =
 * Initial release with full feature set
