@@ -140,8 +140,7 @@ add_action(
 		if ( get_transient( 'surefeedback_activation_redirect' ) ) {
 			delete_transient( 'surefeedback_activation_redirect' );
 
-			// Redirect to setup page
-			wp_safe_remote_get( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
+			// Redirect to get started screen (Welcome page)
 			wp_redirect( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
 			exit;
 		}

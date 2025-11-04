@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SureFeedback Client 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
-"POT-Creation-Date: 2025-11-04 14:37:04+00:00\n"
+"POT-Creation-Date: 2025-11-04 15:10:56+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,7 +28,7 @@ msgstr ""
 msgid "Failed to fetch pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:75
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:74
 msgid "Invalid settings format"
 msgstr ""
 
@@ -36,272 +36,272 @@ msgstr ""
 msgid "Page settings updated successfully"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:87
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:90
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:88
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:91
 msgid "Failed to update page settings"
 msgstr ""
 
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:109
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:143
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:144
 msgid "Page ID is required"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:116
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:117
 msgid "Widget enabled for page"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:121
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:124
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:123
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:126
 msgid "Failed to enable widget"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:150
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:152
 msgid "Widget disabled for page"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:155
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:158
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:161
 msgid "Failed to disable widget"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:178
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:181
 msgid "Widget enabled for all pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:182
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:185
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:186
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:189
 msgid "Failed to enable widget for all pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:205
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:209
 msgid "Widget disabled for all pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:209
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:212
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:214
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:217
 msgid "Failed to disable widget for all pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/SettingsController.php:57
+#: includes/app/Http/Controllers/Api/SettingsController.php:55
 msgid "Authentication required"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/SettingsController.php:61
+#: includes/app/Http/Controllers/Api/SettingsController.php:59
 msgid "Insufficient permissions. Administrator access required."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:119
+#: includes/app/Http/Controllers/Controller.php:115
 msgid "Validation failed"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:229
+#: includes/app/Http/Controllers/Controller.php:223
 msgid "The %s field is required."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:230
+#: includes/app/Http/Controllers/Controller.php:224
 msgid "The %s field must be a string."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:231
+#: includes/app/Http/Controllers/Controller.php:225
 msgid "The %s field must be numeric."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:232
+#: includes/app/Http/Controllers/Controller.php:226
 msgid "The %s field must be a valid email."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:233
+#: includes/app/Http/Controllers/Controller.php:227
 msgid "The %s field must be a valid URL."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:234
+#: includes/app/Http/Controllers/Controller.php:228
 msgid "The %s field must be true or false."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:235
+#: includes/app/Http/Controllers/Controller.php:229
 msgid "The %s field must be an array."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:238
+#: includes/app/Http/Controllers/Controller.php:232
 msgid "The %s field is invalid."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:386
+#: includes/app/Http/Controllers/Controller.php:372
 msgid "Nonce not provided"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:398
+#: includes/app/Http/Controllers/Controller.php:384
 msgid "Invalid nonce"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:413
-#: includes/app/Services/AdminService.php:652
-#: includes/app/Services/AdminService.php:685
-#: includes/app/Services/AdminService.php:705
-#: includes/app/Services/AdminService.php:745
-#: includes/app/Services/AdminService.php:779
-#: includes/app/Services/AdminService.php:807
+#: includes/app/Http/Controllers/Controller.php:398
+#: includes/app/Services/AdminService.php:639
+#: includes/app/Services/AdminService.php:675
+#: includes/app/Services/AdminService.php:696
+#: includes/app/Services/AdminService.php:739
+#: includes/app/Services/AdminService.php:774
+#: includes/app/Services/AdminService.php:806
 msgid "Insufficient permissions"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:492
+#: includes/app/Http/Controllers/Controller.php:475
 msgid "An error occurred while processing your request."
 msgstr ""
 
-#: includes/app/Repositories/PageSettingsRepository.php:48
+#: includes/app/Repositories/PageSettingsRepository.php:46
 msgid "Homepage"
 msgstr ""
 
-#: includes/app/Repositories/PageSettingsRepository.php:59
+#: includes/app/Repositories/PageSettingsRepository.php:57
 msgid "Blog Page"
 msgstr ""
 
 #: includes/app/Repositories/PageSettingsRepository.php:76
-#: includes/app/Repositories/PageSettingsRepository.php:94
-#: includes/app/Repositories/PageSettingsRepository.php:119
+#: includes/app/Repositories/PageSettingsRepository.php:96
+#: includes/app/Repositories/PageSettingsRepository.php:126
 msgid "(No Title)"
 msgstr ""
 
-#: includes/app/Repositories/PageSettingsRepository.php:131
+#: includes/app/Repositories/PageSettingsRepository.php:138
 msgid "All Archives"
 msgstr ""
 
-#: includes/app/Repositories/PageSettingsRepository.php:139
+#: includes/app/Repositories/PageSettingsRepository.php:146
 msgid "Search Results"
 msgstr ""
 
-#: includes/app/Repositories/PageSettingsRepository.php:147
+#: includes/app/Repositories/PageSettingsRepository.php:154
 msgid "404 Page"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:111
-#: includes/app/Services/AdminService.php:112
+#: includes/app/Services/AdminService.php:108
+#: includes/app/Services/AdminService.php:109
 msgid "SureFeedback"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:125
-#: includes/app/Services/AdminService.php:126
+#: includes/app/Services/AdminService.php:122
+#: includes/app/Services/AdminService.php:123
 msgid "Connection"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:135
-#: includes/app/Services/AdminService.php:136
+#: includes/app/Services/AdminService.php:132
+#: includes/app/Services/AdminService.php:133
 msgid "Widget Control"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:147
-#: includes/app/Services/AdminService.php:148
-#: includes/app/Services/AdminService.php:440 surefeedback.php:167
+#: includes/app/Services/AdminService.php:144
+#: includes/app/Services/AdminService.php:145
+#: includes/app/Services/AdminService.php:435 surefeedback.php:185
 msgid "Settings"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:356
+#: includes/app/Services/AdminService.php:349
 msgid "SureFeedback is not connected to a parent site. "
 msgstr ""
 
-#: includes/app/Services/AdminService.php:358
+#: includes/app/Services/AdminService.php:351
 msgid "Connect now"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:381
+#: includes/app/Services/AdminService.php:374
 msgid "Settings saved successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:382
+#: includes/app/Services/AdminService.php:375
 msgid "Connection established successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:383
+#: includes/app/Services/AdminService.php:376
 msgid "Disconnected successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:384
+#: includes/app/Services/AdminService.php:377
 msgid "Plugin reset completed."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:450
+#: includes/app/Services/AdminService.php:447
 msgid "Open Parent Dashboard"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:471
+#: includes/app/Services/AdminService.php:468
 msgid "SureFeedback Status"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:490
+#: includes/app/Services/AdminService.php:486
 msgid "Connection Status:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:492
-#: includes/app/Services/AdminService.php:591
+#: includes/app/Services/AdminService.php:488
+#: includes/app/Services/AdminService.php:582
 msgid "Connected"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:494
-#: includes/app/Services/AdminService.php:592
+#: includes/app/Services/AdminService.php:490
+#: includes/app/Services/AdminService.php:583
 msgid "Disconnected"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:501
+#: includes/app/Services/AdminService.php:497
 msgid "Last Verification:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:509
+#: includes/app/Services/AdminService.php:505
 msgid "Site Name:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:517
+#: includes/app/Services/AdminService.php:513
 msgid "View Dashboard"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:522
+#: includes/app/Services/AdminService.php:518
 msgid "Connect Now"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:590
+#: includes/app/Services/AdminService.php:581
 msgid "Connecting..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:593
+#: includes/app/Services/AdminService.php:584
 msgid "Testing connection..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:594
+#: includes/app/Services/AdminService.php:585
 msgid "Saving..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:595
+#: includes/app/Services/AdminService.php:586
 msgid "Saved"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:596
+#: includes/app/Services/AdminService.php:587
 msgid "Error"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:597
+#: includes/app/Services/AdminService.php:588
 msgid "Success"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:598
+#: includes/app/Services/AdminService.php:589
 msgid "Are you sure you want to reset all settings? This action cannot be undone."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:664
+#: includes/app/Services/AdminService.php:652
 msgid "Settings saved successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:669
+#: includes/app/Services/AdminService.php:659
 msgid "Failed to save settings"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:690
+#: includes/app/Services/AdminService.php:681
 msgid "Connection is managed via webhook"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:765
+#: includes/app/Services/AdminService.php:760
 msgid "Plugin reset successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:814
+#: includes/app/Services/AdminService.php:813
 msgid "No settings provided"
 msgstr ""
 
@@ -309,31 +309,31 @@ msgstr ""
 msgid "Settings imported successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:842
+#: includes/app/Services/AdminService.php:844
 msgid "Failed to import settings"
 msgstr ""
 
-#: includes/app/Services/JWTService.php:203
+#: includes/app/Services/JWTService.php:197
 msgid "Invalid or missing JWT token."
 msgstr ""
 
-#: includes/app/Services/JWTService.php:211
+#: includes/app/Services/JWTService.php:205
 msgid "Insufficient permissions."
 msgstr ""
 
-#: routes/api.php:58
+#: routes/api.php:72
 msgid "You do not have permission to activate plugins."
 msgstr ""
 
-#: routes/api.php:71
+#: routes/api.php:86
 msgid "Plugin is already active."
 msgstr ""
 
-#: routes/api.php:93
+#: routes/api.php:110
 msgid "Plugin activated successfully."
 msgstr ""
 
-#: surefeedback.php:166
+#: surefeedback.php:184
 msgid "Dashboard"
 msgstr ""
 

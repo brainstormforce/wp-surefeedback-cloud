@@ -7,6 +7,47 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 
 export const Welcome = ({ setCurrentStep }) => {
+  const handleGetStarted = () => {
+    const { sureFeedbackAdmin } = window;
+    
+    if (!sureFeedbackAdmin || !sureFeedbackAdmin.connection) {
+      return;
+    }
+
+    const { connection } = sureFeedbackAdmin;
+
+    // Generate a state token for security
+    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+    const params = new URLSearchParams({
+      source: 'wordpress',
+      action: 'connect_site',
+      callback_url: connection.callback_url,
+      state: state,
+      site_data: btoa(JSON.stringify(connection.site_data)),
+    });
+
+    // Construct the connection URL using localized app URL
+    const connectUrl = `${connection.app_url}/connect?${params.toString()}`;
+    
+    // Store connection intent in sessionStorage for redirect after login
+    const connectionIntent = {
+      url: connectUrl,
+      timestamp: Date.now(),
+      source: 'wordpress_plugin'
+    };
+    
+    // Store in both sessionStorage and localStorage for reliability
+    sessionStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
+    localStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
+    
+    // 1. Open connect URL in new tab (target="_blank")
+    window.open(connectUrl, '_blank');
+    
+    // 2. Change current screen to connections page
+    const adminBaseUrl = window.sureFeedbackAdmin?.admin_url || `${window.location.origin}/wp-admin`;
+    window.location.href = `${adminBaseUrl}/admin.php?page=surefeedback-connection#connections`;
+  };
   return (
     <div className="w-full flex flex-col items-center bg-background py-10">
       {/* Top Section */}
@@ -31,7 +72,7 @@ export const Welcome = ({ setCurrentStep }) => {
         <CardContent className="flex flex-col items-center gap-3 mt-2">
           <Button
             size="default"
-            onClick={() => authenticateRedirect()}
+            onClick={handleGetStarted}
           >
             {__("Get Started Now", "surefeedback")}
             <ChevronRight className="ml-2 h-4 w-4" />
@@ -143,7 +184,7 @@ export const Welcome = ({ setCurrentStep }) => {
         <div className="mt-8 flex flex-col items-center gap-3">
           <Button
             size="default"
-            onClick={() => authenticateRedirect()}
+            onClick={handleGetStarted}
           >
             {__("Get Started Now", "surefeedback")}
             <ChevronRight className="ml-2 h-4 w-4" />
