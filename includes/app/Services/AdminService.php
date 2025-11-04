@@ -129,6 +129,18 @@ class AdminService
             [$this, 'render_connection_page']
         );
 
+        // Widget Control submenu
+        $widget_control_hook = add_submenu_page(
+            $this->menu_slug . '-connection',
+            __('Widget Control', 'surefeedback'),
+            __('Widget Control', 'surefeedback'),
+            'manage_options',
+            $this->menu_slug . '-widget-control',
+            [$this, 'render_widget_control_page']
+        );
+
+        $this->menu_pages['widget_control'] = $widget_control_hook;
+
         // Settings submenu
         $settings_hook = add_submenu_page(
             $this->menu_slug . '-connection',

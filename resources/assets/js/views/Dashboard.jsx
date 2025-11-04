@@ -20,7 +20,7 @@ const DashboardContent = () => {
     const isSetupRoute = currentRoute === 'setup';
 
     return (
-        <div className="surefeedback-dashboard flex flex-col min-h-screen bg-gray-50 w-full overflow-x-hidden" style={{ margin: 0, padding: 0, width: "100%", minHeight: "100vh", maxWidth: "100vw" }}>
+        <div className="surefeedback-dashboard flex flex-col bg-gray-50 w-full overflow-x-hidden" style={{ margin: 0, padding: 0, width: "100%", maxWidth: "100vw" }}>
             {/* Conditionally render Top Navigation - hide on setup route */}
             {!isSetupRoute && (
                 <div className="bg-white shadow-sm w-full" style={{ margin: 0, padding: 0, width: "100%" }}>
@@ -29,7 +29,7 @@ const DashboardContent = () => {
             )}
 
             {/* Main Content Area */}
-            <div className={`flex-1 ${isSetupRoute ? '' : 'overflow-auto bg-white'}`}>
+            <div className={`flex-1 ${isSetupRoute ? '' : 'bg-white'}`}>
                 <main className={isSetupRoute ? '' : 'p-2'}>
                     <Route path="setup" exact>
                         <SetupView />
