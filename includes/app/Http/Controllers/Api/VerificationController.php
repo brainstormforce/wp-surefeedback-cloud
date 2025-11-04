@@ -73,12 +73,26 @@ class VerificationController {
 		// Validate JWT token - must be non-empty and not just whitespace
 		// JWT token is required for verification endpoint
 		if ( empty( $jwt_token ) || trim( $jwt_token ) === '' ) {
+			// Log the issue for debugging
+			error_log( sprintf(
+				'SureFeedback: JWT token missing during verification. Site ID: %s, Has Site Token: %s, Connection Status: %s',
+				$this->connection_repository->getSiteId() ?? 'none',
+				! empty( $site_token ) ? 'yes' : 'no',
+				$this->connection_repository->getConnectionStatus()
+			) );
+			
 			return new WP_Error(
 				'jwt_token_missing',
 				'Authentication token not found. Please reconnect your site to refresh the authentication token.',
 				array( 
 					'status' => 401,
-					'requires_reconnection' => true
+					'requires_reconnection' => true,
+					'debug' => array(
+						'has_site_token' => ! empty( $site_token ),
+						'has_jwt_token' => false,
+						'connection_status' => $this->connection_repository->getConnectionStatus(),
+						'site_id' => $this->connection_repository->getSiteId(),
+					)
 				)
 			);
 		}

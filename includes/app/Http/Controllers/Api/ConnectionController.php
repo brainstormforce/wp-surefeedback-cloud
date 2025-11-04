@@ -283,6 +283,9 @@ class ConnectionController extends Controller {
 				// Store JWT token for authenticated API calls (e.g., disconnect)
 				if ( ! empty( $data['user_token'] ) ) {
 					$this->connection_repository->setUserToken( sanitize_text_field( $data['user_token'] ) );
+					error_log( 'SureFeedback: User token stored successfully during webhook' );
+				} else {
+					error_log( 'SureFeedback: WARNING - user_token not provided in webhook payload. This may cause authentication issues later.' );
 				}
 
 				// Save site_connected field
@@ -420,6 +423,7 @@ class ConnectionController extends Controller {
 				'surefeedback_created_at',
 				'surefeedback_site_connected',
 				'surefeedback_is_fully_verified',
+				'surefeedback_user_token',
 				'surefeedback_roles',
 			);
 
