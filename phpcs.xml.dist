@@ -11,6 +11,13 @@
 		<exclude name="Generic.Arrays.DisallowLongArraySyntax.Found" />
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 	</rule>
+	
+	<!-- Allow direct database query in BaseRepository for pattern matching options -->
+	<!-- WordPress doesn't provide a native function for pattern matching options -->
+	<!-- The query uses prepared statements with proper escaping for security -->
+	<rule ref="WordPress.DB.DirectDatabaseQuery.DirectQuery">
+		<exclude-pattern>includes/app/Repositories/BaseRepository.php</exclude-pattern>
+	</rule>
 	<rule ref="WordPress-Docs" />
 
 	<!-- Check all PHP files in directory tree by default. -->

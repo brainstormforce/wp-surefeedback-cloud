@@ -15,7 +15,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * Text Domain: surefeedback
- * Domain Path: languages
+ * Domain Path: /languages
  *
  * @package SureFeedback
  * @author Brainstorm Force
@@ -163,17 +163,10 @@ register_deactivation_hook(
 
 /**
  * Load plugin text domain for internationalization
+ * Note: WordPress automatically loads translations since version 4.6+
+ * when the plugin is hosted on WordPress.org.
+ * The translation files are loaded just-in-time when needed.
  */
-add_action(
-	'init',
-	function () {
-		load_plugin_textdomain(
-			'surefeedback',
-			false,
-			dirname( plugin_basename( SUREFEEDBACK_PLUGIN_FILE ) ) . '/languages/'
-		);
-	}
-);
 
 /**
  * Add settings link to plugin list table

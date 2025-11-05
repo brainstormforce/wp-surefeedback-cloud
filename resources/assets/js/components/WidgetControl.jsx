@@ -297,7 +297,7 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Total Sites', 'surefeedback')}</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Total Pages', 'surefeedback')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{pages.length}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
@@ -309,7 +309,7 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Enabled Sites', 'surefeedback')}</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Enabled Pages', 'surefeedback')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{enabledCount}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
@@ -321,7 +321,7 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Disabled Sites', 'surefeedback')}</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Disabled Pages', 'surefeedback')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{disabledCount}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">

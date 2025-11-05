@@ -1,4 +1,4 @@
-=== SureFeedback ===
+=== SureFeedback Client ===
 Contributors: brainstormforce
 Donate link: https://surefeedback.com
 Tags: surefeedback, client, feedback, design

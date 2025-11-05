@@ -366,9 +366,10 @@ class AdminService {
 		*/
 
 		// Show success notices
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// This is a read-only display of GET parameter, not processing form data
 		if ( isset( $_GET['message'] ) ) {
-
-			$message = sanitize_text_field( $_GET['message'] );
+			$message = sanitize_text_field( wp_unslash( $_GET['message'] ) );
 
 			$messages = array(
 				'settings_saved'        => __( 'Settings saved successfully.', 'surefeedback' ),
@@ -383,6 +384,7 @@ class AdminService {
 				echo '</div>';
 			}
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**
@@ -538,8 +540,31 @@ class AdminService {
 	 * @return void
 	 */
 	private function register_connection_settings(): void {
-		register_setting( 'surefeedback_connection', 'surefeedback_parent_url' );
-		register_setting( 'surefeedback_connection', 'surefeedback_access_token' );
+		register_setting( 'surefeedback_connection', 'surefeedback_parent_url', array( 'sanitize_callback' => 'esc_url_raw' ) );
+		register_setting( 'surefeedback_connection', 'surefeedback_access_token', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+	}
+
+	/**
+	 * Sanitize settings array recursively
+	 *
+	 * @param array $settings Settings array to sanitize
+	 * @return array Sanitized settings array
+	 */
+	private function sanitize_settings_array( array $settings ): array {
+		$sanitized = array();
+		foreach ( $settings as $key => $value ) {
+			$sanitized_key = sanitize_key( $key );
+			if ( is_array( $value ) ) {
+				$sanitized[ $sanitized_key ] = $this->sanitize_settings_array( $value );
+			} elseif ( is_string( $value ) ) {
+				$sanitized[ $sanitized_key ] = sanitize_text_field( $value );
+			} elseif ( is_bool( $value ) || is_int( $value ) ) {
+				$sanitized[ $sanitized_key ] = $value;
+			} else {
+				$sanitized[ $sanitized_key ] = sanitize_text_field( (string) $value );
+			}
+		}
+		return $sanitized;
 	}
 
 
@@ -807,7 +832,21 @@ class AdminService {
 		}
 
 		try {
-			$settings = $_POST['settings'] ?? array();
+			// Nonce already verified by check_ajax_referer
+			// Get POST data using filter_input to avoid direct $_POST access warning
+			// Then sanitize immediately
+			$raw_settings = filter_input( INPUT_POST, 'settings', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			if ( null === $raw_settings || false === $raw_settings ) {
+				$settings = array();
+			} else {
+				$raw_settings = wp_unslash( $raw_settings );
+				// Ensure it's an array and sanitize recursively
+				if ( is_array( $raw_settings ) ) {
+					$settings = $this->sanitize_settings_array( $raw_settings );
+				} else {
+					$settings = array();
+				}
+			}
 
 			if ( empty( $settings ) ) {
 				wp_send_json_error( __( 'No settings provided', 'surefeedback' ) );

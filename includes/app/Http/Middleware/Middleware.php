@@ -81,17 +81,25 @@ abstract class Middleware {
 		);
 
 		foreach ( $headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ips = explode( ',', $_SERVER[ $header ] );
-				$ip  = trim( $ips[0] );
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
+				$server_value = isset( $_SERVER[ $header ] ) ? sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) : '';
+				if ( ! empty( $server_value ) ) {
+					$ips = explode( ',', $server_value );
+					$ip  = trim( $ips[0] );
 
-				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-					return $ip;
+					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+						return $ip;
+					}
 				}
 			}
 		}
 
-		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			return $remote_addr ?: '0.0.0.0';
+		}
+
+		return '0.0.0.0';
 	}
 
 	/**

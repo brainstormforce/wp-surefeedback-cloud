@@ -190,7 +190,7 @@ class Application {
 						// Allow requests from development server
 						if ( $origin ) {
 							// Parse the origin to check if it's localhost or a dev server
-							$parsed = parse_url( $origin );
+							$parsed = wp_parse_url( $origin );
 							$host   = $parsed['host'] ?? '';
 
 							// Allow localhost and local dev domains
@@ -220,7 +220,8 @@ class Application {
 						}
 
 						// Handle preflight requests
-						if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
+						$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+						if ( $request_method === 'OPTIONS' ) {
 							status_header( 200 );
 							exit;
 						}

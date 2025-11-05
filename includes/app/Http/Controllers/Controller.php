@@ -220,15 +220,23 @@ abstract class Controller {
 		$primaryRule = $rules[0];
 
 		$messages = array(
+			// translators: %s: field name
 			'required' => sprintf( __( 'The %s field is required.', 'surefeedback' ), $field ),
+			// translators: %s: field name
 			'string'   => sprintf( __( 'The %s field must be a string.', 'surefeedback' ), $field ),
+			// translators: %s: field name
 			'numeric'  => sprintf( __( 'The %s field must be numeric.', 'surefeedback' ), $field ),
+			// translators: %s: field name
 			'email'    => sprintf( __( 'The %s field must be a valid email.', 'surefeedback' ), $field ),
+			// translators: %s: field name
 			'url'      => sprintf( __( 'The %s field must be a valid URL.', 'surefeedback' ), $field ),
+			// translators: %s: field name
 			'boolean'  => sprintf( __( 'The %s field must be true or false.', 'surefeedback' ), $field ),
+			// translators: %s: field name
 			'array'    => sprintf( __( 'The %s field must be an array.', 'surefeedback' ), $field ),
 		);
 
+		// translators: %s: field name
 		return $messages[ $primaryRule ] ?? sprintf( __( 'The %s field is invalid.', 'surefeedback' ), $field );
 	}
 

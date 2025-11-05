@@ -371,8 +371,9 @@ class ApiGatewayService {
 	 */
 	private function getUserAgent(): string {
 		// Use server's user agent if available
-		if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			return $_SERVER['HTTP_USER_AGENT'];
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+			return $user_agent;
 		}
 
 		// Fallback to default user agent
@@ -385,15 +386,22 @@ class ApiGatewayService {
 	 * @return string
 	 */
 	private function getPlatform(): string {
-		if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ?? '' ), 'mac' ) !== false ) {
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+			$user_agent_lower = strtolower( $user_agent );
+		} else {
+			$user_agent_lower = '';
+		}
+
+		if ( strpos( $user_agent_lower, 'mac' ) !== false ) {
 			return 'macOS';
 		}
 
-		if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ?? '' ), 'windows' ) !== false ) {
+		if ( strpos( $user_agent_lower, 'windows' ) !== false ) {
 			return 'Windows';
 		}
 
-		if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ?? '' ), 'linux' ) !== false ) {
+		if ( strpos( $user_agent_lower, 'linux' ) !== false ) {
 			return 'Linux';
 		}
 

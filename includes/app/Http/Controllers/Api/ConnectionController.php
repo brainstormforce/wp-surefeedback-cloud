@@ -283,9 +283,6 @@ class ConnectionController extends Controller {
 				// Store JWT token for authenticated API calls (e.g., disconnect)
 				if ( ! empty( $data['user_token'] ) ) {
 					$this->connection_repository->setUserToken( sanitize_text_field( $data['user_token'] ) );
-					error_log( 'SureFeedback: User token stored successfully during webhook' );
-				} else {
-					error_log( 'SureFeedback: WARNING - user_token not provided in webhook payload. This may cause authentication issues later.' );
 				}
 
 				// Save site_connected field
@@ -351,8 +348,8 @@ class ConnectionController extends Controller {
 					'user_id'    => $token_data['user_id'] ?? null,
 					'email'      => $token_data['email'] ?? null,
 					'role'       => $token_data['role'] ?? null,
-					'issued_at'  => isset( $token_data['iat'] ) ? date( 'Y-m-d H:i:s', $token_data['iat'] ) : null,
-					'expires_at' => isset( $token_data['exp'] ) ? date( 'Y-m-d H:i:s', $token_data['exp'] ) : null,
+					'issued_at'  => isset( $token_data['iat'] ) ? gmdate( 'Y-m-d H:i:s', $token_data['iat'] ) : null,
+					'expires_at' => isset( $token_data['exp'] ) ? gmdate( 'Y-m-d H:i:s', $token_data['exp'] ) : null,
 				),
 				'permission_check' => array(
 					'has_admin_permission' => $has_admin_permission,
@@ -474,15 +471,23 @@ class ConnectionController extends Controller {
 		);
 
 		foreach ( $headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ips = explode( ',', $_SERVER[ $header ] );
-				$ip  = trim( $ips[0] );
-				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-					return $ip;
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
+				$server_value = isset( $_SERVER[ $header ] ) ? sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) : '';
+				if ( ! empty( $server_value ) ) {
+					$ips = explode( ',', $server_value );
+					$ip  = trim( $ips[0] );
+					if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+						return $ip;
+					}
 				}
 			}
 		}
 
-		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			return $remote_addr ?: '0.0.0.0';
+		}
+
+		return '0.0.0.0';
 	}
 }

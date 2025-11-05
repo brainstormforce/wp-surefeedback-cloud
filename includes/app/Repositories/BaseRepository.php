@@ -99,27 +99,40 @@ abstract class BaseRepository {
 	/**
 	 * Get multiple options with a pattern
 	 *
-	 * @param string $pattern
-	 * @return array
+	 * This method uses wp_load_alloptions() to retrieve all options,
+	 * then filters them by the pattern. This is safe and WordPress-approved.
+	 *
+	 * @param string $pattern Pattern to match (e.g., 'prefix_%' will match all keys starting with 'prefix_')
+	 * @return array Associative array of matched options
 	 */
 	protected function getOptionsWithPattern( string $pattern ): array {
-		global $wpdb;
-
 		$fullPattern = $this->prefix . $pattern;
+		$cache_key   = 'surefeedback_options_pattern_' . md5( $fullPattern );
 
-		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$fullPattern
-			),
-			ARRAY_A
-		);
-
-		$options = array();
-		foreach ( $results as $row ) {
-			$key             = str_replace( $this->prefix, '', $row['option_name'] );
-			$options[ $key ] = maybe_unserialize( $row['option_value'] );
+		// Try to get from cache first
+		$cached = wp_cache_get( $cache_key, 'surefeedback_options' );
+		if ( false !== $cached ) {
+			return $cached;
 		}
+
+		// Load all options using WordPress core function
+		$all_options = wp_load_alloptions();
+
+		// Convert SQL LIKE pattern to regex pattern
+		// % becomes .* and _ becomes .
+		$regex_pattern = str_replace( array( '%', '_' ), array( '.*', '.' ), preg_quote( $fullPattern, '/' ) );
+
+		// Filter options by pattern
+		$options = array();
+		foreach ( $all_options as $option_name => $option_value ) {
+			if ( preg_match( '/^' . $regex_pattern . '$/', $option_name ) ) {
+				$key             = str_replace( $this->prefix, '', $option_name );
+				$options[ $key ] = maybe_unserialize( $option_value );
+			}
+		}
+
+		// Cache the results for 1 hour
+		wp_cache_set( $cache_key, $options, 'surefeedback_options', HOUR_IN_SECONDS );
 
 		return $options;
 	}

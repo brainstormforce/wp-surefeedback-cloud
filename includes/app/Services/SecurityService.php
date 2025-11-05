@@ -218,7 +218,7 @@ class SecurityService {
 	 * @return bool
 	 */
 	public function validateUrl( string $url, array $allowed_schemes = array( 'http', 'https' ) ): bool {
-		$parsed = parse_url( $url );
+		$parsed = wp_parse_url( $url );
 
 		if ( ! $parsed || ! isset( $parsed['scheme'] ) || ! isset( $parsed['host'] ) ) {
 			return false;
@@ -303,8 +303,9 @@ class SecurityService {
 		);
 
 		foreach ( $ip_keys as $key ) {
-			if ( ! empty( $_SERVER[ $key ] ) ) {
-				$ips = explode( ',', $_SERVER[ $key ] );
+			if ( isset( $_SERVER[ $key ] ) && ! empty( $_SERVER[ $key ] ) ) {
+				$server_value = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+				$ips = explode( ',', $server_value );
 				$ip  = trim( $ips[0] );
 
 				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
@@ -313,7 +314,12 @@ class SecurityService {
 			}
 		}
 
-		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			return $remote_addr ?: '0.0.0.0';
+		}
+
+		return '0.0.0.0';
 	}
 
 	/**
@@ -400,7 +406,7 @@ class SecurityService {
 		}
 
 		// Additional webhook-specific validation
-		$parsed = parse_url( $url );
+		$parsed = wp_parse_url( $url );
 
 		// Reject local/private IPs for security
 		if ( isset( $parsed['host'] ) ) {

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SureFeedback Client 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
-"POT-Creation-Date: 2025-11-04 20:31:13+00:00\n"
+"POT-Creation-Date: 2025-11-05 11:30:20+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -94,57 +94,65 @@ msgstr ""
 msgid "Validation failed"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:223
+#: includes/app/Http/Controllers/Controller.php:224
+#. translators: %s: field name
 msgid "The %s field is required."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:224
+#: includes/app/Http/Controllers/Controller.php:226
+#. translators: %s: field name
 msgid "The %s field must be a string."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:225
+#: includes/app/Http/Controllers/Controller.php:228
+#. translators: %s: field name
 msgid "The %s field must be numeric."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:226
+#: includes/app/Http/Controllers/Controller.php:230
+#. translators: %s: field name
 msgid "The %s field must be a valid email."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:227
+#: includes/app/Http/Controllers/Controller.php:232
+#. translators: %s: field name
 msgid "The %s field must be a valid URL."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:228
+#: includes/app/Http/Controllers/Controller.php:234
+#. translators: %s: field name
 msgid "The %s field must be true or false."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:229
+#: includes/app/Http/Controllers/Controller.php:236
+#. translators: %s: field name
 msgid "The %s field must be an array."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:232
+#: includes/app/Http/Controllers/Controller.php:240
+#. translators: %s: field name
 msgid "The %s field is invalid."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:372
+#: includes/app/Http/Controllers/Controller.php:380
 msgid "Nonce not provided"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:384
+#: includes/app/Http/Controllers/Controller.php:392
 msgid "Invalid nonce"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:398
-#: includes/app/Services/AdminService.php:639
-#: includes/app/Services/AdminService.php:675
-#: includes/app/Services/AdminService.php:696
-#: includes/app/Services/AdminService.php:739
-#: includes/app/Services/AdminService.php:774
-#: includes/app/Services/AdminService.php:806
+#: includes/app/Http/Controllers/Controller.php:406
+#: includes/app/Services/AdminService.php:664
+#: includes/app/Services/AdminService.php:700
+#: includes/app/Services/AdminService.php:721
+#: includes/app/Services/AdminService.php:764
+#: includes/app/Services/AdminService.php:799
+#: includes/app/Services/AdminService.php:831
 msgid "Insufficient permissions"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:475
+#: includes/app/Http/Controllers/Controller.php:483
 msgid "An error occurred while processing your request."
 msgstr ""
 
@@ -191,7 +199,7 @@ msgstr ""
 
 #: includes/app/Services/AdminService.php:144
 #: includes/app/Services/AdminService.php:145
-#: includes/app/Services/AdminService.php:435 surefeedback.php:185
+#: includes/app/Services/AdminService.php:437 surefeedback.php:178
 msgid "Settings"
 msgstr ""
 
@@ -203,113 +211,113 @@ msgstr ""
 msgid "Connect now"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:374
+#: includes/app/Services/AdminService.php:375
 msgid "Settings saved successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:375
+#: includes/app/Services/AdminService.php:376
 msgid "Connection established successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:376
+#: includes/app/Services/AdminService.php:377
 msgid "Disconnected successfully."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:377
+#: includes/app/Services/AdminService.php:378
 msgid "Plugin reset completed."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:447
+#: includes/app/Services/AdminService.php:449
 msgid "Open Parent Dashboard"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:468
+#: includes/app/Services/AdminService.php:470
 msgid "SureFeedback Status"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:486
+#: includes/app/Services/AdminService.php:488
 msgid "Connection Status:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:488
-#: includes/app/Services/AdminService.php:582
+#: includes/app/Services/AdminService.php:490
+#: includes/app/Services/AdminService.php:607
 msgid "Connected"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:490
-#: includes/app/Services/AdminService.php:583
+#: includes/app/Services/AdminService.php:492
+#: includes/app/Services/AdminService.php:608
 msgid "Disconnected"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:497
+#: includes/app/Services/AdminService.php:499
 msgid "Last Verification:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:505
+#: includes/app/Services/AdminService.php:507
 msgid "Site Name:"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:513
+#: includes/app/Services/AdminService.php:515
 msgid "View Dashboard"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:518
+#: includes/app/Services/AdminService.php:520
 msgid "Connect Now"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:581
+#: includes/app/Services/AdminService.php:606
 msgid "Connecting..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:584
+#: includes/app/Services/AdminService.php:609
 msgid "Testing connection..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:585
+#: includes/app/Services/AdminService.php:610
 msgid "Saving..."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:586
+#: includes/app/Services/AdminService.php:611
 msgid "Saved"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:587
+#: includes/app/Services/AdminService.php:612
 msgid "Error"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:588
+#: includes/app/Services/AdminService.php:613
 msgid "Success"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:589
+#: includes/app/Services/AdminService.php:614
 msgid "Are you sure you want to reset all settings? This action cannot be undone."
 msgstr ""
 
-#: includes/app/Services/AdminService.php:652
+#: includes/app/Services/AdminService.php:677
 msgid "Settings saved successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:659
+#: includes/app/Services/AdminService.php:684
 msgid "Failed to save settings"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:681
+#: includes/app/Services/AdminService.php:706
 msgid "Connection is managed via webhook"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:760
+#: includes/app/Services/AdminService.php:785
 msgid "Plugin reset successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:813
+#: includes/app/Services/AdminService.php:852
 msgid "No settings provided"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:837
+#: includes/app/Services/AdminService.php:876
 msgid "Settings imported successfully"
 msgstr ""
 
-#: includes/app/Services/AdminService.php:844
+#: includes/app/Services/AdminService.php:883
 msgid "Failed to import settings"
 msgstr ""
 
@@ -333,7 +341,7 @@ msgstr ""
 msgid "Plugin activated successfully."
 msgstr ""
 
-#: surefeedback.php:184
+#: surefeedback.php:177
 msgid "Dashboard"
 msgstr ""
 

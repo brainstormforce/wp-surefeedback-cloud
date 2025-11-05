@@ -297,11 +297,14 @@ class FrontendService {
 			window.SureFeedbackLoaded = true;
 			
 			// Configuration
+			<?php
+			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			?>
 			var config = {
 				siteId: '<?php echo esc_js( $site_id ); ?>',
 				token: '<?php echo esc_js( $access_token ); ?>',
 				apiUrl: '<?php echo esc_js( $api_url ); ?>',
-				currentUrl: '<?php echo esc_js( home_url( $_SERVER['REQUEST_URI'] ) ); ?>',
+				currentUrl: '<?php echo esc_js( home_url( $request_uri ) ); ?>',
 				pageTitle: '<?php echo esc_js( wp_get_document_title() ); ?>',
 				pageId: '<?php echo esc_js( get_the_ID() ?: 0 ); ?>',
 				user: {
@@ -451,7 +454,10 @@ class FrontendService {
 		  
 			// Add WordPress-specific configuration
 			sf.setAttribute('data-site-id', '<?php echo esc_js( $site_id ); ?>');
-			sf.setAttribute('data-current-url', '<?php echo esc_js( home_url( $_SERVER['REQUEST_URI'] ) ); ?>');
+			<?php
+			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			?>
+			sf.setAttribute('data-current-url', '<?php echo esc_js( home_url( $request_uri ) ); ?>');
 			sf.setAttribute('data-page-title', '<?php echo esc_js( wp_get_document_title() ); ?>');
 			sf.setAttribute('data-page-id', '<?php echo esc_js( get_the_ID() ?: 0 ); ?>');
 		  
@@ -539,6 +545,8 @@ class FrontendService {
 	 * @return bool
 	 */
 	private function is_page_builder_preview(): bool {
+		// These are read-only detection checks, not processing form data
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// Elementor
 		if ( isset( $_GET['elementor-preview'] ) ) {
 			return true;
@@ -570,9 +578,10 @@ class FrontendService {
 		}
 
 		// Gutenberg full site editing
-		if ( isset( $_GET['postType'] ) && $_GET['postType'] === 'wp_template' ) {
+		if ( isset( $_GET['postType'] ) && sanitize_text_field( wp_unslash( $_GET['postType'] ) ) === 'wp_template' ) {
 			return true;
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		return false;
 	}
@@ -651,8 +660,9 @@ class FrontendService {
 	private function get_current_page_data(): array {
 		global $wp_query;
 
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$page_data = array(
-			'url'   => home_url( $_SERVER['REQUEST_URI'] ),
+			'url'   => home_url( $request_uri ),
 			'title' => wp_get_document_title(),
 			'type'  => 'unknown',
 		);
@@ -692,6 +702,11 @@ class FrontendService {
 	 * @return void
 	 */
 	public function ajax_widget_config(): void {
+		// Verify nonce for authenticated requests
+		if ( is_user_logged_in() ) {
+			check_ajax_referer( 'wp_rest', 'nonce', false );
+		}
+
 		// Allow public access for widget configuration
 		$config = array(
 			'connected' => $this->connection_repository->isConnected(),
