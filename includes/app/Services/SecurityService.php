@@ -305,8 +305,8 @@ class SecurityService {
 		foreach ( $ip_keys as $key ) {
 			if ( isset( $_SERVER[ $key ] ) && ! empty( $_SERVER[ $key ] ) ) {
 				$server_value = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
-				$ips = explode( ',', $server_value );
-				$ip  = trim( $ips[0] );
+				$ips          = explode( ',', $server_value );
+				$ip           = trim( $ips[0] );
 
 				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
 					return $ip;

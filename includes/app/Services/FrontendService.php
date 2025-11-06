@@ -661,7 +661,7 @@ class FrontendService {
 		global $wp_query;
 
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		$page_data = array(
+		$page_data   = array(
 			'url'   => home_url( $request_uri ),
 			'title' => wp_get_document_title(),
 			'type'  => 'unknown',

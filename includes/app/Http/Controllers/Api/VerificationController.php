@@ -39,7 +39,7 @@ class VerificationController {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->api_gateway          = new ApiGatewayService();
+		$this->api_gateway           = new ApiGatewayService();
 		$this->connection_repository = new ConnectionRepository();
 	}
 
@@ -53,7 +53,7 @@ class VerificationController {
 		try {
 			// Get site token from request body first, fallback to database
 			$site_token = $request->get_param( 'site_token' );
-			
+
 			if ( empty( $site_token ) ) {
 				// Fallback to database value using repository
 				$site_token = $this->connection_repository->getAccessToken();
@@ -76,15 +76,9 @@ class VerificationController {
 				return new WP_Error(
 					'jwt_token_missing',
 					'Authentication token not found. Please reconnect your site to refresh the authentication token.',
-					array( 
-						'status' => 401,
+					array(
+						'status'                => 401,
 						'requires_reconnection' => true,
-						'debug' => array(
-							'has_site_token' => ! empty( $site_token ),
-							'has_jwt_token' => false,
-							'connection_status' => $this->connection_repository->getConnectionStatus(),
-							'site_id' => $this->connection_repository->getSiteId(),
-						)
 					)
 				);
 			}
@@ -97,28 +91,28 @@ class VerificationController {
 
 			// Handle API errors
 			if ( is_wp_error( $response ) ) {
-				$error_data = $response->get_error_data();
+				$error_data    = $response->get_error_data();
 				$error_message = $response->get_error_message();
-				$error_code = $response->get_error_code();
-				
+				$error_code    = $response->get_error_code();
+
 				// Check if it's a "Token not provided" error from Laravel API
 				// Check multiple possible error message formats
 				$is_token_error = false;
-				
+
 				// Check error message directly
-				if ( stripos( $error_message, 'token not provided' ) !== false || 
-					 stripos( $error_message, 'token not found' ) !== false ||
-					 stripos( $error_message, 'unauthorized' ) !== false ) {
+				if ( stripos( $error_message, 'token not provided' ) !== false ||
+					stripos( $error_message, 'token not found' ) !== false ||
+					stripos( $error_message, 'unauthorized' ) !== false ) {
 					$is_token_error = true;
 				}
-				
+
 				// Check error data structure
 				if ( isset( $error_data['response'] ) ) {
 					// Check both 'message' and 'error' fields in response
 					$response_message = $error_data['response']['message'] ?? '';
-					$response_error = $error_data['response']['error'] ?? '';
-					$response_status = $error_data['response']['status'] ?? '';
-					
+					$response_error   = $error_data['response']['error'] ?? '';
+					$response_status  = $error_data['response']['status'] ?? '';
+
 					// Check for token-related errors in various fields
 					$token_error_patterns = array(
 						'token not provided',
@@ -126,9 +120,9 @@ class VerificationController {
 						'token_not_found',
 						'TOKEN_NOT_FOUND',
 						'unauthorized',
-						'script token not found'
+						'script token not found',
 					);
-					
+
 					$combined_message = strtolower( $response_message . ' ' . $response_error . ' ' . $response_status );
 					foreach ( $token_error_patterns as $pattern ) {
 						if ( stripos( $combined_message, $pattern ) !== false ) {
@@ -137,7 +131,7 @@ class VerificationController {
 						}
 					}
 				}
-				
+
 				// Check status code (401 or 404 can indicate authentication/token issues)
 				if ( isset( $error_data['status'] ) ) {
 					$status_code = $error_data['status'];
@@ -145,20 +139,20 @@ class VerificationController {
 						$is_token_error = true;
 					} elseif ( $status_code === 404 ) {
 						// 404 might also indicate token not found
-						if ( isset( $error_data['response']['status'] ) && 
-							 stripos( $error_data['response']['status'], 'TOKEN' ) !== false ) {
+						if ( isset( $error_data['response']['status'] ) &&
+							stripos( $error_data['response']['status'], 'TOKEN' ) !== false ) {
 							$is_token_error = true;
 						}
 					}
 				}
-				
+
 				if ( $is_token_error ) {
 					// Determine the specific error message based on the response
 					$user_message = 'Authentication or connection issue detected. ';
 					if ( isset( $error_data['response']['error'] ) ) {
 						$laravel_error = $error_data['response']['error'];
-						if ( stripos( $laravel_error, 'script token not found' ) !== false || 
-							 stripos( $laravel_error, 'site is inactive' ) !== false ) {
+						if ( stripos( $laravel_error, 'script token not found' ) !== false ||
+							stripos( $laravel_error, 'site is inactive' ) !== false ) {
 							$user_message = 'Site token not found in the system or site is inactive. Please reconnect your site.';
 						} elseif ( stripos( $laravel_error, 'token not provided' ) !== false ) {
 							$user_message = 'Authentication token not found or expired. Please reconnect your site to refresh the authentication token.';
@@ -168,26 +162,19 @@ class VerificationController {
 					} else {
 						$user_message = 'Authentication token not found or expired. Please reconnect your site to refresh the authentication token.';
 					}
-					
+
 					return new WP_Error(
 						'jwt_token_missing',
 						$user_message,
-						array( 
-							'status' => isset( $error_data['status'] ) ? $error_data['status'] : 401,
+						array(
+							'status'                => isset( $error_data['status'] ) ? $error_data['status'] : 401,
 							'requires_reconnection' => true,
-							'original_error' => $error_message,
-							'laravel_error' => $error_data['response']['error'] ?? '',
-							'debug_info' => array(
-								'has_jwt_token' => ! empty( $jwt_token ),
-								'jwt_token_length' => strlen( $jwt_token ?? '' ),
-								'site_token_length' => strlen( $site_token ?? '' ),
-								'error_code' => $error_code,
-								'http_status' => $error_data['status'] ?? 'unknown',
-							)
+							'original_error'        => $error_message,
+							'laravel_error'         => $error_data['response']['error'] ?? '',
 						)
 					);
 				}
-				
+
 				return $response;
 			}
 

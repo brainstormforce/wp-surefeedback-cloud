@@ -20,7 +20,9 @@
     "test": "vendor/bin/phpunit",
     "phpstan": "./vendor/bin/phpstan --memory-limit=2048M analyse",
     "phpcs": "vendor/bin/phpcs --standard=phpcs.xml.dist --report-full",
-    "phpcbf": "vendor/bin/phpcbf --standard=phpcs.xml.dist --report-summary --report-source"
+    "phpcbf": "vendor/bin/phpcbf --standard=phpcs.xml.dist --report-summary --report-source",
+    "lint": "vendor/bin/phpcs --standard=phpcs.xml.dist -p",
+    "format": "vendor/bin/phpcbf --standard=phpcs.xml.dist"
   },
   "config": {
     "platform": {

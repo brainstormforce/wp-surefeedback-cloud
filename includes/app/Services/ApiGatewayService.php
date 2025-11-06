@@ -201,9 +201,6 @@ class ApiGatewayService {
 	 * @return array|WP_Error
 	 */
 	private function executeRequest( string $url, array $args, string $method ) {
-		// Log request details (sanitize sensitive data)
-		$this->logRequest( $method, $url, $args );
-
 		// Execute request based on method
 		switch ( $method ) {
 			case 'GET':
@@ -219,7 +216,6 @@ class ApiGatewayService {
 
 		// Handle WordPress HTTP API errors
 		if ( is_wp_error( $response ) ) {
-			$this->logError( $method, $url, $response->get_error_message() );
 			return new WP_Error(
 				'api_request_failed',
 				sprintf( 'API request failed: %s', $response->get_error_message() ),
@@ -247,16 +243,6 @@ class ApiGatewayService {
 		$decoded = json_decode( $response_body, true );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			$this->logError(
-				$method,
-				$url,
-				'Invalid JSON response',
-				array(
-					'response_code' => $response_code,
-					'json_error'    => json_last_error_msg(),
-				)
-			);
-
 			return new WP_Error(
 				'invalid_response',
 				'Invalid JSON response from API',
@@ -266,9 +252,6 @@ class ApiGatewayService {
 				)
 			);
 		}
-
-		// Log response
-		$this->logResponse( $method, $url, $response_code, $decoded );
 
 		// Handle HTTP error codes
 		if ( $response_code >= 400 ) {
@@ -387,7 +370,7 @@ class ApiGatewayService {
 	 */
 	private function getPlatform(): string {
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+			$user_agent       = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 			$user_agent_lower = strtolower( $user_agent );
 		} else {
 			$user_agent_lower = '';
@@ -421,44 +404,6 @@ class ApiGatewayService {
 
 		// Always verify SSL in production
 		return true;
-	}
-
-	/**
-	 * Log API request
-	 *
-	 * @param string $method HTTP method
-	 * @param string $url Request URL
-	 * @param array  $args Request arguments
-	 * @return void
-	 */
-	private function logRequest( string $method, string $url, array $args ): void {
-		// Logging disabled
-	}
-
-	/**
-	 * Log API response
-	 *
-	 * @param string $method HTTP method
-	 * @param string $url Request URL
-	 * @param int    $status_code Response status code
-	 * @param array  $data Response data
-	 * @return void
-	 */
-	private function logResponse( string $method, string $url, int $status_code, array $data ): void {
-		// Logging disabled
-	}
-
-	/**
-	 * Log API error
-	 *
-	 * @param string $method HTTP method
-	 * @param string $url Request URL
-	 * @param string $error_message Error message
-	 * @param array  $context Additional context
-	 * @return void
-	 */
-	private function logError( string $method, string $url, string $error_message, array $context = array() ): void {
-		// Logging disabled
 	}
 
 	/**
