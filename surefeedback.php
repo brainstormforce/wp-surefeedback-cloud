@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: SureFeedback Client
+ * Plugin Name: SureFeedback
  * Plugin URI: http://surefeedback.com
  * Description: Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.
  * Author: Brainstorm Force

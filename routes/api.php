@@ -135,7 +135,7 @@ $router->get(
 				'plugin'    => $plugin_file,
 				'is_active' => is_plugin_active( $plugin_file ),
 				'version'   => SUREFEEDBACK_VERSION,
-				'name'      => 'SureFeedback Client',
+				'name'      => 'SureFeedback',
 				'status'    => is_plugin_active( $plugin_file ) ? 'active' : 'inactive',
 			)
 		);
