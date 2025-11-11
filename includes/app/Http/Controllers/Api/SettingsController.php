@@ -51,7 +51,6 @@ class SettingsController extends Controller {
 				if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
 					return $this->error( __( 'Invalid security token', 'surefeedback' ), null, 403 );
 				}
-
 			} else {
 				// Fallback: Check if user is logged in at all
 				if ( ! is_user_logged_in() ) {

@@ -46,10 +46,10 @@ class SecurityService {
 	protected function initSecurityHeaders(): void {
 		// Apply security headers early
 		add_action( 'init', array( $this, 'applySecurityHeaders' ), 1 );
-		
+
 		// Apply security headers for admin pages
 		add_action( 'admin_init', array( $this, 'applySecurityHeaders' ), 1 );
-		
+
 		// Apply security headers for REST API responses
 		add_filter( 'rest_pre_serve_request', array( $this, 'applySecurityHeadersToRestApi' ), 10, 4 );
 	}
@@ -76,13 +76,13 @@ class SecurityService {
 	protected function initSecurityLogging(): void {
 		// Log authentication failures
 		add_action( 'wp_login_failed', array( $this, 'logFailedLogin' ) );
-		
+
 		// Log successful logins
 		add_action( 'wp_login', array( $this, 'logSuccessfulLogin' ), 10, 2 );
-		
+
 		// Log REST API authentication failures
 		add_filter( 'rest_authentication_errors', array( $this, 'logRestAuthFailure' ), 100, 1 );
-		
+
 		// Log permission denials
 		add_action( 'rest_request_after_callbacks', array( $this, 'logPermissionDenials' ), 10, 3 );
 	}
@@ -94,11 +94,14 @@ class SecurityService {
 	 * @return void
 	 */
 	public function logFailedLogin( string $username ): void {
-		$this->logSecurityEvent( 'login_failed', array(
-			'username' => sanitize_user( $username ),
-			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
-			'referer' => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '',
-		) );
+		$this->logSecurityEvent(
+			'login_failed',
+			array(
+				'username'   => sanitize_user( $username ),
+				'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+				'referer'    => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '',
+			)
+		);
 	}
 
 	/**
@@ -109,12 +112,15 @@ class SecurityService {
 	 * @return void
 	 */
 	public function logSuccessfulLogin( string $user_login, $user ): void {
-		$this->logSecurityEvent( 'login_success', array(
-			'user_id' => $user->ID,
-			'username' => $user->user_login,
-			'user_role' => implode( ', ', $user->roles ),
-			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
-		) );
+		$this->logSecurityEvent(
+			'login_success',
+			array(
+				'user_id'    => $user->ID,
+				'username'   => $user->user_login,
+				'user_role'  => implode( ', ', $user->roles ),
+				'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+			)
+		);
 	}
 
 	/**
@@ -125,14 +131,17 @@ class SecurityService {
 	 */
 	public function logRestAuthFailure( $result ) {
 		if ( is_wp_error( $result ) ) {
-			$this->logSecurityEvent( 'rest_auth_failed', array(
-				'error_code' => $result->get_error_code(),
-				'error_message' => $result->get_error_message(),
-				'request_uri' => isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
-				'request_method' => isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '',
-			) );
+			$this->logSecurityEvent(
+				'rest_auth_failed',
+				array(
+					'error_code'     => $result->get_error_code(),
+					'error_message'  => $result->get_error_message(),
+					'request_uri'    => isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+					'request_method' => isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '',
+				)
+			);
 		}
-		
+
 		return $result;
 	}
 
@@ -147,21 +156,27 @@ class SecurityService {
 	public function logPermissionDenials( $response, $handler, $request ): void {
 		if ( $response instanceof \WP_Error ) {
 			$error_codes = array( 'rest_forbidden', 'rest_unauthorized', 'rest_unauthenticated' );
-			
+
 			if ( in_array( $response->get_error_code(), $error_codes, true ) ) {
-				$this->logSecurityEvent( 'permission_denied', array(
-					'error_code' => $response->get_error_code(),
-					'error_message' => $response->get_error_message(),
-					'route' => $request->get_route(),
-					'method' => $request->get_method(),
-				) );
+				$this->logSecurityEvent(
+					'permission_denied',
+					array(
+						'error_code'    => $response->get_error_code(),
+						'error_message' => $response->get_error_message(),
+						'route'         => $request->get_route(),
+						'method'        => $request->get_method(),
+					)
+				);
 			}
 		} elseif ( $response instanceof \WP_REST_Response && $response->get_status() >= 400 ) {
-			$this->logSecurityEvent( 'http_error', array(
-				'status_code' => $response->get_status(),
-				'route' => $request->get_route(),
-				'method' => $request->get_method(),
-			) );
+			$this->logSecurityEvent(
+				'http_error',
+				array(
+					'status_code' => $response->get_status(),
+					'route'       => $request->get_route(),
+					'method'      => $request->get_method(),
+				)
+			);
 		}
 	}
 
@@ -291,14 +306,14 @@ class SecurityService {
 		$cache_key = $prefix . md5( $key );
 		$rate_data = get_option( $cache_key, array() );
 
-		$now = time();
+		$now          = time();
 		$window_start = $now - $window;
 
 		// Clean old entries
 		if ( isset( $rate_data['attempts'] ) ) {
-			$rate_data['attempts'] = array_filter( 
-				$rate_data['attempts'], 
-				function( $timestamp ) use ( $window_start ) {
+			$rate_data['attempts'] = array_filter(
+				$rate_data['attempts'],
+				function ( $timestamp ) use ( $window_start ) {
 					return $timestamp > $window_start;
 				}
 			);
@@ -312,7 +327,7 @@ class SecurityService {
 		}
 
 		// Add current attempt
-		$rate_data['attempts'][] = $now;
+		$rate_data['attempts'][]  = $now;
 		$rate_data['last_update'] = $now;
 
 		// Store updated data
@@ -453,7 +468,7 @@ class SecurityService {
 		// Use only REMOTE_ADDR for security - no proxy headers
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
 			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			
+
 			// Validate IP format
 			if ( filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
 				return $remote_addr;
@@ -556,7 +571,7 @@ class SecurityService {
 		// Security: Validate hostname and prevent SSRF attacks
 		if ( isset( $parsed['host'] ) ) {
 			$host = $parsed['host'];
-			
+
 			// Validate domain format
 			if ( ! filter_var( $host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) && ! filter_var( $host, FILTER_VALIDATE_IP ) ) {
 				return false;
@@ -568,7 +583,7 @@ class SecurityService {
 				if ( ! filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
 					return false;
 				}
-				
+
 				// Additional check for cloud metadata endpoints
 				if ( $host === '169.254.169.254' ) {
 					return false;
@@ -581,9 +596,9 @@ class SecurityService {
 				'127.0.0.1',
 				'::1',
 				'0.0.0.0',
-				'[::1]'
+				'[::1]',
 			);
-			
+
 			if ( in_array( strtolower( $host ), $blocked_hosts, true ) ) {
 				return false;
 			}
@@ -607,12 +622,12 @@ class SecurityService {
 	 */
 	public function getSecurityHeaders(): array {
 		$headers = array(
-			'X-Content-Type-Options'  => 'nosniff',
-			'X-Frame-Options'         => 'SAMEORIGIN',
-			'X-XSS-Protection'        => '1; mode=block',
-			'Referrer-Policy'         => 'strict-origin-when-cross-origin',
+			'X-Content-Type-Options'            => 'nosniff',
+			'X-Frame-Options'                   => 'SAMEORIGIN',
+			'X-XSS-Protection'                  => '1; mode=block',
+			'Referrer-Policy'                   => 'strict-origin-when-cross-origin',
 			'X-Permitted-Cross-Domain-Policies' => 'none',
-			'Permissions-Policy'      => 'camera=(), microphone=(), geolocation=(), payment=()',
+			'Permissions-Policy'                => 'camera=(), microphone=(), geolocation=(), payment=()',
 		);
 
 		// Add HSTS header for HTTPS sites
@@ -623,20 +638,20 @@ class SecurityService {
 		// Enhanced CSP for SureFeedback
 		$app_url = defined( 'SUREFEEDBACK_APP_BASE_URL' ) ? SUREFEEDBACK_APP_BASE_URL : 'https://app.surefeedback.com';
 		$api_url = defined( 'SUREFEEDBACK_API_BASE_URL' ) ? SUREFEEDBACK_API_BASE_URL : 'https://api.surefeedback.com';
-		
+
 		$csp_parts = array(
 			"default-src 'self'",
-			"script-src 'self' 'unsafe-inline' " . esc_url( $app_url ) . " " . esc_url( $api_url ),
+			"script-src 'self' 'unsafe-inline' " . esc_url( $app_url ) . ' ' . esc_url( $api_url ),
 			"style-src 'self' 'unsafe-inline' " . esc_url( $app_url ),
-			"img-src 'self' data: " . esc_url( $app_url ) . " " . esc_url( $api_url ),
+			"img-src 'self' data: " . esc_url( $app_url ) . ' ' . esc_url( $api_url ),
 			"font-src 'self' " . esc_url( $app_url ),
-			"connect-src 'self' " . esc_url( $api_url ) . " " . esc_url( $app_url ),
+			"connect-src 'self' " . esc_url( $api_url ) . ' ' . esc_url( $app_url ),
 			"frame-src 'none'",
 			"object-src 'none'",
 			"base-uri 'self'",
-			"form-action 'self'"
+			"form-action 'self'",
 		);
-		
+
 		$headers['Content-Security-Policy'] = implode( '; ', $csp_parts );
 
 		/**
@@ -654,7 +669,7 @@ class SecurityService {
 	 */
 	public function applySecurityHeaders(): void {
 		$headers = $this->getSecurityHeaders();
-		
+
 		foreach ( $headers as $name => $value ) {
 			if ( ! headers_sent() ) {
 				header( $name . ': ' . $value );
@@ -727,17 +742,17 @@ class SecurityService {
 	 * @return void
 	 */
 	public function cleanupRateLimits(): void {
-		$now = time();
+		$now    = time();
 		$cutoff = $now - ( 24 * 3600 ); // 24 hours ago
 
 		// Get all options with rate limit prefix using WordPress API
 		$all_options = wp_load_alloptions();
-		
+
 		foreach ( $all_options as $option_name => $option_value ) {
 			// Check if this is a rate limit option
 			if ( strpos( $option_name, self::RATE_LIMIT_PREFIX ) === 0 ) {
 				$data = maybe_unserialize( $option_value );
-				
+
 				if ( is_array( $data ) && isset( $data['last_update'] ) ) {
 					// Delete old rate limit data
 					if ( $data['last_update'] < $cutoff ) {

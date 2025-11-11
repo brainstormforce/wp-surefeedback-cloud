@@ -115,9 +115,9 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'GET',
-			'headers'   => $headers,
-			'timeout'   => $this->timeout,
+			'method'  => 'GET',
+			'headers' => $headers,
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'GET' );
@@ -136,10 +136,10 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'POST',
-			'headers'   => $headers,
-			'body'      => json_encode( $data ),
-			'timeout'   => $this->timeout,
+			'method'  => 'POST',
+			'headers' => $headers,
+			'body'    => json_encode( $data ),
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'POST' );
@@ -158,10 +158,10 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'PUT',
-			'headers'   => $headers,
-			'body'      => json_encode( $data ),
-			'timeout'   => $this->timeout,
+			'method'  => 'PUT',
+			'headers' => $headers,
+			'body'    => json_encode( $data ),
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'PUT' );
@@ -180,9 +180,9 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'DELETE',
-			'headers'   => $headers,
-			'timeout'   => $this->timeout,
+			'method'  => 'DELETE',
+			'headers' => $headers,
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'DELETE' );
@@ -361,8 +361,8 @@ class ApiGatewayService {
 	private function getUserAgent(): string {
 		// Construct a server-side user agent that does not rely on client-supplied values.
 		$plugin_version = defined( 'SUREFEEDBACK_VERSION' ) ? SUREFEEDBACK_VERSION : '1.0.0';
-		$wp_version = get_bloginfo( 'version' );
-		$php_version = PHP_VERSION;
+		$wp_version     = get_bloginfo( 'version' );
+		$php_version    = PHP_VERSION;
 
 		$ua = sprintf( 'SureFeedback-Plugin/%s WordPress/%s PHP/%s', $plugin_version, $wp_version, $php_version );
 		return $ua;

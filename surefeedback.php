@@ -165,12 +165,15 @@ register_deactivation_hook(
 /**
  * Register security cleanup cron job
  */
-add_action( 'surefeedback_cleanup_rate_limits', function() {
-	if ( class_exists( '\\SureFeedback\\Services\\SecurityService' ) ) {
-		$security_service = new \SureFeedback\Services\SecurityService();
-		$security_service->cleanupRateLimits();
+add_action(
+	'surefeedback_cleanup_rate_limits',
+	function () {
+		if ( class_exists( '\\SureFeedback\\Services\\SecurityService' ) ) {
+			$security_service = new \SureFeedback\Services\SecurityService();
+			$security_service->cleanupRateLimits();
+		}
 	}
-} );
+);
 
 /**
  * Load plugin text domain for internationalization

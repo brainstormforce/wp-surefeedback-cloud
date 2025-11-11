@@ -512,7 +512,7 @@ abstract class Controller {
 		$sanitized = array();
 
 		foreach ( $value as $key => $item ) {
-			$count++;
+			++$count;
 
 			// Security: Limit individual items processed
 			if ( $count > 1000 ) {

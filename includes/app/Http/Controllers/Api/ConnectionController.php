@@ -175,15 +175,15 @@ class ConnectionController extends Controller {
 	 * @return bool
 	 */
 	private function verifySignature( string $site_token, string $signature ): bool {
-		$secret = $this->getConnectionSignatureSecret();
+		$secret             = $this->getConnectionSignatureSecret();
 		$expected_signature = hash_hmac( 'sha256', $site_token, $secret );
 		return hash_equals( $expected_signature, $signature );
-	}	/**
-	 * Reset site connection completely
-	 *
-	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response|WP_Error
-	 */
+	}   /**
+		 * Reset site connection completely
+		 *
+		 * @param WP_REST_Request $request
+		 * @return WP_REST_Response|WP_Error
+		 */
 	public function reset( WP_REST_Request $request ) {
 		try {
 			$nonce_result = $this->validateNonce( $request );
@@ -262,10 +262,13 @@ class ConnectionController extends Controller {
 		}
 
 		// Log the received state for debugging
-		$this->logError( 'Webhook received state for verification', array( 
-			'received_state' => $state,
-			'data_keys' => array_keys( $data )
-		) );
+		$this->logError(
+			'Webhook received state for verification',
+			array(
+				'received_state' => $state,
+				'data_keys'      => array_keys( $data ),
+			)
+		);
 
 		// Verify state parameter matches stored state
 		if ( ! $this->verifyWebhookState( $state ) ) {
@@ -275,8 +278,8 @@ class ConnectionController extends Controller {
 
 		// Security: Rate limiting for webhook endpoint
 		$security_service = new \SureFeedback\Services\SecurityService();
-		$client_ip = $security_service->getClientIp();
-		
+		$client_ip        = $security_service->getClientIp();
+
 		if ( ! $security_service->checkRateLimit( 'webhook_' . $client_ip, 10, 300 ) ) {
 			return $this->error( 'Rate limit exceeded. Try again later.', 429 );
 		}
@@ -400,9 +403,9 @@ class ConnectionController extends Controller {
 			}
 
 			$state = sanitize_text_field( $request->get_param( 'state' ) );
-			
+
 			$this->logError( 'Storing state for webhook verification', array( 'state' => $state ) );
-			
+
 			$success = $this->storeWebhookState( $state );
 
 			if ( $success ) {
@@ -465,15 +468,15 @@ class ConnectionController extends Controller {
 	public function disconnect_webhook( WP_REST_Request $request ) {
 		// Security: Rate limiting for disconnect webhook endpoint
 		$security_service = new \SureFeedback\Services\SecurityService();
-		$client_ip = $security_service->getClientIp();
-		
+		$client_ip        = $security_service->getClientIp();
+
 		if ( ! $security_service->checkRateLimit( 'disconnect_webhook_' . $client_ip, 5, 600 ) ) {
 			return $this->error( 'Rate limit exceeded. Try again later.', 429 );
 		}
 
 		try {
 			// Verify webhook secret key from X-Webhook-Secret header
-			$webhook_secret = $request->get_header( 'X-Webhook-Secret' );
+			$webhook_secret        = $request->get_header( 'X-Webhook-Secret' );
 			$stored_webhook_secret = $this->getDisconnectWebhookSecret();
 
 			// Validate webhook secret matches the dedicated disconnect secret
@@ -597,28 +600,34 @@ class ConnectionController extends Controller {
 	private function verifyWebhookState( string $state ): bool {
 		// Get stored pending states
 		$pending_states = get_option( 'surefeedback_pending_states', array() );
-		
+
 		// Log debug information
-		$this->logError( 'Verifying webhook state', array(
-			'received_state' => $state,
-			'stored_states' => array_keys( $pending_states ),
-			'stored_states_count' => count( $pending_states ),
-			'current_time' => time()
-		) );
-		
+		$this->logError(
+			'Verifying webhook state',
+			array(
+				'received_state'      => $state,
+				'stored_states'       => array_keys( $pending_states ),
+				'stored_states_count' => count( $pending_states ),
+				'current_time'        => time(),
+			)
+		);
+
 		// Check if state exists and is not expired (valid for 15 minutes)
 		if ( isset( $pending_states[ $state ] ) ) {
 			$timestamp = $pending_states[ $state ];
-			$is_valid = ( time() - $timestamp ) <= 900; // 15 minutes expiry
-			
-			$this->logError( 'Found matching state', array(
-				'state' => $state,
-				'stored_timestamp' => $timestamp,
-				'current_time' => time(),
-				'age_seconds' => time() - $timestamp,
-				'is_valid' => $is_valid
-			) );
-			
+			$is_valid  = ( time() - $timestamp ) <= 900; // 15 minutes expiry
+
+			$this->logError(
+				'Found matching state',
+				array(
+					'state'            => $state,
+					'stored_timestamp' => $timestamp,
+					'current_time'     => time(),
+					'age_seconds'      => time() - $timestamp,
+					'is_valid'         => $is_valid,
+				)
+			);
+
 			if ( $is_valid ) {
 				// Remove used state to prevent replay attacks
 				unset( $pending_states[ $state ] );
@@ -631,12 +640,15 @@ class ConnectionController extends Controller {
 				$this->logError( 'State expired and removed', array( 'state' => $state ) );
 			}
 		} else {
-			$this->logError( 'State not found in stored states', array(
-				'received_state' => $state,
-				'stored_states' => array_keys( $pending_states )
-			) );
+			$this->logError(
+				'State not found in stored states',
+				array(
+					'received_state' => $state,
+					'stored_states'  => array_keys( $pending_states ),
+				)
+			);
 		}
-		
+
 		return false;
 	}
 
@@ -648,7 +660,7 @@ class ConnectionController extends Controller {
 	 */
 	public function storeWebhookState( string $state ): bool {
 		$pending_states = get_option( 'surefeedback_pending_states', array() );
-		
+
 		// Clean up expired states (older than 15 minutes)
 		$current_time = time();
 		foreach ( $pending_states as $stored_state => $timestamp ) {
@@ -656,15 +668,15 @@ class ConnectionController extends Controller {
 				unset( $pending_states[ $stored_state ] );
 			}
 		}
-		
+
 		// Store new state with current timestamp
 		$pending_states[ $state ] = $current_time;
-		
+
 		$result = update_option( 'surefeedback_pending_states', $pending_states );
-		
+
 		// Log the store operation
 		error_log( 'SureFeedback: Stored state - ' . $state . ' at timestamp ' . $current_time . ', result: ' . ( $result ? 'success' : 'failed' ) );
-		
+
 		return $result;
 	}
 
@@ -676,9 +688,9 @@ class ConnectionController extends Controller {
 	 * @return bool
 	 */
 	private function verifyWebhookSignature( string $payload, string $signature ): bool {
-		$secret = $this->getWebhookSecret();
+		$secret             = $this->getWebhookSecret();
 		$expected_signature = 'sha256=' . hash_hmac( 'sha256', $payload, $secret );
-		
+
 		return hash_equals( $expected_signature, $signature );
 	}
 
@@ -692,7 +704,7 @@ class ConnectionController extends Controller {
 		// Use only REMOTE_ADDR for security - no proxy headers to prevent IP spoofing
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
 			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			
+
 			// Validate IP format
 			if ( filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
 				return $remote_addr;

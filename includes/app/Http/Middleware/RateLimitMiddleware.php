@@ -45,7 +45,7 @@ class RateLimitMiddleware extends Middleware {
 		),      // 10 per 5 min
 
 		// Plugin management endpoints - very restrictive due to sensitive operations
-		'/surefeedback/v1/plugin/activate'   => array(
+		'/surefeedback/v1/plugin/activate'    => array(
 			'limit'  => 3,
 			'window' => 300,
 		),        // 3 per 5 min
@@ -88,13 +88,16 @@ class RateLimitMiddleware extends Middleware {
 			// Log rate limit violation to security service
 			try {
 				$security_service = new \SureFeedback\Services\SecurityService();
-				$security_service->logSecurityEvent( 'rate_limit_exceeded', array(
-					'client_id' => $clientId,
-					'route'     => $route,
-					'limit'     => $config['limit'],
-					'window'    => $config['window'],
-					'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
-				) );
+				$security_service->logSecurityEvent(
+					'rate_limit_exceeded',
+					array(
+						'client_id'  => $clientId,
+						'route'      => $route,
+						'limit'      => $config['limit'],
+						'window'     => $config['window'],
+						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+					)
+				);
 			} catch ( \Exception $e ) {
 				// Silently fail if security service is not available
 			}
@@ -191,7 +194,7 @@ class RateLimitMiddleware extends Middleware {
 		}
 
 		// Remove expired requests
-		$cutoff = time() - $config['window'];
+		$cutoff   = time() - $config['window'];
 		$requests = array_filter(
 			$requests,
 			function ( $timestamp ) use ( $cutoff ) {
@@ -232,7 +235,7 @@ class RateLimitMiddleware extends Middleware {
 
 		// Store updated requests list using WordPress options for persistence
 		update_option( $key, array_values( $requests ), 'no' ); // no autoload for performance
-		
+
 		// Schedule cleanup of old rate limit entries
 		if ( ! wp_next_scheduled( 'surefeedback_cleanup_rate_limits' ) ) {
 			wp_schedule_event( time() + 3600, 'hourly', 'surefeedback_cleanup_rate_limits' );
@@ -292,11 +295,12 @@ class RateLimitMiddleware extends Middleware {
 	 */
 	public static function cleanupExpiredRateLimits(): void {
 		global $wpdb;
-		
+
 		// Remove rate limit options older than 1 day
 		$cutoff = time() - DAY_IN_SECONDS;
-		
+
 		// Get all rate limit option names first
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Necessary for cleanup as WordPress has no API for wildcard option queries
 		$rate_limit_keys = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT option_name FROM {$wpdb->options} 
@@ -304,7 +308,7 @@ class RateLimitMiddleware extends Middleware {
 				$wpdb->esc_like( 'surefeedback_rate_limit_' ) . '%'
 			)
 		);
-		
+
 		// Enforce a global cap on stored rate-limit entries to avoid unbounded growth
 		if ( is_array( $rate_limit_keys ) && count( $rate_limit_keys ) > self::MAX_RATE_LIMIT_ENTRIES ) {
 			// Determine last activity (max timestamp) for each option to pick oldest
@@ -323,7 +327,7 @@ class RateLimitMiddleware extends Middleware {
 			asort( $entries );
 
 			// Keys to remove to reduce to MAX_RATE_LIMIT_ENTRIES
-			$excess = count( $rate_limit_keys ) - self::MAX_RATE_LIMIT_ENTRIES;
+			$excess    = count( $rate_limit_keys ) - self::MAX_RATE_LIMIT_ENTRIES;
 			$to_remove = array_slice( array_keys( $entries ), 0, $excess );
 
 			foreach ( $to_remove as $remove_key ) {
@@ -339,11 +343,11 @@ class RateLimitMiddleware extends Middleware {
 		// Clean up expired entries by examining their values
 		foreach ( $rate_limit_keys as $key ) {
 			$requests = get_option( $key, array() );
-			
+
 			if ( ! is_array( $requests ) ) {
 				continue;
 			}
-			
+
 			// Filter out expired timestamps
 			$active_requests = array_filter(
 				$requests,
@@ -351,7 +355,7 @@ class RateLimitMiddleware extends Middleware {
 					return is_numeric( $timestamp ) && $timestamp > $cutoff;
 				}
 			);
-			
+
 			// If no active requests remain, delete the option entirely
 			if ( empty( $active_requests ) ) {
 				delete_option( $key );
@@ -379,7 +383,7 @@ class RateLimitMiddleware extends Middleware {
 		}
 
 		// Remove expired requests
-		$cutoff = time() - $config['window'];
+		$cutoff   = time() - $config['window'];
 		$requests = array_filter(
 			$requests,
 			function ( $timestamp ) use ( $cutoff ) {
@@ -408,26 +412,29 @@ class RateLimitMiddleware extends Middleware {
 	 */
 	public static function checkRateLimit( string $route, $request ) {
 		$middleware = new self();
-		
+
 		// Get client identifier
-		$userId = get_current_user_id();
+		$userId   = get_current_user_id();
 		$clientId = $userId > 0 ? 'user_' . $userId : 'ip_' . $middleware->getClientIp( $request );
-		
+
 		// Get rate limit configuration
 		$config = $middleware->getRateLimitConfig( $route );
-		
+
 		// Check if rate limit is exceeded
 		if ( $middleware->isRateLimitExceeded( $clientId, $route, $config ) ) {
 			// Log rate limit violation to security service
 			try {
 				$security_service = new \SureFeedback\Services\SecurityService();
-				$security_service->logSecurityEvent( 'rate_limit_exceeded', array(
-					'client_id' => $clientId,
-					'route'     => $route,
-					'limit'     => $config['limit'],
-					'window'    => $config['window'],
-					'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
-				) );
+				$security_service->logSecurityEvent(
+					'rate_limit_exceeded',
+					array(
+						'client_id'  => $clientId,
+						'route'      => $route,
+						'limit'      => $config['limit'],
+						'window'     => $config['window'],
+						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+					)
+				);
 			} catch ( \Exception $e ) {
 				// Silently fail if security service is not available
 			}
@@ -440,17 +447,17 @@ class RateLimitMiddleware extends Middleware {
 					$config['window']
 				),
 				array(
-					'status' => 429,
+					'status'      => 429,
 					'retry_after' => $middleware->getRetryAfter( $clientId, $route, $config ),
-					'limit' => $config['limit'],
-					'window' => $config['window'],
+					'limit'       => $config['limit'],
+					'window'      => $config['window'],
 				)
 			);
 		}
-		
+
 		// Record this request
 		$middleware->recordRequest( $clientId, $route, $config );
-		
+
 		return null;
 	}
 }

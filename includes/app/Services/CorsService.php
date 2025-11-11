@@ -37,7 +37,7 @@ class CorsService {
 	protected function initHooks(): void {
 		// Handle CORS for REST API requests
 		add_filter( 'rest_pre_serve_request', array( $this, 'handleCorsHeaders' ), 10, 4 );
-		
+
 		// Handle preflight OPTIONS requests
 		add_action( 'rest_api_init', array( $this, 'handlePreflightRequests' ) );
 	}
@@ -116,11 +116,11 @@ class CorsService {
 	public function handlePreflightRequests(): void {
 		if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
 			$origin = $this->getRequestOrigin();
-			
+
 			if ( $this->isOriginAllowed( $origin ) ) {
 				$this->setCorsHeaders( $origin );
 				$this->setPreflightHeaders();
-				
+
 				// Send 200 status for preflight requests
 				status_header( 200 );
 				exit;
@@ -137,7 +137,7 @@ class CorsService {
 		if ( isset( $_SERVER['HTTP_ORIGIN'] ) ) {
 			return sanitize_url( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) );
 		}
-		
+
 		return null;
 	}
 

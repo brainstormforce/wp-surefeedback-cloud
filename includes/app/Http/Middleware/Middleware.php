@@ -72,7 +72,7 @@ abstract class Middleware {
 		// Use only REMOTE_ADDR for security - no proxy headers to prevent IP spoofing
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
 			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			
+
 			// Validate IP format
 			if ( filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
 				return $remote_addr;

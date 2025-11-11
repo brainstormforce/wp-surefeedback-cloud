@@ -81,14 +81,14 @@ class VerificationController {
 				$jwt_token = null;
 			}
 
-		// Call Laravel API via Gateway Service
-		$response = $this->api_gateway->verifyIntegration( $site_token, $jwt_token );
+			// Call Laravel API via Gateway Service
+			$response = $this->api_gateway->verifyIntegration( $site_token, $jwt_token );
 
-		// Handle API errors
-		if ( is_wp_error( $response ) ) {
-			// Pass through the error as-is
-			return $response;
-		}			// Extract response data
+			// Handle API errors
+			if ( is_wp_error( $response ) ) {
+				// Pass through the error as-is
+				return $response;
+			}           // Extract response data
 			$decoded     = $response['data'] ?? array();
 			$status_code = $response['status_code'] ?? 200;
 

@@ -210,7 +210,7 @@ class ConnectionRepository extends BaseRepository {
 		// Generate new random JWT secret
 		$secret = $this->generateSecureJwtSecret();
 		update_option( 'surefeedback_jwt_secret', $secret );
-		
+
 		return $secret;
 	}
 
@@ -234,7 +234,7 @@ class ConnectionRepository extends BaseRepository {
 			defined( 'NONCE_KEY' ) ? NONCE_KEY : '',
 			get_site_url(),
 			time(),
-			wp_rand()
+			wp_rand(),
 		);
 
 		// Create secure hash from all entropy sources
@@ -250,10 +250,10 @@ class ConnectionRepository extends BaseRepository {
 	public function rotateJwtSecret(): string {
 		$new_secret = $this->generateSecureJwtSecret();
 		update_option( 'surefeedback_jwt_secret', $new_secret );
-		
+
 		// Log secret rotation for audit trail
 		error_log( 'SureFeedback: JWT secret rotated at ' . current_time( 'mysql' ) );
-		
+
 		return $new_secret;
 	}
 
