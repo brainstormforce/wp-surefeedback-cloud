@@ -31,8 +31,10 @@ class TokenManager {
      * Load token from WordPress API settings
      */
     loadToken() {
-        // Get nonce from WordPress
-        this.token = window.wpApiSettings?.nonce || '';
+        // Get nonce from WordPress - prioritize SureFeedback admin object
+        this.token = window.sureFeedbackAdmin?.rest_nonce ||
+                    window.sureFeedbackAdmin?.nonce ||
+                    window.wpApiSettings?.nonce || '';
         
         if (this.token) {
             this.notifyListeners('token_loaded', this.token);

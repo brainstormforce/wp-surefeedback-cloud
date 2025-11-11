@@ -205,12 +205,45 @@ class Router {
 	 * Check permissions for REST API requests
 	 *
 	 * @param \WP_REST_Request $request
-	 * @return bool
+	 * @return bool|\WP_Error
 	 */
-	public function checkPermissions( \WP_REST_Request $request ): bool {
-		// Allow all requests - handle authentication in controllers
-		// This prevents WordPress from doing cookie-based authentication checks
-		// Individual controllers handle their own authentication and authorization
+	public function checkPermissions( \WP_REST_Request $request ) {
+		$route = $request->get_route();
+		$method = $request->get_method();
+		// Define public routes that don't require authentication
+		$public_routes = array(
+			'GET:/surefeedback/v1/status',
+			'GET:/surefeedback/v1/health',
+			'POST:/surefeedback/v1/verification/verify',
+			'POST:/surefeedback/v1/webhook',
+			'POST:/surefeedback/v1/webhook/disconnect',
+		);
+
+		$route_key = $method . ':' . $route;
+
+		// Allow public routes
+		if ( in_array( $route_key, $public_routes, true ) ) {
+			return true;
+		}
+
+		// All other routes require authentication
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'Authentication required.', 'surefeedback' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Check user capabilities for admin routes
+		if ( strpos( $route, '/admin/' ) !== false && ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'Insufficient permissions.', 'surefeedback' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		return true;
 	}
 

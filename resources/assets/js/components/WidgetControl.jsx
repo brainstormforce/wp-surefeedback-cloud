@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast, Toaster } from '@/components/ui/toast';
 import { __, sprintf } from '@wordpress/i18n';
-import axios from 'axios';
+import { apiGateway } from '../api/gateway.js';
 import SyncedMonitor from "../../../../assets/images/settings/sync_saved_locally.svg";
 import SyncedMonitorOff from "../../../../assets/images/settings/sync_saved_locally_off.svg";
 
@@ -39,11 +39,11 @@ const WidgetControl = () => {
   const loadPagesSettings = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/wp-json/surefeedback/v1/page-settings');
+      const response = await apiGateway.get('page-settings');
 
-      if (response.data.success) {
-        setPages(response.data.data.pages || []);
-        setSettings(response.data.data.settings || {});
+      if (response.success) {
+        setPages(response.data.pages || []);
+        setSettings(response.data.settings || {});
       }
     } catch (error) {
       console.error('Error loading page settings:', error);
@@ -70,11 +70,11 @@ const WidgetControl = () => {
   const saveSettings = async () => {
     try {
       setSaving(true);
-      const response = await axios.post('/wp-json/surefeedback/v1/page-settings', {
+      const response = await apiGateway.post('page-settings', {
         settings: settings,
       });
 
-      if (response.data.success) {
+      if (response.success) {
         toast.success(__('Page settings saved successfully', 'surefeedback'));
         setHasUnsavedChanges(false);
         // Reload to get updated data
@@ -96,9 +96,9 @@ const WidgetControl = () => {
   const confirmEnableAll = async () => {
     try {
       setSaving(true);
-      const response = await axios.post('/wp-json/surefeedback/v1/page-settings/enable-all');
+      const response = await apiGateway.post('page-settings/enable-all');
 
-      if (response.data.success) {
+      if (response.success) {
         toast.success(__('Widget enabled for all pages', 'surefeedback'));
         setHasUnsavedChanges(false);
         await loadPagesSettings();
@@ -120,9 +120,9 @@ const WidgetControl = () => {
   const confirmDisableAll = async () => {
     try {
       setSaving(true);
-      const response = await axios.post('/wp-json/surefeedback/v1/page-settings/disable-all');
+      const response = await apiGateway.post('page-settings/disable-all');
 
-      if (response.data.success) {
+      if (response.success) {
         toast.success(__('Widget disabled for all pages', 'surefeedback'));
         setHasUnsavedChanges(false);
         await loadPagesSettings();

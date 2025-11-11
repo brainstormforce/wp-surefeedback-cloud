@@ -152,18 +152,42 @@ class SecurityService {
 	 * @return bool
 	 */
 	public function checkRateLimit( string $key, int $limit, int $window = 3600, string $prefix = self::RATE_LIMIT_PREFIX ): bool {
+		// Use WordPress options for persistent storage instead of transients
 		$cache_key = $prefix . md5( $key );
-		$current   = get_transient( $cache_key );
+		$rate_data = get_option( $cache_key, array() );
 
-		if ( false === $current ) {
-			$current = 0;
+		$now = time();
+		$window_start = $now - $window;
+
+		// Clean old entries
+		if ( isset( $rate_data['attempts'] ) ) {
+			$rate_data['attempts'] = array_filter( 
+				$rate_data['attempts'], 
+				function( $timestamp ) use ( $window_start ) {
+					return $timestamp > $window_start;
+				}
+			);
+		} else {
+			$rate_data['attempts'] = array();
 		}
 
-		if ( $current >= $limit ) {
+		// Check if limit exceeded
+		if ( count( $rate_data['attempts'] ) >= $limit ) {
 			return false;
 		}
 
-		set_transient( $cache_key, $current + 1, $window );
+		// Add current attempt
+		$rate_data['attempts'][] = $now;
+		$rate_data['last_update'] = $now;
+
+		// Store updated data
+		update_option( $cache_key, $rate_data );
+
+		// Schedule cleanup of old rate limit data
+		if ( ! wp_next_scheduled( 'surefeedback_cleanup_rate_limits' ) ) {
+			wp_schedule_event( time(), 'hourly', 'surefeedback_cleanup_rate_limits' );
+		}
+
 		return true;
 	}
 
@@ -291,32 +315,14 @@ class SecurityService {
 	 * @return string
 	 */
 	public function getClientIp(): string {
-		$ip_keys = array(
-			'HTTP_CF_CONNECTING_IP',     // Cloudflare
-			'HTTP_CLIENT_IP',            // Proxy
-			'HTTP_X_FORWARDED_FOR',      // Load balancer/proxy
-			'HTTP_X_FORWARDED',          // Proxy
-			'HTTP_X_CLUSTER_CLIENT_IP',  // Cluster
-			'HTTP_FORWARDED_FOR',        // Proxy
-			'HTTP_FORWARDED',            // Proxy
-			'REMOTE_ADDR',               // Standard
-		);
-
-		foreach ( $ip_keys as $key ) {
-			if ( isset( $_SERVER[ $key ] ) && ! empty( $_SERVER[ $key ] ) ) {
-				$server_value = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
-				$ips          = explode( ',', $server_value );
-				$ip           = trim( $ips[0] );
-
-				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-					return $ip;
-				}
-			}
-		}
-
+		// Use only REMOTE_ADDR for security - no proxy headers
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
 			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			return $remote_addr ?: '0.0.0.0';
+			
+			// Validate IP format
+			if ( filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
+				return $remote_addr;
+			}
 		}
 
 		return '0.0.0.0';
@@ -405,13 +411,19 @@ class SecurityService {
 			return false;
 		}
 
-		// Additional webhook-specific validation
 		$parsed = wp_parse_url( $url );
 
-		// Reject local/private IPs for security
+		// Security: Only allow HTTPS for webhooks
+		if ( $parsed['scheme'] !== 'https' ) {
+			return false;
+		}
+
+		// Security: Validate hostname without DNS resolution to prevent SSRF
 		if ( isset( $parsed['host'] ) ) {
-			$ip = gethostbyname( $parsed['host'] );
-			if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false ) {
+			$host = $parsed['host'];
+			
+			// Validate domain format (allow all hosts including localhost and private networks)
+			if ( ! filter_var( $host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) && ! filter_var( $host, FILTER_VALIDATE_IP ) ) {
 				return false;
 			}
 		}
@@ -430,7 +442,7 @@ class SecurityService {
 			'X-Frame-Options'         => 'SAMEORIGIN',
 			'X-XSS-Protection'        => '1; mode=block',
 			'Referrer-Policy'         => 'strict-origin-when-cross-origin',
-			'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+			'Content-Security-Policy' => "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self';",
 		);
 	}
 
@@ -491,5 +503,32 @@ class SecurityService {
 	 */
 	public function clearSecurityLogs(): void {
 		delete_transient( 'surefeedback_security_events' );
+	}
+
+	/**
+	 * Cleanup old rate limit data
+	 *
+	 * @return void
+	 */
+	public function cleanupRateLimits(): void {
+		$now = time();
+		$cutoff = $now - ( 24 * 3600 ); // 24 hours ago
+
+		// Get all options with rate limit prefix using WordPress API
+		$all_options = wp_load_alloptions();
+		
+		foreach ( $all_options as $option_name => $option_value ) {
+			// Check if this is a rate limit option
+			if ( strpos( $option_name, self::RATE_LIMIT_PREFIX ) === 0 ) {
+				$data = maybe_unserialize( $option_value );
+				
+				if ( is_array( $data ) && isset( $data['last_update'] ) ) {
+					// Delete old rate limit data
+					if ( $data['last_update'] < $cutoff ) {
+						delete_option( $option_name );
+					}
+				}
+			}
+		}
 	}
 }

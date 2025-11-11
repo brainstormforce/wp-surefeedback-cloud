@@ -46,8 +46,11 @@ class SettingsController extends Controller {
 		try {
 			// First check for admin capability - this handles cookie-based auth
 			if ( current_user_can( 'manage_options' ) ) {
-				// User is authenticated via WordPress cookies and has admin rights
-				// No additional nonce validation needed for GET requests
+				// Security: Verify nonce for sensitive data access
+				$nonce = $request->get_header( 'X-WP-Nonce' );
+				if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+					return $this->error( __( 'Invalid security token', 'surefeedback' ), null, 403 );
+				}
 
 			} else {
 				// Fallback: Check if user is logged in at all

@@ -116,6 +116,7 @@ class FrontendService {
 			array(
 				'apiUrl'      => rest_url( 'surefeedback/v1/' ),
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
+				'guestNonce'  => wp_create_nonce( 'surefeedback_guest_config' ),
 				'siteId'      => $this->connection_repository->getSiteId(),
 				'accessToken' => $this->connection_repository->getAccessToken(),
 				'user'        => $this->get_current_user_data(),
@@ -330,7 +331,7 @@ class FrontendService {
 			script.setAttribute('data-user-id', config.user.id);
 			script.setAttribute('data-mode', 'WordPress');
 			script.setAttribute('data-platform', 'WordPress');
-			script.setAttribute('data-debug', 'true');
+			script.setAttribute('data-debug', config.debug || 'false');
 			
 			script.onload = function() {
 				// Widget loader script loaded successfully
@@ -702,12 +703,21 @@ class FrontendService {
 	 * @return void
 	 */
 	public function ajax_widget_config(): void {
-		// Verify nonce for authenticated requests
+		// Verify nonce for all requests (authenticated and guest)
 		if ( is_user_logged_in() ) {
-			check_ajax_referer( 'wp_rest', 'nonce', false );
+			// For authenticated users, use standard WordPress nonce
+			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+			if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+				wp_die( 'Security check failed', 'Unauthorized', array( 'response' => 403 ) );
+			}
+		} else {
+			// For guest users, verify a simple nonce to prevent CSRF
+			$guest_nonce = isset( $_POST['guest_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['guest_nonce'] ) ) : '';
+			if ( ! wp_verify_nonce( $guest_nonce, 'surefeedback_guest_config' ) ) {
+				wp_die( 'Security check failed', 'Unauthorized', array( 'response' => 403 ) );
+			}
 		}
 
-		// Allow public access for widget configuration
 		$config = array(
 			'connected' => $this->connection_repository->isConnected(),
 			'user'      => $this->get_current_user_data(),

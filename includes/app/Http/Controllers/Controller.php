@@ -285,7 +285,7 @@ abstract class Controller {
 
 					case 'array':
 						if ( is_array( $value ) ) {
-							$value = array_map( 'sanitize_text_field', $value );
+							$value = $this->sanitizeArraySecurely( $value );
 						}
 						break;
 				}
@@ -484,5 +484,51 @@ abstract class Controller {
 			null,
 			500
 		);
+	}
+
+	/**
+	 * Securely sanitize arrays with depth and size limits
+	 *
+	 * @param mixed $value Value to sanitize
+	 * @param int   $depth Current depth (for recursion tracking)
+	 * @param int   $count Current item count
+	 * @return mixed
+	 */
+	private function sanitizeArraySecurely( $value, int $depth = 0, int &$count = 0 ): array {
+		// Security: Limit array depth to prevent deeply nested attacks
+		if ( $depth > 5 ) {
+			return array();
+		}
+
+		// Security: Limit total array items to prevent memory exhaustion
+		if ( $count > 1000 ) {
+			return array();
+		}
+
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$sanitized = array();
+
+		foreach ( $value as $key => $item ) {
+			$count++;
+
+			// Security: Limit individual items processed
+			if ( $count > 1000 ) {
+				break;
+			}
+
+			// Sanitize the key
+			$clean_key = sanitize_key( $key );
+
+			if ( is_array( $item ) ) {
+				$sanitized[ $clean_key ] = $this->sanitizeArraySecurely( $item, $depth + 1, $count );
+			} else {
+				$sanitized[ $clean_key ] = sanitize_text_field( $item );
+			}
+		}
+
+		return $sanitized;
 	}
 }

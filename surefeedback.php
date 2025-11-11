@@ -158,8 +158,19 @@ register_deactivation_hook(
 		// Clear scheduled events
 		wp_clear_scheduled_hook( 'surefeedback_auto_verify' );
 		wp_clear_scheduled_hook( 'surefeedback_hourly_verify' );
+		wp_clear_scheduled_hook( 'surefeedback_cleanup_rate_limits' );
 	}
 );
+
+/**
+ * Register security cleanup cron job
+ */
+add_action( 'surefeedback_cleanup_rate_limits', function() {
+	if ( class_exists( '\\SureFeedback\\Services\\SecurityService' ) ) {
+		$security_service = new \SureFeedback\Services\SecurityService();
+		$security_service->cleanupRateLimits();
+	}
+} );
 
 /**
  * Load plugin text domain for internationalization

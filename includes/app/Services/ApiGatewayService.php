@@ -118,7 +118,6 @@ class ApiGatewayService {
 			'method'    => 'GET',
 			'headers'   => $headers,
 			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
 		);
 
 		return $this->executeRequest( $url, $args, 'GET' );
@@ -141,7 +140,6 @@ class ApiGatewayService {
 			'headers'   => $headers,
 			'body'      => json_encode( $data ),
 			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
 		);
 
 		return $this->executeRequest( $url, $args, 'POST' );
@@ -164,7 +162,6 @@ class ApiGatewayService {
 			'headers'   => $headers,
 			'body'      => json_encode( $data ),
 			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
 		);
 
 		return $this->executeRequest( $url, $args, 'PUT' );
@@ -186,7 +183,6 @@ class ApiGatewayService {
 			'method'    => 'DELETE',
 			'headers'   => $headers,
 			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
 		);
 
 		return $this->executeRequest( $url, $args, 'DELETE' );
@@ -239,13 +235,22 @@ class ApiGatewayService {
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 
-		// Decode JSON response
-		$decoded = json_decode( $response_body, true );
+		// Security: Validate response size (max 10MB)
+		if ( strlen( $response_body ) > 10485760 ) {
+			return new WP_Error(
+				'response_too_large',
+				'API response exceeds maximum allowed size',
+				array( 'status' => 413 )
+			);
+		}
+
+		// Security: Decode JSON with depth limit to prevent JSON bombs
+		$decoded = json_decode( $response_body, true, 10 );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
 			return new WP_Error(
 				'invalid_response',
-				'Invalid JSON response from API',
+				'Invalid JSON response from API: ' . json_last_error_msg(),
 				array(
 					'status'       => 500,
 					'raw_response' => $response_body,
@@ -389,21 +394,6 @@ class ApiGatewayService {
 		}
 
 		return 'Unknown';
-	}
-
-	/**
-	 * Determine if SSL should be verified
-	 *
-	 * @return bool
-	 */
-	private function shouldVerifySsl(): bool {
-		// Disable SSL verification in local development
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			return false;
-		}
-
-		// Always verify SSL in production
-		return true;
 	}
 
 	/**

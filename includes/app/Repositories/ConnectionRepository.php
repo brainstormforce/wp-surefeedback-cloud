@@ -201,30 +201,25 @@ class ConnectionRepository extends BaseRepository {
 	 * @return string
 	 */
 	public function getJwtSecret(): string {
-		$jwt_secret = $this->getOption( 'jwt_secret' );
-
-		if ( empty( $jwt_secret ) ) {
-			// Fallback to WordPress SECURE_AUTH_KEY.
-			if ( defined( 'SECURE_AUTH_KEY' ) && ! empty( SECURE_AUTH_KEY ) ) {
-				$jwt_secret = SECURE_AUTH_KEY;
-			} else {
-				// Generate and store a new secret.
-				$jwt_secret = wp_generate_password( 64, false );
-				$this->setJwtSecret( $jwt_secret );
-			}
+		// Use WordPress SECURE_AUTH_KEY as the single source for JWT secret
+		if ( ! defined( 'SECURE_AUTH_KEY' ) || empty( SECURE_AUTH_KEY ) ) {
+			wp_die( 'SECURE_AUTH_KEY is not defined in wp-config.php. Please add WordPress authentication keys.' );
 		}
 
-		return $jwt_secret;
+		// Create deterministic JWT secret from SECURE_AUTH_KEY
+		return hash( 'sha256', SECURE_AUTH_KEY . 'surefeedback_jwt_' . get_site_url() );
 	}
 
 	/**
-	 * Set JWT secret
+	 * Set JWT secret (not needed - secrets are derived from WordPress keys)
 	 *
 	 * @param string $secret JWT secret.
 	 * @return bool
+	 * @deprecated Secrets are now derived from WordPress authentication keys
 	 */
 	public function setJwtSecret( string $secret ): bool {
-		return $this->setOption( 'jwt_secret', sanitize_text_field( $secret ) );
+		// Secrets are now derived from WordPress keys, no storage needed
+		return true;
 	}
 
 	/**

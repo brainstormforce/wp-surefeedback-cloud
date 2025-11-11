@@ -7,6 +7,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { toast } from '../components/ui/toast';
 import { __ } from '@wordpress/i18n';
 import { Shield, Users, Eye, Settings as SettingsIcon, Loader2 } from 'lucide-react';
+import { apiGateway } from '../api/gateway.js';
 
 /**
  * Permissions View - Manages user permissions and access control
@@ -41,33 +42,24 @@ const PermissionsView = () => {
     const loadSettings = async () => {
         try {
             setLoading(true);
-            const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/settings', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
-                },
-            });
+            const data = await apiGateway.get('settings');
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    const settingsData = data.data.general || {};
-                    const availableRolesList = data.data.availableRoles || [];
-                    const savedRoles = settingsData.roles || [];
-                    
-                    // If no roles are saved yet, enable all roles by default
-                    const defaultRoles = savedRoles.length === 0
-                        ? availableRolesList.map(role => role.name)
-                        : savedRoles;
+            if (data.success) {
+                const settingsData = data.data.general || {};
+                const availableRolesList = data.data.availableRoles || [];
+                const savedRoles = settingsData.roles || [];
+                
+                // If no roles are saved yet, enable all roles by default
+                const defaultRoles = savedRoles.length === 0
+                    ? availableRolesList.map(role => role.name)
+                    : savedRoles;
 
-                    setPermissions({
-                        allowSiteVisitors: settingsData.allow_site_visitors || false,
-                        dashboardCommenting: settingsData.dashboard_commenting || false,
-                        userRoles: defaultRoles,
-                        guestAccess: settingsData.guest_access || false,
-                    });
-                }
+                setPermissions({
+                    allowSiteVisitors: settingsData.allow_site_visitors || false,
+                    dashboardCommenting: settingsData.dashboard_commenting || false,
+                    userRoles: defaultRoles,
+                    guestAccess: settingsData.guest_access || false,
+                });
             }
         } catch (error) {
             toast.error(__('Failed to load settings', 'surefeedback'));
@@ -88,30 +80,18 @@ const PermissionsView = () => {
         try {
             setSaving(true);
             
-            const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/settings/general', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
-                },
-                body: JSON.stringify({
-                    roles: permissions.userRoles,
-                    allow_site_visitors: permissions.allowSiteVisitors,
-                    dashboard_commenting: permissions.dashboardCommenting,
-                    guest_access: permissions.guestAccess,
-                }),
+            const data = await apiGateway.post('settings/general', {
+                roles: permissions.userRoles,
+                allow_site_visitors: permissions.allowSiteVisitors,
+                dashboard_commenting: permissions.dashboardCommenting,
+                guest_access: permissions.guestAccess,
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    toast.success(__('Permissions saved successfully!', 'surefeedback'));
-                    setHasUnsavedChanges(false);
-                } else {
-                    throw new Error(data.message || 'Save failed');
-                }
+            if (data.success) {
+                toast.success(__('Permissions saved successfully!', 'surefeedback'));
+                setHasUnsavedChanges(false);
             } else {
-                throw new Error('Save request failed');
+                throw new Error(data.message || 'Save failed');
             }
         } catch (error) {
             toast.error(__('Failed to save permissions', 'surefeedback'));

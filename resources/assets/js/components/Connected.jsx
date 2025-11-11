@@ -21,6 +21,7 @@ import {
   ExternalLink,
   Unplug,
 } from "lucide-react";
+import { apiGateway } from '../api/gateway.js';
 import ConnectedConnection from "../../../../assets/images/settings/connection-connected.svg";
 import PowerOff from "../../../../assets/images/settings/power_off.svg";
 
@@ -37,20 +38,9 @@ const Connected = ({ connectionData, verificationResult }) => {
     setIsDisconnecting(true);
 
     try {
-      const response = await fetch(
-        `${window.sureFeedbackAdmin.rest_url}surefeedback/v1/connection/reset`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-WP-Nonce": window.sureFeedbackAdmin.nonce,
-          },
-        }
-      );
+      const data = await apiGateway.post('connection/reset');
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         toast.success(__("Site disconnected successfully! Redirecting...", "surefeedback"));
         setIsDialogOpen(false);
         

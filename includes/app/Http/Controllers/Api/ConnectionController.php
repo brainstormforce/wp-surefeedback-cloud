@@ -234,6 +234,14 @@ class ConnectionController extends Controller {
 	 * @return WP_REST_Response
 	 */
 	public function webhook( WP_REST_Request $request ): WP_REST_Response {
+		// Security: Rate limiting for webhook endpoint
+		$security_service = new \SureFeedback\Services\SecurityService();
+		$client_ip = $security_service->getClientIp();
+		
+		if ( ! $security_service->checkRateLimit( 'webhook_' . $client_ip, 10, 300 ) ) {
+			return $this->error( 'Rate limit exceeded. Try again later.', 429 );
+		}
+
 		try {
 			$data = $request->get_json_params();
 			if ( empty( $data ) ) {
@@ -361,12 +369,20 @@ class ConnectionController extends Controller {
 	}
 
 	/**
-	 * Handle disconnect webhook from SureFeedback API (Webhook Secret protected)
+	 * Handle disconnect webhook from SureFeedback API
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function disconnect_webhook( WP_REST_Request $request ) {
+		// Security: Rate limiting for disconnect webhook endpoint
+		$security_service = new \SureFeedback\Services\SecurityService();
+		$client_ip = $security_service->getClientIp();
+		
+		if ( ! $security_service->checkRateLimit( 'disconnect_webhook_' . $client_ip, 5, 600 ) ) {
+			return $this->error( 'Rate limit exceeded. Try again later.', 429 );
+		}
+
 		try {
 			// Verify webhook secret key from X-Webhook-Secret header
 			$webhook_secret      = $request->get_header( 'X-Webhook-Secret' );

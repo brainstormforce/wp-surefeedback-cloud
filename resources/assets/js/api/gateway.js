@@ -12,6 +12,7 @@ import { ApiError } from '../utils/errors.js';
 import { tokenManager } from '../utils/auth.js';
 
 class ApiGateway {
+    
     constructor() {
         this.baseURL = API_CONFIG.BASE_URL;
         this.timeout = API_CONFIG.TIMEOUT;
@@ -19,7 +20,6 @@ class ApiGateway {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         };
-        
         // Initialize authentication
         this.initAuth();
     }
@@ -45,13 +45,14 @@ class ApiGateway {
      * Initialize authentication from WordPress
      */
     initAuth() {
-        // Try multiple sources for the nonce
-        const nonce = window.wpApiSettings?.nonce ||
+        const nonce = window.sureFeedbackAdmin?.rest_nonce ||
                      window.sureFeedbackAdmin?.nonce ||
-                     window.sureFeedbackAdmin?.rest_nonce || '';
-
+                     window.wpApiSettings?.nonce ||
+                     '';
         if (nonce) {
             this.setAuthToken(nonce);
+        } else {
+            console.warn('SureFeedback: No REST API nonce found. API requests may fail.');
         }
     }
 
@@ -60,7 +61,6 @@ class ApiGateway {
      * @returns {boolean}
      */
     isDevServer() {
-        // Check if current origin is different from API base URL origin
         try {
             const currentOrigin = window.location.origin;
             const apiOrigin = new URL(this.baseURL).origin;

@@ -40,6 +40,17 @@ class PageSettingsController extends Controller {
 	 * @return WP_REST_Response
 	 */
 	public function index( WP_REST_Request $request ): WP_REST_Response {
+		// Security: Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
+		}
+
+		// Security: Verify nonce for sensitive data access
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return $this->error( __( 'Invalid security token', 'surefeedback' ), 403 );
+		}
+
 		try {
 			$pages    = $this->repository->getAllPagesWithStatus();
 			$settings = $this->repository->getPageSettings();
@@ -67,6 +78,17 @@ class PageSettingsController extends Controller {
 	 * @return WP_REST_Response
 	 */
 	public function update( WP_REST_Request $request ): WP_REST_Response {
+		// Security: Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
+		}
+
+		// Security: Verify nonce
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return $this->error( __( 'Invalid security token', 'surefeedback' ), 403 );
+		}
+
 		try {
 			$settings = $request->get_param( 'settings' );
 
