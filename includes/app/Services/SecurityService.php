@@ -248,7 +248,6 @@ class SecurityService {
 		$webhook_time = (int) $timestamp;
 
 		if ( abs( $current_time - $webhook_time ) > $tolerance ) {
-			error_log( 'SureFeedback: Webhook timestamp validation failed - request too old or future' );
 			return false;
 		}
 
