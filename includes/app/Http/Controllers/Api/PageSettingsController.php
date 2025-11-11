@@ -37,9 +37,9 @@ class PageSettingsController extends Controller {
 	 * Get all pages with widget status
 	 *
 	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function index( WP_REST_Request $request ): WP_REST_Response {
+	public function index( WP_REST_Request $request ) {
 		// Security: Check user capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
@@ -75,9 +75,9 @@ class PageSettingsController extends Controller {
 	 * Update page settings
 	 *
 	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function update( WP_REST_Request $request ): WP_REST_Response {
+	public function update( WP_REST_Request $request ) {
 		// Security: Check user capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
@@ -121,9 +121,9 @@ class PageSettingsController extends Controller {
 	 * Enable widget for specific page
 	 *
 	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function enablePage( WP_REST_Request $request ): WP_REST_Response {
+	public function enablePage( WP_REST_Request $request ) {
 		try {
 			$page_id = $request->get_param( 'page_id' );
 
@@ -156,9 +156,9 @@ class PageSettingsController extends Controller {
 	 * Disable widget for specific page
 	 *
 	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function disablePage( WP_REST_Request $request ): WP_REST_Response {
+	public function disablePage( WP_REST_Request $request ) {
 		try {
 			$page_id = $request->get_param( 'page_id' );
 
@@ -191,9 +191,9 @@ class PageSettingsController extends Controller {
 	 * Enable widget for all pages
 	 *
 	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function enableAll( WP_REST_Request $request ): WP_REST_Response {
+	public function enableAll( WP_REST_Request $request ) {
 		try {
 			$updated = $this->repository->enableWidgetForAllPages();
 
@@ -219,9 +219,9 @@ class PageSettingsController extends Controller {
 	 * Disable widget for all pages
 	 *
 	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function disableAll( WP_REST_Request $request ): WP_REST_Response {
+	public function disableAll( WP_REST_Request $request ) {
 		try {
 			$updated = $this->repository->disableWidgetForAllPages();
 

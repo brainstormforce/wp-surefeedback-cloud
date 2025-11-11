@@ -153,18 +153,32 @@ class ConnectionController extends Controller {
 	}
 
 	/**
-	 * Verify signature
+	 * Get or generate connection signature secret
+	 *
+	 * @return string
+	 */
+	private function getConnectionSignatureSecret(): string {
+		$secret = get_option( 'surefeedback_connection_signature_secret' );
+		if ( ! $secret ) {
+			// Generate dedicated secret for connection signatures
+			$secret = wp_generate_password( 64, false );
+			update_option( 'surefeedback_connection_signature_secret', $secret );
+		}
+		return $secret;
+	}
+
+	/**
+	 * Verify HMAC signature for connection requests (using dedicated secret)
 	 *
 	 * @param string $site_token
 	 * @param string $signature
 	 * @return bool
 	 */
 	private function verifySignature( string $site_token, string $signature ): bool {
-		$expected_signature = hash_hmac( 'sha256', $site_token, SECURE_AUTH_KEY );
+		$secret = $this->getConnectionSignatureSecret();
+		$expected_signature = hash_hmac( 'sha256', $site_token, $secret );
 		return hash_equals( $expected_signature, $signature );
-	}
-
-	/**
+	}	/**
 	 * Reset site connection completely
 	 *
 	 * @param WP_REST_Request $request
@@ -231,9 +245,34 @@ class ConnectionController extends Controller {
 	 * Handle webhook from SureFeedback API
 	 *
 	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function webhook( WP_REST_Request $request ): WP_REST_Response {
+	public function webhook( WP_REST_Request $request ) {
+		// Get webhook data early to extract state
+		$data = $request->get_json_params();
+		if ( empty( $data ) ) {
+			$data = $request->get_params();
+		}
+
+		// Security: State verification (instead of signature)
+		$state = $data['state'] ?? null;
+		if ( empty( $state ) ) {
+			$this->logError( 'Webhook state parameter missing', array( 'received_data' => $data ) );
+			return $this->error( 'Webhook state parameter missing', 400 );
+		}
+
+		// Log the received state for debugging
+		$this->logError( 'Webhook received state for verification', array( 
+			'received_state' => $state,
+			'data_keys' => array_keys( $data )
+		) );
+
+		// Verify state parameter matches stored state
+		if ( ! $this->verifyWebhookState( $state ) ) {
+			$this->logError( 'Invalid webhook state parameter', array( 'received_state' => $state ) );
+			return $this->error( 'Invalid webhook state parameter', 401 );
+		}
+
 		// Security: Rate limiting for webhook endpoint
 		$security_service = new \SureFeedback\Services\SecurityService();
 		$client_ip = $security_service->getClientIp();
@@ -243,10 +282,7 @@ class ConnectionController extends Controller {
 		}
 
 		try {
-			$data = $request->get_json_params();
-			if ( empty( $data ) ) {
-				$data = $request->get_params();
-			}
+			// Data already extracted earlier for state verification
 
 			$siteData = isset( $data['data'] ) ? $data['data'] : $data;
 
@@ -335,6 +371,58 @@ class ConnectionController extends Controller {
 	}
 
 	/**
+	 * Store state for webhook verification (REST API endpoint)
+	 *
+	 * @param WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function store_state( WP_REST_Request $request ) {
+		try {
+			$nonce_result = $this->validateNonce( $request );
+			if ( is_wp_error( $nonce_result ) ) {
+				return $nonce_result;
+			}
+
+			$capability_result = $this->validateCapability( 'manage_options' );
+			if ( is_wp_error( $capability_result ) ) {
+				return $capability_result;
+			}
+
+			$validation = $this->validate(
+				$request,
+				array(
+					'state' => 'required|string',
+				)
+			);
+
+			if ( is_wp_error( $validation ) ) {
+				return $validation;
+			}
+
+			$state = sanitize_text_field( $request->get_param( 'state' ) );
+			
+			$this->logError( 'Storing state for webhook verification', array( 'state' => $state ) );
+			
+			$success = $this->storeWebhookState( $state );
+
+			if ( $success ) {
+				$this->logError( 'State stored successfully', array( 'state' => $state ) );
+				return $this->success(
+					array(
+						'message' => 'State stored successfully',
+						'state'   => $state,
+					)
+				);
+			} else {
+				return $this->error( 'Failed to store state', 500 );
+			}
+		} catch ( \Exception $e ) {
+			$this->logError( 'Store state error: ' . $e->getMessage() );
+			return $this->error( 'Failed to store state', 500 );
+		}
+	}
+
+	/**
 	 * JWT token validation endpoint
 	 *
 	 * @param WP_REST_Request $request
@@ -385,22 +473,22 @@ class ConnectionController extends Controller {
 
 		try {
 			// Verify webhook secret key from X-Webhook-Secret header
-			$webhook_secret      = $request->get_header( 'X-Webhook-Secret' );
-			$stored_access_token = get_option( 'surefeedback_access_token' );
+			$webhook_secret = $request->get_header( 'X-Webhook-Secret' );
+			$stored_webhook_secret = $this->getDisconnectWebhookSecret();
 
-			// Validate webhook secret matches the stored API token
-			if ( empty( $webhook_secret ) || empty( $stored_access_token ) ) {
+			// Validate webhook secret matches the dedicated disconnect secret
+			if ( empty( $webhook_secret ) || empty( $stored_webhook_secret ) ) {
 				$this->logError(
 					'Disconnect webhook missing or invalid secret',
 					array(
-						'has_secret'       => ! empty( $webhook_secret ),
-						'has_stored_token' => ! empty( $stored_access_token ),
+						'has_secret'        => ! empty( $webhook_secret ),
+						'has_stored_secret' => ! empty( $stored_webhook_secret ),
 					)
 				);
 				return $this->error( 'Invalid or missing webhook secret', 401 );
 			}
 
-			if ( ! hash_equals( $stored_access_token, $webhook_secret ) ) {
+			if ( ! hash_equals( $stored_webhook_secret, $webhook_secret ) ) {
 				$this->logError( 'Disconnect webhook secret mismatch' );
 				return $this->error( 'Webhook secret validation failed', 401 );
 			}
@@ -473,35 +561,142 @@ class ConnectionController extends Controller {
 	}
 
 	/**
-	 * Get client IP address
+	 * Generate webhook secret for signature verification
+	 *
+	 * @return string
+	 */
+	private function getWebhookSecret(): string {
+		$secret = get_option( 'surefeedback_webhook_secret' );
+		if ( ! $secret ) {
+			$secret = wp_generate_password( 64, false );
+			update_option( 'surefeedback_webhook_secret', $secret );
+		}
+		return $secret;
+	}
+
+	/**
+	 * Get or generate disconnect webhook secret (separate from access token)
+	 *
+	 * @return string
+	 */
+	private function getDisconnectWebhookSecret(): string {
+		$secret = get_option( 'surefeedback_disconnect_webhook_secret' );
+		if ( ! $secret ) {
+			$secret = wp_generate_password( 64, false );
+			update_option( 'surefeedback_disconnect_webhook_secret', $secret );
+		}
+		return $secret;
+	}
+
+	/**
+	 * Verify webhook state parameter
+	 *
+	 * @param string $state Received state parameter
+	 * @return bool
+	 */
+	private function verifyWebhookState( string $state ): bool {
+		// Get stored pending states
+		$pending_states = get_option( 'surefeedback_pending_states', array() );
+		
+		// Log debug information
+		$this->logError( 'Verifying webhook state', array(
+			'received_state' => $state,
+			'stored_states' => array_keys( $pending_states ),
+			'stored_states_count' => count( $pending_states ),
+			'current_time' => time()
+		) );
+		
+		// Check if state exists and is not expired (valid for 1 hour)
+		if ( isset( $pending_states[ $state ] ) ) {
+			$timestamp = $pending_states[ $state ];
+			$is_valid = ( time() - $timestamp ) <= 3600; // 1 hour expiry
+			
+			$this->logError( 'Found matching state', array(
+				'state' => $state,
+				'stored_timestamp' => $timestamp,
+				'current_time' => time(),
+				'age_seconds' => time() - $timestamp,
+				'is_valid' => $is_valid
+			) );
+			
+			if ( $is_valid ) {
+				// Remove used state to prevent replay attacks
+				unset( $pending_states[ $state ] );
+				update_option( 'surefeedback_pending_states', $pending_states );
+				return true;
+			} else {
+				// Remove expired state
+				unset( $pending_states[ $state ] );
+				update_option( 'surefeedback_pending_states', $pending_states );
+				$this->logError( 'State expired and removed', array( 'state' => $state ) );
+			}
+		} else {
+			$this->logError( 'State not found in stored states', array(
+				'received_state' => $state,
+				'stored_states' => array_keys( $pending_states )
+			) );
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Store state for webhook verification
+	 *
+	 * @param string $state State parameter to store
+	 * @return bool
+	 */
+	public function storeWebhookState( string $state ): bool {
+		$pending_states = get_option( 'surefeedback_pending_states', array() );
+		
+		// Clean up expired states (older than 1 hour)
+		$current_time = time();
+		foreach ( $pending_states as $stored_state => $timestamp ) {
+			if ( ( $current_time - $timestamp ) > 3600 ) {
+				unset( $pending_states[ $stored_state ] );
+			}
+		}
+		
+		// Store new state with current timestamp
+		$pending_states[ $state ] = $current_time;
+		
+		$result = update_option( 'surefeedback_pending_states', $pending_states );
+		
+		// Log the store operation
+		error_log( 'SureFeedback: Stored state - ' . $state . ' at timestamp ' . $current_time . ', result: ' . ( $result ? 'success' : 'failed' ) );
+		
+		return $result;
+	}
+
+	/**
+	 * Verify webhook signature (legacy method - kept for compatibility)
+	 *
+	 * @param string $payload Request payload
+	 * @param string $signature Received signature
+	 * @return bool
+	 */
+	private function verifyWebhookSignature( string $payload, string $signature ): bool {
+		$secret = $this->getWebhookSecret();
+		$expected_signature = 'sha256=' . hash_hmac( 'sha256', $payload, $secret );
+		
+		return hash_equals( $expected_signature, $signature );
+	}
+
+	/**
+	 * Get client IP address (secure implementation)
 	 *
 	 * @param WP_REST_Request $request
 	 * @return string
 	 */
 	private function getClientIp( WP_REST_Request $request ): string {
-		$headers = array(
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_X_REAL_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'REMOTE_ADDR',
-		);
-
-		foreach ( $headers as $header ) {
-			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
-				$server_value = isset( $_SERVER[ $header ] ) ? sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) : '';
-				if ( ! empty( $server_value ) ) {
-					$ips = explode( ',', $server_value );
-					$ip  = trim( $ips[0] );
-					if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-						return $ip;
-					}
-				}
-			}
-		}
-
+		// Use only REMOTE_ADDR for security - no proxy headers to prevent IP spoofing
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
 			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			return $remote_addr ?: '0.0.0.0';
+			
+			// Validate IP format
+			if ( filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
+				return $remote_addr;
+			}
 		}
 
 		return '0.0.0.0';

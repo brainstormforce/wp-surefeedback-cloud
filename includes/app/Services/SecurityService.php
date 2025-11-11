@@ -418,13 +418,47 @@ class SecurityService {
 			return false;
 		}
 
-		// Security: Validate hostname without DNS resolution to prevent SSRF
+		// Security: Validate hostname and prevent SSRF attacks
 		if ( isset( $parsed['host'] ) ) {
 			$host = $parsed['host'];
 			
-			// Validate domain format (allow all hosts including localhost and private networks)
+			// Validate domain format
 			if ( ! filter_var( $host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) && ! filter_var( $host, FILTER_VALIDATE_IP ) ) {
 				return false;
+			}
+
+			// Block internal/private IP addresses to prevent SSRF
+			if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+				// Block private IP ranges and localhost
+				if ( ! filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+					return false;
+				}
+				
+				// Additional check for cloud metadata endpoints
+				if ( $host === '169.254.169.254' ) {
+					return false;
+				}
+			}
+
+			// Block localhost and local domains
+			$blocked_hosts = array(
+				'localhost',
+				'127.0.0.1',
+				'::1',
+				'0.0.0.0',
+				'[::1]'
+			);
+			
+			if ( in_array( strtolower( $host ), $blocked_hosts, true ) ) {
+				return false;
+			}
+
+			// Block common local TLDs
+			$blocked_tlds = array( '.local', '.localhost', '.test', '.invalid' );
+			foreach ( $blocked_tlds as $tld ) {
+				if ( substr( $host, -strlen( $tld ) ) === $tld ) {
+					return false;
+				}
 			}
 		}
 

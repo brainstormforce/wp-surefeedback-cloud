@@ -56,7 +56,6 @@ const Connected = ({ connectionData, verificationResult }) => {
         setIsDialogOpen(false);
       }
     } catch (error) {
-      console.error("Disconnect error:", error);
       toast.error(
         __(
           "An error occurred while disconnecting. Please try again.",

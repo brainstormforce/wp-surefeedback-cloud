@@ -2,7 +2,10 @@
  * SureFeedback Authentication Helpers
  */
 
-export const authenticateRedirect = () => {
+import { apiGateway } from '../api/gateway.js';
+import { API_ENDPOINTS } from '../constants/api.js';
+
+export const authenticateRedirect = async () => {
   const { sureFeedbackAdmin } = window;
   
   if (!sureFeedbackAdmin || !sureFeedbackAdmin.connection) {
@@ -13,6 +16,15 @@ export const authenticateRedirect = () => {
 
   // Generate a state token for security
   const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+  // Store state in WordPress for webhook verification
+  try {
+    await apiGateway.post(API_ENDPOINTS.CONNECTION.STORE_STATE, {
+      state: state
+    });
+  } catch (error) {
+    console.warn('Error storing state for webhook verification:', error);
+  }
 
   const params = new URLSearchParams({
     source: 'wordpress',
@@ -29,7 +41,8 @@ export const authenticateRedirect = () => {
   const connectionIntent = {
     url: connectUrl,
     timestamp: Date.now(),
-    source: 'wordpress_plugin'
+    source: 'wordpress_plugin',
+    state: state
   };
   
   // Store in both sessionStorage and localStorage for reliability
@@ -40,7 +53,7 @@ export const authenticateRedirect = () => {
   window.open(connectUrl, '_blank');
 };
 
-export const reconnectSite = () => {
+export const reconnectSite = async () => {
   const { sureFeedbackAdmin } = window;
   
   if (!sureFeedbackAdmin || !sureFeedbackAdmin.connection) {
@@ -51,6 +64,15 @@ export const reconnectSite = () => {
   
   // Generate a state token for security
   const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  
+  // Store state in WordPress for webhook verification
+  try {
+    await apiGateway.post(API_ENDPOINTS.CONNECTION.STORE_STATE, {
+      state: state
+    });
+  } catch (error) {
+    console.warn('Error storing state for webhook verification:', error);
+  }
   
   // Build reconnection URL parameters
   const params = new URLSearchParams({
@@ -66,7 +88,8 @@ export const reconnectSite = () => {
     url: reconnectUrl,
     timestamp: Date.now(),
     source: 'wordpress_plugin',
-    action: 'reconnect'
+    action: 'reconnect',
+    state: state
   };
   sessionStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
   localStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));

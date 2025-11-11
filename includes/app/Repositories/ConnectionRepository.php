@@ -201,13 +201,60 @@ class ConnectionRepository extends BaseRepository {
 	 * @return string
 	 */
 	public function getJwtSecret(): string {
-		// Use WordPress SECURE_AUTH_KEY as the single source for JWT secret
+		// Check for stored JWT secret first
+		$stored_secret = get_option( 'surefeedback_jwt_secret' );
+		if ( $stored_secret ) {
+			return $stored_secret;
+		}
+
+		// Generate new random JWT secret
+		$secret = $this->generateSecureJwtSecret();
+		update_option( 'surefeedback_jwt_secret', $secret );
+		
+		return $secret;
+	}
+
+	/**
+	 * Generate a cryptographically secure JWT secret
+	 *
+	 * @return string
+	 */
+	private function generateSecureJwtSecret(): string {
+		// Ensure WordPress auth constants are defined
 		if ( ! defined( 'SECURE_AUTH_KEY' ) || empty( SECURE_AUTH_KEY ) ) {
 			wp_die( 'SECURE_AUTH_KEY is not defined in wp-config.php. Please add WordPress authentication keys.' );
 		}
 
-		// Create deterministic JWT secret from SECURE_AUTH_KEY
-		return hash( 'sha256', SECURE_AUTH_KEY . 'surefeedback_jwt_' . get_site_url() );
+		// Combine multiple entropy sources for better security
+		$entropy_sources = array(
+			wp_generate_password( 64, true, true ), // High entropy random string
+			SECURE_AUTH_KEY,
+			defined( 'AUTH_KEY' ) ? AUTH_KEY : '',
+			defined( 'LOGGED_IN_KEY' ) ? LOGGED_IN_KEY : '',
+			defined( 'NONCE_KEY' ) ? NONCE_KEY : '',
+			get_site_url(),
+			time(),
+			wp_rand()
+		);
+
+		// Create secure hash from all entropy sources
+		$combined_entropy = implode( '|', $entropy_sources );
+		return hash( 'sha256', $combined_entropy );
+	}
+
+	/**
+	 * Rotate JWT secret (for security maintenance)
+	 *
+	 * @return string New JWT secret
+	 */
+	public function rotateJwtSecret(): string {
+		$new_secret = $this->generateSecureJwtSecret();
+		update_option( 'surefeedback_jwt_secret', $new_secret );
+		
+		// Log secret rotation for audit trail
+		error_log( 'SureFeedback: JWT secret rotated at ' . current_time( 'mysql' ) );
+		
+		return $new_secret;
 	}
 
 	/**

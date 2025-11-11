@@ -42,6 +42,7 @@ $router->group(
 		$router->post( 'connect', array( ConnectionController::class, 'connect' ) );
 		$router->post( 'reset', array( ConnectionController::class, 'reset' ) );
 		$router->get( 'health', array( ConnectionController::class, 'health' ) );
+		$router->post( 'store-state', array( ConnectionController::class, 'store_state' ) );
 	}
 );
 
@@ -64,13 +65,23 @@ $router->post( 'webhook/disconnect', array( ConnectionController::class, 'discon
 // Plugin activation endpoint (for SaaS auto-installation)
 $router->post(
 	'plugin/activate',
-	function () {
+	function ( WP_REST_Request $request ) {
 		// Check if user is authenticated and has admin capabilities
 		if ( ! is_user_logged_in() || ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to activate plugins.', 'surefeedback' ),
 				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		// Verify nonce for CSRF protection
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Invalid nonce. CSRF protection failed.', 'surefeedback' ),
+				array( 'status' => 403 )
 			);
 		}
 
@@ -124,10 +135,19 @@ $router->post(
 	}
 );
 
-// Plugin status endpoint
+// Plugin status endpoint (protected)
 $router->get(
 	'plugin/status',
-	function () {
+	function ( WP_REST_Request $request ) {
+		// Require authentication for security
+		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'You do not have permission to access plugin status.', 'surefeedback' ),
+				array( 'status' => 401 )
+			);
+		}
+
 		$plugin_file = SUREFEEDBACK_PLUGIN_BASENAME;
 
 		return rest_ensure_response(
@@ -191,22 +211,6 @@ $router->get(
 						'numberposts' => -1,
 					)
 				),
-			)
-		);
-	}
-);
-
-// Health check endpoint
-$router->get(
-	'health',
-	function () {
-		return rest_ensure_response(
-			array(
-				'status'    => 'ok',
-				'version'   => SUREFEEDBACK_VERSION,
-				'wordpress' => get_bloginfo( 'version' ),
-				'php'       => PHP_VERSION,
-				'timestamp' => current_time( 'timestamp' ),
 			)
 		);
 	}

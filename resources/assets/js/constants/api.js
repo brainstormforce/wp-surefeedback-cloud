@@ -46,6 +46,7 @@ export const API_ENDPOINTS = {
         VERIFY: 'connection/verify',
         CONNECT: 'connection/connect',
         HEALTH: 'connection/health',
+        STORE_STATE: 'connection/store-state',
     },
     
     // Settings endpoints

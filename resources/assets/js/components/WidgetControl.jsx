@@ -46,7 +46,6 @@ const WidgetControl = () => {
         setSettings(response.data.settings || {});
       }
     } catch (error) {
-      console.error('Error loading page settings:', error);
       toast.error(__('Failed to load page settings', 'surefeedback'));
     } finally {
       setLoading(false);
@@ -81,7 +80,6 @@ const WidgetControl = () => {
         await loadPagesSettings();
       }
     } catch (error) {
-      console.error('Error saving settings:', error);
       toast.error(__('Failed to save settings', 'surefeedback'));
     } finally {
       setSaving(false);
@@ -104,7 +102,6 @@ const WidgetControl = () => {
         await loadPagesSettings();
       }
     } catch (error) {
-      console.error('Error enabling all pages:', error);
       toast.error(__('Failed to enable widget for all pages', 'surefeedback'));
     } finally {
       setSaving(false);

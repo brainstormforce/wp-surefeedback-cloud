@@ -51,8 +51,6 @@ class ApiGateway {
                      '';
         if (nonce) {
             this.setAuthToken(nonce);
-        } else {
-            console.warn('SureFeedback: No REST API nonce found. API requests may fail.');
         }
     }
 

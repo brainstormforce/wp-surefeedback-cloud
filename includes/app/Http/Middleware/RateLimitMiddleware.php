@@ -148,7 +148,7 @@ class RateLimitMiddleware extends Middleware {
 	}
 
 	/**
-	 * Check if rate limit is exceeded
+	 * Check if rate limit is exceeded (persistent storage)
 	 *
 	 * @param string $clientId
 	 * @param string $route
@@ -156,18 +156,27 @@ class RateLimitMiddleware extends Middleware {
 	 * @return bool
 	 */
 	protected function isRateLimitExceeded( string $clientId, string $route, array $config ): bool {
-		$key      = $this->getTransientKey( $clientId, $route );
-		$requests = get_transient( $key );
+		$key      = 'surefeedback_rate_limit_' . md5( $clientId . '_' . $route );
+		$requests = get_option( $key, array() );
 
-		if ( $requests === false ) {
+		if ( ! is_array( $requests ) || empty( $requests ) ) {
 			return false; // No previous requests recorded
 		}
+
+		// Remove expired requests
+		$cutoff = time() - $config['window'];
+		$requests = array_filter(
+			$requests,
+			function ( $timestamp ) use ( $cutoff ) {
+				return $timestamp > $cutoff;
+			}
+		);
 
 		return count( $requests ) >= $config['limit'];
 	}
 
 	/**
-	 * Record a request for rate limiting
+	 * Record a request for rate limiting (persistent storage)
 	 *
 	 * @param string $clientId
 	 * @param string $route
@@ -175,10 +184,10 @@ class RateLimitMiddleware extends Middleware {
 	 * @return void
 	 */
 	protected function recordRequest( string $clientId, string $route, array $config ): void {
-		$key      = $this->getTransientKey( $clientId, $route );
-		$requests = get_transient( $key );
+		$key      = 'surefeedback_rate_limit_' . md5( $clientId . '_' . $route );
+		$requests = get_option( $key, array() );
 
-		if ( $requests === false ) {
+		if ( ! is_array( $requests ) ) {
 			$requests = array();
 		}
 
@@ -194,8 +203,13 @@ class RateLimitMiddleware extends Middleware {
 			}
 		);
 
-		// Store updated requests list
-		set_transient( $key, array_values( $requests ), $config['window'] );
+		// Store updated requests list using WordPress options for persistence
+		update_option( $key, array_values( $requests ), 'no' ); // no autoload for performance
+		
+		// Schedule cleanup of old rate limit entries
+		if ( ! wp_next_scheduled( 'surefeedback_cleanup_rate_limits' ) ) {
+			wp_schedule_event( time() + 3600, 'hourly', 'surefeedback_cleanup_rate_limits' );
+		}
 	}
 
 	/**
@@ -233,15 +247,39 @@ class RateLimitMiddleware extends Middleware {
 	}
 
 	/**
-	 * Reset rate limit for a client and route
+	 * Reset rate limit for a client and route (persistent storage)
 	 *
 	 * @param string $clientId
 	 * @param string $route
 	 * @return bool
 	 */
 	public function resetRateLimit( string $clientId, string $route ): bool {
-		$key = $this->getTransientKey( $clientId, $route );
-		return delete_transient( $key );
+		$key = 'surefeedback_rate_limit_' . md5( $clientId . '_' . $route );
+		return delete_option( $key );
+	}
+
+	/**
+	 * Cleanup expired rate limit entries (scheduled task)
+	 *
+	 * @return void
+	 */
+	public static function cleanupExpiredRateLimits(): void {
+		global $wpdb;
+		
+		// Remove rate limit options older than 1 day
+		$cutoff = time() - DAY_IN_SECONDS;
+		
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} 
+				 WHERE option_name LIKE %s 
+				 AND option_value LIKE %s 
+				 AND option_id < %d",
+				'surefeedback_rate_limit_%',
+				'%' . $cutoff . '%',
+				$cutoff
+			)
+		);
 	}
 
 	/**
@@ -253,12 +291,21 @@ class RateLimitMiddleware extends Middleware {
 	 */
 	public function getRateLimitStatus( string $clientId, string $route ): array {
 		$config   = $this->getRateLimitConfig( $route );
-		$key      = $this->getTransientKey( $clientId, $route );
-		$requests = get_transient( $key );
+		$key      = 'surefeedback_rate_limit_' . md5( $clientId . '_' . $route );
+		$requests = get_option( $key, array() );
 
-		if ( $requests === false ) {
+		if ( ! is_array( $requests ) ) {
 			$requests = array();
 		}
+
+		// Remove expired requests
+		$cutoff = time() - $config['window'];
+		$requests = array_filter(
+			$requests,
+			function ( $timestamp ) use ( $cutoff ) {
+				return $timestamp > $cutoff;
+			}
+		);
 
 		$remaining  = max( 0, $config['limit'] - count( $requests ) );
 		$retryAfter = $this->getRetryAfter( $clientId, $route, $config );
