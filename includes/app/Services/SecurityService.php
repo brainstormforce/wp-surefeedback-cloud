@@ -31,6 +31,141 @@ class SecurityService {
 	const RATE_LIMIT_PREFIX = 'surefeedback_rate_';
 
 	/**
+	 * Constructor - Initialize security measures
+	 */
+	public function __construct() {
+		$this->initSecurityHeaders();
+		$this->initSecurityLogging();
+	}
+
+	/**
+	 * Initialize security headers
+	 *
+	 * @return void
+	 */
+	protected function initSecurityHeaders(): void {
+		// Apply security headers early
+		add_action( 'init', array( $this, 'applySecurityHeaders' ), 1 );
+		
+		// Apply security headers for admin pages
+		add_action( 'admin_init', array( $this, 'applySecurityHeaders' ), 1 );
+		
+		// Apply security headers for REST API responses
+		add_filter( 'rest_pre_serve_request', array( $this, 'applySecurityHeadersToRestApi' ), 10, 4 );
+	}
+
+	/**
+	 * Apply security headers to REST API responses
+	 *
+	 * @param bool             $served  Whether the request has already been served.
+	 * @param WP_HTTP_Response $result  Result to send to the client.
+	 * @param WP_REST_Request  $request Request used to generate the response.
+	 * @param WP_REST_Server   $server  Server instance.
+	 * @return bool
+	 */
+	public function applySecurityHeadersToRestApi( $served, $result, $request, $server ) {
+		$this->applySecurityHeaders();
+		return $served;
+	}
+
+	/**
+	 * Initialize comprehensive security logging
+	 *
+	 * @return void
+	 */
+	protected function initSecurityLogging(): void {
+		// Log authentication failures
+		add_action( 'wp_login_failed', array( $this, 'logFailedLogin' ) );
+		
+		// Log successful logins
+		add_action( 'wp_login', array( $this, 'logSuccessfulLogin' ), 10, 2 );
+		
+		// Log REST API authentication failures
+		add_filter( 'rest_authentication_errors', array( $this, 'logRestAuthFailure' ), 100, 1 );
+		
+		// Log permission denials
+		add_action( 'rest_request_after_callbacks', array( $this, 'logPermissionDenials' ), 10, 3 );
+	}
+
+	/**
+	 * Log failed login attempts
+	 *
+	 * @param string $username Username used in failed login
+	 * @return void
+	 */
+	public function logFailedLogin( string $username ): void {
+		$this->logSecurityEvent( 'login_failed', array(
+			'username' => sanitize_user( $username ),
+			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+			'referer' => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '',
+		) );
+	}
+
+	/**
+	 * Log successful login attempts
+	 *
+	 * @param string  $user_login Username
+	 * @param WP_User $user       User object
+	 * @return void
+	 */
+	public function logSuccessfulLogin( string $user_login, $user ): void {
+		$this->logSecurityEvent( 'login_success', array(
+			'user_id' => $user->ID,
+			'username' => $user->user_login,
+			'user_role' => implode( ', ', $user->roles ),
+			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+		) );
+	}
+
+	/**
+	 * Log REST API authentication failures
+	 *
+	 * @param mixed $result Current authentication result
+	 * @return mixed
+	 */
+	public function logRestAuthFailure( $result ) {
+		if ( is_wp_error( $result ) ) {
+			$this->logSecurityEvent( 'rest_auth_failed', array(
+				'error_code' => $result->get_error_code(),
+				'error_message' => $result->get_error_message(),
+				'request_uri' => isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+				'request_method' => isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '',
+			) );
+		}
+		
+		return $result;
+	}
+
+	/**
+	 * Log permission denials from REST API responses
+	 *
+	 * @param WP_REST_Response $response Response object
+	 * @param array            $handler  Route handler array
+	 * @param WP_REST_Request  $request  Request object
+	 * @return void
+	 */
+	public function logPermissionDenials( $response, $handler, $request ): void {
+		if ( $response instanceof \WP_Error ) {
+			$error_codes = array( 'rest_forbidden', 'rest_unauthorized', 'rest_unauthenticated' );
+			
+			if ( in_array( $response->get_error_code(), $error_codes, true ) ) {
+				$this->logSecurityEvent( 'permission_denied', array(
+					'error_code' => $response->get_error_code(),
+					'error_message' => $response->get_error_message(),
+					'route' => $request->get_route(),
+					'method' => $request->get_method(),
+				) );
+			}
+		} elseif ( $response instanceof \WP_REST_Response && $response->get_status() >= 400 ) {
+			$this->logSecurityEvent( 'http_error', array(
+				'status_code' => $response->get_status(),
+				'route' => $request->get_route(),
+				'method' => $request->get_method(),
+			) );
+		}
+	}
+
+	/**
 	 * Generate secure random token
 	 *
 	 * @param int $length Token length
@@ -471,13 +606,60 @@ class SecurityService {
 	 * @return array
 	 */
 	public function getSecurityHeaders(): array {
-		return array(
+		$headers = array(
 			'X-Content-Type-Options'  => 'nosniff',
 			'X-Frame-Options'         => 'SAMEORIGIN',
 			'X-XSS-Protection'        => '1; mode=block',
 			'Referrer-Policy'         => 'strict-origin-when-cross-origin',
-			'Content-Security-Policy' => "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self';",
+			'X-Permitted-Cross-Domain-Policies' => 'none',
+			'Permissions-Policy'      => 'camera=(), microphone=(), geolocation=(), payment=()',
 		);
+
+		// Add HSTS header for HTTPS sites
+		if ( is_ssl() ) {
+			$headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload';
+		}
+
+		// Enhanced CSP for SureFeedback
+		$app_url = defined( 'SUREFEEDBACK_APP_BASE_URL' ) ? SUREFEEDBACK_APP_BASE_URL : 'https://app.surefeedback.com';
+		$api_url = defined( 'SUREFEEDBACK_API_BASE_URL' ) ? SUREFEEDBACK_API_BASE_URL : 'https://api.surefeedback.com';
+		
+		$csp_parts = array(
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline' " . esc_url( $app_url ) . " " . esc_url( $api_url ),
+			"style-src 'self' 'unsafe-inline' " . esc_url( $app_url ),
+			"img-src 'self' data: " . esc_url( $app_url ) . " " . esc_url( $api_url ),
+			"font-src 'self' " . esc_url( $app_url ),
+			"connect-src 'self' " . esc_url( $api_url ) . " " . esc_url( $app_url ),
+			"frame-src 'none'",
+			"object-src 'none'",
+			"base-uri 'self'",
+			"form-action 'self'"
+		);
+		
+		$headers['Content-Security-Policy'] = implode( '; ', $csp_parts );
+
+		/**
+		 * Filter security headers
+		 *
+		 * @param array $headers Security headers
+		 */
+		return apply_filters( 'surefeedback_security_headers', $headers );
+	}
+
+	/**
+	 * Apply security headers to the current response
+	 *
+	 * @return void
+	 */
+	public function applySecurityHeaders(): void {
+		$headers = $this->getSecurityHeaders();
+		
+		foreach ( $headers as $name => $value ) {
+			if ( ! headers_sent() ) {
+				header( $name . ': ' . $value );
+			}
+		}
 	}
 
 	/**

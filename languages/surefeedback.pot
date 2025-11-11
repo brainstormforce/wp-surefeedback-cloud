@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-11T14:35:53+00:00\n"
+"POT-Creation-Date: 2025-11-11T17:14:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback\n"
@@ -43,6 +43,10 @@ msgstr ""
 
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:45
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:83
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:129
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:175
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:221
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:260
 #: includes/app/Http/Controllers/Controller.php:406
 #: includes/app/Services/AdminService.php:665
 #: includes/app/Services/AdminService.php:701
@@ -55,6 +59,10 @@ msgstr ""
 
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:51
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:89
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:135
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:181
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:227
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:266
 #: includes/app/Http/Controllers/Api/SettingsController.php:52
 msgid "Invalid security token"
 msgstr ""
@@ -76,48 +84,48 @@ msgstr ""
 msgid "Failed to update page settings"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:131
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:166
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:142
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:188
 msgid "Page ID is required"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:139
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:150
 msgid "Widget enabled for page"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:145
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:148
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:156
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:159
 msgid "Failed to enable widget"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:174
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:196
 msgid "Widget disabled for page"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:180
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:183
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:202
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:205
 msgid "Failed to disable widget"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:203
-#: resources/assets/js/components/WidgetControl.jsx:102
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:236
+#: resources/assets/js/components/WidgetControl.jsx:100
 msgid "Widget enabled for all pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:208
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:211
-#: resources/assets/js/components/WidgetControl.jsx:108
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:241
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:244
+#: resources/assets/js/components/WidgetControl.jsx:105
 msgid "Failed to enable widget for all pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:231
-#: resources/assets/js/components/WidgetControl.jsx:126
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:275
+#: resources/assets/js/components/WidgetControl.jsx:123
 msgid "Widget disabled for all pages"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:236
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:239
-#: resources/assets/js/components/WidgetControl.jsx:132
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:280
+#: includes/app/Http/Controllers/Api/PageSettingsController.php:283
+#: resources/assets/js/components/WidgetControl.jsx:129
 msgid "Failed to disable widget for all pages"
 msgstr ""
 
@@ -193,17 +201,18 @@ msgstr ""
 msgid "An error occurred while processing your request."
 msgstr ""
 
-#: includes/app/Http/Router.php:233
+#: includes/app/Http/Router.php:241
 msgid "Authentication required."
 msgstr ""
 
-#: includes/app/Http/Router.php:242
+#: includes/app/Http/Router.php:250
+#: includes/app/Http/Router.php:259
 #: includes/app/Services/JWTService.php:205
 msgid "Insufficient permissions."
 msgstr ""
 
 #: includes/app/Repositories/PageSettingsRepository.php:46
-#: resources/assets/js/components/WidgetControl.jsx:395
+#: resources/assets/js/components/WidgetControl.jsx:392
 msgid "Homepage"
 msgstr ""
 
@@ -237,7 +246,7 @@ msgstr ""
 #: includes/app/Services/AdminService.php:132
 #: includes/app/Services/AdminService.php:133
 #: resources/assets/js/components/NavMenu.jsx:47
-#: resources/assets/js/components/WidgetControl.jsx:289
+#: resources/assets/js/components/WidgetControl.jsx:286
 msgid "Widget Control"
 msgstr ""
 
@@ -322,8 +331,8 @@ msgstr ""
 
 #: includes/app/Services/AdminService.php:611
 #: resources/assets/js/components/GeneralSettings.jsx:298
-#: resources/assets/js/components/WidgetControl.jsx:534
-#: resources/assets/js/components/WidgetControl.jsx:535
+#: resources/assets/js/components/WidgetControl.jsx:531
+#: resources/assets/js/components/WidgetControl.jsx:532
 #: resources/assets/js/views/PermissionsView.jsx:340
 msgid "Saving..."
 msgstr ""
@@ -350,7 +359,7 @@ msgstr ""
 
 #: includes/app/Services/AdminService.php:685
 #: resources/assets/js/components/GeneralSettings.jsx:170
-#: resources/assets/js/components/WidgetControl.jsx:85
+#: resources/assets/js/components/WidgetControl.jsx:83
 msgid "Failed to save settings"
 msgstr ""
 
@@ -378,15 +387,19 @@ msgstr ""
 msgid "Invalid or missing JWT token."
 msgstr ""
 
-#: routes/api.php:72
+#: routes/api.php:82
 msgid "You do not have permission to activate plugins."
 msgstr ""
 
-#: routes/api.php:86
+#: routes/api.php:92
+msgid "Invalid nonce. CSRF protection failed."
+msgstr ""
+
+#: routes/api.php:106
 msgid "Plugin is already active."
 msgstr ""
 
-#: routes/api.php:110
+#: routes/api.php:130
 msgid "Plugin activated successfully."
 msgstr ""
 
@@ -402,58 +415,58 @@ msgstr ""
 msgid "Failed to disconnect. Please try again."
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:61
+#: resources/assets/js/components/Connected.jsx:60
 msgid "An error occurred while disconnecting. Please try again."
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:88
+#: resources/assets/js/components/Connected.jsx:87
 msgid "Website Connected Successfully!"
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:91
+#: resources/assets/js/components/Connected.jsx:90
 msgid "Your site is now linked with SureFeedback. Start gathering client feedback without friction."
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:102
+#: resources/assets/js/components/Connected.jsx:101
 msgid "Connection Site:"
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:112
+#: resources/assets/js/components/Connected.jsx:111
 msgid "Status:"
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:117
+#: resources/assets/js/components/Connected.jsx:116
 msgid "Active"
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:135
-#: resources/assets/js/components/Connected.jsx:181
+#: resources/assets/js/components/Connected.jsx:134
+#: resources/assets/js/components/Connected.jsx:180
 msgid "Disconnecting..."
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:141
-#: resources/assets/js/components/Connected.jsx:184
+#: resources/assets/js/components/Connected.jsx:140
+#: resources/assets/js/components/Connected.jsx:183
 msgid "Disconnect"
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:148
+#: resources/assets/js/components/Connected.jsx:147
 #: resources/assets/js/components/UnverifiedState.jsx:80
 msgid "Go to Dashboard"
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:160
+#: resources/assets/js/components/Connected.jsx:159
 msgid "Disconnect Website?"
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:163
+#: resources/assets/js/components/Connected.jsx:162
 msgid "This will disconnect your website from SureFeedback. All connection settings will be removed. You can reconnect at any time."
 msgstr ""
 
-#: resources/assets/js/components/Connected.jsx:171
+#: resources/assets/js/components/Connected.jsx:170
 #: resources/assets/js/components/GeneralSettings.jsx:67
-#: resources/assets/js/components/WidgetControl.jsx:524
-#: resources/assets/js/components/WidgetControl.jsx:569
-#: resources/assets/js/components/WidgetControl.jsx:594
+#: resources/assets/js/components/WidgetControl.jsx:521
+#: resources/assets/js/components/WidgetControl.jsx:566
+#: resources/assets/js/components/WidgetControl.jsx:591
 msgid "Cancel"
 msgstr ""
 
@@ -526,7 +539,7 @@ msgid "Allow user roles to view comment widget on your site"
 msgstr ""
 
 #: resources/assets/js/components/GeneralSettings.jsx:302
-#: resources/assets/js/components/WidgetControl.jsx:539
+#: resources/assets/js/components/WidgetControl.jsx:536
 #: resources/assets/js/views/PermissionsView.jsx:343
 msgid "Save Changes"
 msgstr ""
@@ -686,142 +699,142 @@ msgstr ""
 msgid "Footer Illustration"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:50
+#: resources/assets/js/components/WidgetControl.jsx:49
 msgid "Failed to load page settings"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:78
+#: resources/assets/js/components/WidgetControl.jsx:77
 msgid "Page settings saved successfully"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:291
+#: resources/assets/js/components/WidgetControl.jsx:288
 msgid "Control which pages display the SureFeedback widget"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:300
+#: resources/assets/js/components/WidgetControl.jsx:297
 msgid "Total Pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:312
+#: resources/assets/js/components/WidgetControl.jsx:309
 msgid "Enabled Pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:316
+#: resources/assets/js/components/WidgetControl.jsx:313
 msgid "synced"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:324
+#: resources/assets/js/components/WidgetControl.jsx:321
 msgid "Disabled Pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:328
+#: resources/assets/js/components/WidgetControl.jsx:325
 msgid "off - synced"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:338
+#: resources/assets/js/components/WidgetControl.jsx:335
 msgid "Page List"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:339
+#: resources/assets/js/components/WidgetControl.jsx:336
 msgid "Toggle widget visibility for individual pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:355
+#: resources/assets/js/components/WidgetControl.jsx:352
 msgid "Disable All Pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:356
-#: resources/assets/js/components/WidgetControl.jsx:602
+#: resources/assets/js/components/WidgetControl.jsx:353
+#: resources/assets/js/components/WidgetControl.jsx:599
 msgid "Disable All"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:370
+#: resources/assets/js/components/WidgetControl.jsx:367
 msgid "Enable All Pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:371
-#: resources/assets/js/components/WidgetControl.jsx:577
+#: resources/assets/js/components/WidgetControl.jsx:368
+#: resources/assets/js/components/WidgetControl.jsx:574
 msgid "Enable All"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:381
+#: resources/assets/js/components/WidgetControl.jsx:378
 msgid "Search pages..."
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:392
+#: resources/assets/js/components/WidgetControl.jsx:389
 msgid "All Types"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:393
+#: resources/assets/js/components/WidgetControl.jsx:390
 msgid "Enabled Only"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:394
+#: resources/assets/js/components/WidgetControl.jsx:391
 msgid "Disabled Only"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:396
+#: resources/assets/js/components/WidgetControl.jsx:393
 msgid "Pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:397
+#: resources/assets/js/components/WidgetControl.jsx:394
 msgid "Posts"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:398
+#: resources/assets/js/components/WidgetControl.jsx:395
 msgid "Archives"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:407
+#: resources/assets/js/components/WidgetControl.jsx:404
 msgid "No pages found"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:445
+#: resources/assets/js/components/WidgetControl.jsx:442
 #, js-format
 msgid "Showing %1$d-%2$d of %3$d pages"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:455
+#: resources/assets/js/components/WidgetControl.jsx:452
 msgid "Previous"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:493
+#: resources/assets/js/components/WidgetControl.jsx:490
 msgid "Next"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:507
+#: resources/assets/js/components/WidgetControl.jsx:504
 msgid "Unsaved changes"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:513
+#: resources/assets/js/components/WidgetControl.jsx:510
 msgid "All changes saved"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:540
+#: resources/assets/js/components/WidgetControl.jsx:537
 msgid "Save"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:563
+#: resources/assets/js/components/WidgetControl.jsx:560
 msgid "Enable Widget for All Pages?"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:565
+#: resources/assets/js/components/WidgetControl.jsx:562
 msgid "This will enable the SureFeedback widget on all pages of your website. This action can be undone."
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:574
+#: resources/assets/js/components/WidgetControl.jsx:571
 msgid "Enabling..."
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:588
+#: resources/assets/js/components/WidgetControl.jsx:585
 msgid "Disable Widget for All Pages?"
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:590
+#: resources/assets/js/components/WidgetControl.jsx:587
 msgid "This will disable the SureFeedback widget on all pages of your website. Users will not be able to leave feedback. This action can be undone."
 msgstr ""
 
-#: resources/assets/js/components/WidgetControl.jsx:599
+#: resources/assets/js/components/WidgetControl.jsx:596
 msgid "Disabling..."
 msgstr ""
 

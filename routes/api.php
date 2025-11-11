@@ -38,10 +38,10 @@ $router->group(
 		'namespace' => 'Api',
 	),
 	function ( $router ) {
-		$router->get( 'status', array( ConnectionController::class, 'status' ) );
+		$router->getPublic( 'status', array( ConnectionController::class, 'status' ) );
 		$router->post( 'connect', array( ConnectionController::class, 'connect' ) );
 		$router->post( 'reset', array( ConnectionController::class, 'reset' ) );
-		$router->get( 'health', array( ConnectionController::class, 'health' ) );
+		$router->getPublic( 'health', array( ConnectionController::class, 'health' ) );
 		$router->post( 'store-state', array( ConnectionController::class, 'store_state' ) );
 	}
 );
@@ -56,16 +56,25 @@ $router->group(
 	}
 );
 
-// Webhook endpoint for SureFeedback API callbacks
-$router->post( 'webhook', array( ConnectionController::class, 'webhook' ) );
+// Webhook endpoint for SureFeedback API callbacks (public - uses webhook signature for auth)
+$router->postPublic( 'webhook', array( ConnectionController::class, 'webhook' ) );
 
 // Secure disconnect webhook endpoint (Webhook Secret protected)
-$router->post( 'webhook/disconnect', array( ConnectionController::class, 'disconnect_webhook' ) );
+$router->postPublic( 'webhook/disconnect', array( ConnectionController::class, 'disconnect_webhook' ) );
 
 // Plugin activation endpoint (for SaaS auto-installation)
 $router->post(
 	'plugin/activate',
 	function ( WP_REST_Request $request ) {
+		// Apply rate limiting to prevent abuse
+		$rate_limit_check = \SureFeedback\Http\Middleware\RateLimitMiddleware::checkRateLimit(
+			'/surefeedback/v1/plugin/activate',
+			$request
+		);
+		if ( is_wp_error( $rate_limit_check ) ) {
+			return $rate_limit_check;
+		}
+
 		// Check if user is authenticated and has admin capabilities
 		if ( ! is_user_logged_in() || ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error(
@@ -135,38 +144,11 @@ $router->post(
 	}
 );
 
-// Plugin status endpoint (protected)
-$router->get(
-	'plugin/status',
-	function ( WP_REST_Request $request ) {
-		// Require authentication for security
-		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'You do not have permission to access plugin status.', 'surefeedback' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		$plugin_file = SUREFEEDBACK_PLUGIN_BASENAME;
-
-		return rest_ensure_response(
-			array(
-				'plugin'    => $plugin_file,
-				'is_active' => is_plugin_active( $plugin_file ),
-				'version'   => SUREFEEDBACK_VERSION,
-				'name'      => 'SureFeedback',
-				'status'    => is_plugin_active( $plugin_file ) ? 'active' : 'inactive',
-			)
-		);
-	}
-);
-
-// Verification endpoints
+// Verification endpoints (public - uses JWT for auth)
 $router->group(
 	array( 'prefix' => 'verification' ),
 	function ( $router ) {
-		$router->post( 'verify', array( VerificationController::class, 'verify_connection' ) );
+		$router->postPublic( 'verify', array( VerificationController::class, 'verify_connection' ) );
 	}
 );
 

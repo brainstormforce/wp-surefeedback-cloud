@@ -18,6 +18,13 @@ use WP_Error;
 class RateLimitMiddleware extends Middleware {
 
 	/**
+	 * Maximum number of stored rate-limit option entries to keep.
+	 * This prevents unbounded growth in the options table if many distinct
+	 * client IDs are used. If exceeded, oldest entries will be evicted.
+	 */
+	const MAX_RATE_LIMIT_ENTRIES = 2000;
+
+	/**
 	 * Rate limit configurations for different endpoints
 	 *
 	 * @var array
@@ -36,6 +43,12 @@ class RateLimitMiddleware extends Middleware {
 			'limit'  => 10,
 			'window' => 300,
 		),      // 10 per 5 min
+
+		// Plugin management endpoints - very restrictive due to sensitive operations
+		'/surefeedback/v1/plugin/activate'   => array(
+			'limit'  => 3,
+			'window' => 300,
+		),        // 3 per 5 min
 
 		// Settings endpoints
 		'/surefeedback/v1/settings'           => array(
@@ -72,6 +85,20 @@ class RateLimitMiddleware extends Middleware {
 
 		// Check if rate limit is exceeded
 		if ( $this->isRateLimitExceeded( $clientId, $route, $config ) ) {
+			// Log rate limit violation to security service
+			try {
+				$security_service = new \SureFeedback\Services\SecurityService();
+				$security_service->logSecurityEvent( 'rate_limit_exceeded', array(
+					'client_id' => $clientId,
+					'route'     => $route,
+					'limit'     => $config['limit'],
+					'window'    => $config['window'],
+					'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+				) );
+			} catch ( \Exception $e ) {
+				// Silently fail if security service is not available
+			}
+
 			$this->log(
 				'rate_limit_exceeded',
 				'Rate limit exceeded',
@@ -269,17 +296,70 @@ class RateLimitMiddleware extends Middleware {
 		// Remove rate limit options older than 1 day
 		$cutoff = time() - DAY_IN_SECONDS;
 		
-		$wpdb->query(
+		// Get all rate limit option names first
+		$rate_limit_keys = $wpdb->get_col(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} 
-				 WHERE option_name LIKE %s 
-				 AND option_value LIKE %s 
-				 AND option_id < %d",
-				'surefeedback_rate_limit_%',
-				'%' . $cutoff . '%',
-				$cutoff
+				"SELECT option_name FROM {$wpdb->options} 
+				 WHERE option_name LIKE %s",
+				$wpdb->esc_like( 'surefeedback_rate_limit_' ) . '%'
 			)
 		);
+		
+		// Enforce a global cap on stored rate-limit entries to avoid unbounded growth
+		if ( is_array( $rate_limit_keys ) && count( $rate_limit_keys ) > self::MAX_RATE_LIMIT_ENTRIES ) {
+			// Determine last activity (max timestamp) for each option to pick oldest
+			$entries = array();
+			foreach ( $rate_limit_keys as $opt ) {
+				$requests = get_option( $opt, array() );
+				if ( is_array( $requests ) && ! empty( $requests ) ) {
+					$last_activity = max( $requests );
+				} else {
+					$last_activity = 0;
+				}
+				$entries[ $opt ] = $last_activity;
+			}
+
+			// Sort by last activity ascending (oldest first)
+			asort( $entries );
+
+			// Keys to remove to reduce to MAX_RATE_LIMIT_ENTRIES
+			$excess = count( $rate_limit_keys ) - self::MAX_RATE_LIMIT_ENTRIES;
+			$to_remove = array_slice( array_keys( $entries ), 0, $excess );
+
+			foreach ( $to_remove as $remove_key ) {
+				delete_option( $remove_key );
+				// also remove from main list so later logic doesn't revisit
+				$idx = array_search( $remove_key, $rate_limit_keys, true );
+				if ( $idx !== false ) {
+					unset( $rate_limit_keys[ $idx ] );
+				}
+			}
+		}
+
+		// Clean up expired entries by examining their values
+		foreach ( $rate_limit_keys as $key ) {
+			$requests = get_option( $key, array() );
+			
+			if ( ! is_array( $requests ) ) {
+				continue;
+			}
+			
+			// Filter out expired timestamps
+			$active_requests = array_filter(
+				$requests,
+				function ( $timestamp ) use ( $cutoff ) {
+					return is_numeric( $timestamp ) && $timestamp > $cutoff;
+				}
+			);
+			
+			// If no active requests remain, delete the option entirely
+			if ( empty( $active_requests ) ) {
+				delete_option( $key );
+			} elseif ( count( $active_requests ) !== count( $requests ) ) {
+				// Update with only active requests
+				update_option( $key, array_values( $active_requests ), 'no' );
+			}
+		}
 	}
 
 	/**
@@ -317,5 +397,60 @@ class RateLimitMiddleware extends Middleware {
 			'retry_after' => $retryAfter,
 			'exceeded'    => $remaining === 0,
 		);
+	}
+
+	/**
+	 * Static method to check rate limit for a specific route
+	 *
+	 * @param string $route The route to check
+	 * @param WP_REST_Request $request The request object
+	 * @return WP_Error|null Returns WP_Error if rate limited, null if allowed
+	 */
+	public static function checkRateLimit( string $route, $request ) {
+		$middleware = new self();
+		
+		// Get client identifier
+		$userId = get_current_user_id();
+		$clientId = $userId > 0 ? 'user_' . $userId : 'ip_' . $middleware->getClientIp( $request );
+		
+		// Get rate limit configuration
+		$config = $middleware->getRateLimitConfig( $route );
+		
+		// Check if rate limit is exceeded
+		if ( $middleware->isRateLimitExceeded( $clientId, $route, $config ) ) {
+			// Log rate limit violation to security service
+			try {
+				$security_service = new \SureFeedback\Services\SecurityService();
+				$security_service->logSecurityEvent( 'rate_limit_exceeded', array(
+					'client_id' => $clientId,
+					'route'     => $route,
+					'limit'     => $config['limit'],
+					'window'    => $config['window'],
+					'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+				) );
+			} catch ( \Exception $e ) {
+				// Silently fail if security service is not available
+			}
+
+			return new \WP_Error(
+				'rest_rate_limit_exceeded',
+				sprintf(
+					'Rate limit exceeded. Maximum %d requests per %d seconds allowed.',
+					$config['limit'],
+					$config['window']
+				),
+				array(
+					'status' => 429,
+					'retry_after' => $middleware->getRetryAfter( $clientId, $route, $config ),
+					'limit' => $config['limit'],
+					'window' => $config['window'],
+				)
+			);
+		}
+		
+		// Record this request
+		$middleware->recordRequest( $clientId, $route, $config );
+		
+		return null;
 	}
 }

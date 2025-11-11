@@ -124,6 +124,17 @@ class PageSettingsController extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function enablePage( WP_REST_Request $request ) {
+		// Security: Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
+		}
+
+		// Security: Verify nonce
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return $this->error( __( 'Invalid security token', 'surefeedback' ), 403 );
+		}
+
 		try {
 			$page_id = $request->get_param( 'page_id' );
 
@@ -159,6 +170,17 @@ class PageSettingsController extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function disablePage( WP_REST_Request $request ) {
+		// Security: Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
+		}
+
+		// Security: Verify nonce
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return $this->error( __( 'Invalid security token', 'surefeedback' ), 403 );
+		}
+
 		try {
 			$page_id = $request->get_param( 'page_id' );
 
@@ -194,6 +216,17 @@ class PageSettingsController extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function enableAll( WP_REST_Request $request ) {
+		// Security: Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
+		}
+
+		// Security: Verify nonce
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return $this->error( __( 'Invalid security token', 'surefeedback' ), 403 );
+		}
+
 		try {
 			$updated = $this->repository->enableWidgetForAllPages();
 
@@ -222,6 +255,17 @@ class PageSettingsController extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function disableAll( WP_REST_Request $request ) {
+		// Security: Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), 403 );
+		}
+
+		// Security: Verify nonce
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return $this->error( __( 'Invalid security token', 'surefeedback' ), 403 );
+		}
+
 		try {
 			$updated = $this->repository->disableWidgetForAllPages();
 

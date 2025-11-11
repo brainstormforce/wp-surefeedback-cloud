@@ -321,6 +321,7 @@ class ApiGatewayService {
 			'sec-fetch-dest'     => 'empty',
 			'sec-fetch-mode'     => 'cors',
 			'sec-fetch-site'     => 'same-site',
+			// Use a server-constructed user-agent identifying plugin and platform
 			'user-agent'         => $this->getUserAgent(),
 			'x-requested-with'   => 'XMLHttpRequest',
 			'x-wp-version'       => get_bloginfo( 'version' ),
@@ -358,14 +359,13 @@ class ApiGatewayService {
 	 * @return string
 	 */
 	private function getUserAgent(): string {
-		// Use server's user agent if available
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
-			return $user_agent;
-		}
+		// Construct a server-side user agent that does not rely on client-supplied values.
+		$plugin_version = defined( 'SUREFEEDBACK_VERSION' ) ? SUREFEEDBACK_VERSION : '1.0.0';
+		$wp_version = get_bloginfo( 'version' );
+		$php_version = PHP_VERSION;
 
-		// Fallback to default user agent
-		return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
+		$ua = sprintf( 'SureFeedback-Plugin/%s WordPress/%s PHP/%s', $plugin_version, $wp_version, $php_version );
+		return $ua;
 	}
 
 	/**
@@ -374,25 +374,17 @@ class ApiGatewayService {
 	 * @return string
 	 */
 	private function getPlatform(): string {
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$user_agent       = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
-			$user_agent_lower = strtolower( $user_agent );
-		} else {
-			$user_agent_lower = '';
-		}
-
-		if ( strpos( $user_agent_lower, 'mac' ) !== false ) {
+		// Use PHP's OS information rather than client supplied headers
+		$os = PHP_OS;
+		if ( stripos( $os, 'Darwin' ) !== false || stripos( $os, 'Mac' ) !== false ) {
 			return 'macOS';
 		}
-
-		if ( strpos( $user_agent_lower, 'windows' ) !== false ) {
+		if ( stripos( $os, 'WIN' ) !== false ) {
 			return 'Windows';
 		}
-
-		if ( strpos( $user_agent_lower, 'linux' ) !== false ) {
+		if ( stripos( $os, 'LINUX' ) !== false ) {
 			return 'Linux';
 		}
-
 		return 'Unknown';
 	}
 

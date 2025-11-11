@@ -606,10 +606,10 @@ class ConnectionController extends Controller {
 			'current_time' => time()
 		) );
 		
-		// Check if state exists and is not expired (valid for 1 hour)
+		// Check if state exists and is not expired (valid for 15 minutes)
 		if ( isset( $pending_states[ $state ] ) ) {
 			$timestamp = $pending_states[ $state ];
-			$is_valid = ( time() - $timestamp ) <= 3600; // 1 hour expiry
+			$is_valid = ( time() - $timestamp ) <= 900; // 15 minutes expiry
 			
 			$this->logError( 'Found matching state', array(
 				'state' => $state,
@@ -649,10 +649,10 @@ class ConnectionController extends Controller {
 	public function storeWebhookState( string $state ): bool {
 		$pending_states = get_option( 'surefeedback_pending_states', array() );
 		
-		// Clean up expired states (older than 1 hour)
+		// Clean up expired states (older than 15 minutes)
 		$current_time = time();
 		foreach ( $pending_states as $stored_state => $timestamp ) {
-			if ( ( $current_time - $timestamp ) > 3600 ) {
+			if ( ( $current_time - $timestamp ) > 900 ) {
 				unset( $pending_states[ $stored_state ] );
 			}
 		}

@@ -102,7 +102,7 @@ class Router {
 	 * @param string         $method HTTP method
 	 * @param string         $route Route path
 	 * @param array|callable $callback Callback function or controller array
-	 * @param array          $options Route options (middleware, etc.)
+	 * @param array          $options Route options (middleware, public, jwt, etc.)
 	 * @return void
 	 */
 	protected function addRoute( string $method, string $route, $callback, array $options = array() ): void {
@@ -161,6 +161,28 @@ class Router {
 	}
 
 	/**
+	 * Add a public route with GET method (no authentication required)
+	 *
+	 * @param string         $route Route path
+	 * @param array|callable $callback Callback function or controller array
+	 * @return void
+	 */
+	public function getPublic( string $route, $callback ): void {
+		$this->addRoute( 'GET', $route, $callback, array( 'public' => true ) );
+	}
+
+	/**
+	 * Add a public route with POST method (no authentication required)
+	 *
+	 * @param string         $route Route path
+	 * @param array|callable $callback Callback function or controller array
+	 * @return void
+	 */
+	public function postPublic( string $route, $callback ): void {
+		$this->addRoute( 'POST', $route, $callback, array( 'public' => true ) );
+	}
+
+	/**
 	 * Register all routes with WordPress REST API
 	 *
 	 * @return void
@@ -188,8 +210,10 @@ class Router {
 				'permission_callback' => array( $this, 'checkPermissions' ),
 			);
 
-			// Add JWT permission callback if needed
-			if ( isset( $route['options']['jwt'] ) && $route['options']['jwt'] ) {
+			// Set permission callback based on route options
+			if ( isset( $route['options']['public'] ) && $route['options']['public'] ) {
+				$args['permission_callback'] = '__return_true'; // Public route, no authentication required
+			} elseif ( isset( $route['options']['jwt'] ) && $route['options']['jwt'] ) {
 				$args['permission_callback'] = array( $this, 'checkJWTPermissions' );
 			}
 
@@ -209,27 +233,11 @@ class Router {
 	 */
 	public function checkPermissions( \WP_REST_Request $request ) {
 		$route = $request->get_route();
-		$method = $request->get_method();
-		// Define public routes that don't require authentication
-		$public_routes = array(
-			'GET:/surefeedback/v1/status',
-			'GET:/surefeedback/v1/health',
-			'POST:/surefeedback/v1/verification/verify',
-			'POST:/surefeedback/v1/webhook',
-			'POST:/surefeedback/v1/webhook/disconnect',
-		);
 
-		$route_key = $method . ':' . $route;
-
-		// Allow public routes
-		if ( in_array( $route_key, $public_routes, true ) ) {
-			return true;
-		}
-
-		// All other routes require authentication
+		// Check if user is authenticated first
 		if ( ! is_user_logged_in() ) {
 			return new \WP_Error(
-				'rest_forbidden',
+				'rest_unauthenticated',
 				__( 'Authentication required.', 'surefeedback' ),
 				array( 'status' => 401 )
 			);
@@ -238,7 +246,16 @@ class Router {
 		// Check user capabilities for admin routes
 		if ( strpos( $route, '/admin/' ) !== false && ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
-				'rest_forbidden',
+				'rest_unauthorized',
+				__( 'Insufficient permissions.', 'surefeedback' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// For all other authenticated routes, check if user has basic capabilities
+		if ( ! current_user_can( 'read' ) ) {
+			return new \WP_Error(
+				'rest_unauthorized',
 				__( 'Insufficient permissions.', 'surefeedback' ),
 				array( 'status' => 403 )
 			);
