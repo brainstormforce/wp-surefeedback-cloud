@@ -252,7 +252,6 @@ class ConnectionRepository extends BaseRepository {
 		update_option( 'surefeedback_jwt_secret', $new_secret );
 
 		// Log secret rotation for audit trail
-		error_log( 'SureFeedback: JWT secret rotated at ' . current_time( 'mysql' ) );
 
 		return $new_secret;
 	}

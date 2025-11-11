@@ -674,9 +674,6 @@ class ConnectionController extends Controller {
 
 		$result = update_option( 'surefeedback_pending_states', $pending_states );
 
-		// Log the store operation
-		error_log( 'SureFeedback: Stored state - ' . $state . ' at timestamp ' . $current_time . ', result: ' . ( $result ? 'success' : 'failed' ) );
-
 		return $result;
 	}
 

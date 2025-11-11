@@ -114,7 +114,7 @@ class CorsService {
 	 * @return void
 	 */
 	public function handlePreflightRequests(): void {
-		if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
 			$origin = $this->getRequestOrigin();
 
 			if ( $this->isOriginAllowed( $origin ) ) {

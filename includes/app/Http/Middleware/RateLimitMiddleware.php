@@ -6,6 +6,7 @@ defined( 'ABSPATH' ) || exit;
 
 use WP_REST_Request;
 use WP_Error;
+use SureFeedback\Repositories\RateLimitRepository;
 
 /**
  * Rate Limiting Middleware
@@ -294,75 +295,18 @@ class RateLimitMiddleware extends Middleware {
 	 * @return void
 	 */
 	public static function cleanupExpiredRateLimits(): void {
-		global $wpdb;
+		$repository = new RateLimitRepository();
 
 		// Remove rate limit options older than 1 day
 		$cutoff = time() - DAY_IN_SECONDS;
 
-		// Get all rate limit option names first
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Necessary for cleanup as WordPress has no API for wildcard option queries
-		$rate_limit_keys = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT option_name FROM {$wpdb->options} 
-				 WHERE option_name LIKE %s",
-				$wpdb->esc_like( 'surefeedback_rate_limit_' ) . '%'
-			)
-		);
+		// Clean up expired entries using repository
+		$cleaned_count = $repository->cleanupExpiredRateLimits( $cutoff );
 
 		// Enforce a global cap on stored rate-limit entries to avoid unbounded growth
-		if ( is_array( $rate_limit_keys ) && count( $rate_limit_keys ) > self::MAX_RATE_LIMIT_ENTRIES ) {
-			// Determine last activity (max timestamp) for each option to pick oldest
-			$entries = array();
-			foreach ( $rate_limit_keys as $opt ) {
-				$requests = get_option( $opt, array() );
-				if ( is_array( $requests ) && ! empty( $requests ) ) {
-					$last_activity = max( $requests );
-				} else {
-					$last_activity = 0;
-				}
-				$entries[ $opt ] = $last_activity;
-			}
-
-			// Sort by last activity ascending (oldest first)
-			asort( $entries );
-
-			// Keys to remove to reduce to MAX_RATE_LIMIT_ENTRIES
-			$excess    = count( $rate_limit_keys ) - self::MAX_RATE_LIMIT_ENTRIES;
-			$to_remove = array_slice( array_keys( $entries ), 0, $excess );
-
-			foreach ( $to_remove as $remove_key ) {
-				delete_option( $remove_key );
-				// also remove from main list so later logic doesn't revisit
-				$idx = array_search( $remove_key, $rate_limit_keys, true );
-				if ( $idx !== false ) {
-					unset( $rate_limit_keys[ $idx ] );
-				}
-			}
-		}
-
-		// Clean up expired entries by examining their values
-		foreach ( $rate_limit_keys as $key ) {
-			$requests = get_option( $key, array() );
-
-			if ( ! is_array( $requests ) ) {
-				continue;
-			}
-
-			// Filter out expired timestamps
-			$active_requests = array_filter(
-				$requests,
-				function ( $timestamp ) use ( $cutoff ) {
-					return is_numeric( $timestamp ) && $timestamp > $cutoff;
-				}
-			);
-
-			// If no active requests remain, delete the option entirely
-			if ( empty( $active_requests ) ) {
-				delete_option( $key );
-			} elseif ( count( $active_requests ) !== count( $requests ) ) {
-				// Update with only active requests
-				update_option( $key, array_values( $active_requests ), 'no' );
-			}
+		$total_entries = $repository->getRateLimitEntriesCount();
+		if ( $total_entries > self::MAX_RATE_LIMIT_ENTRIES ) {
+			$repository->enforceGlobalCap( self::MAX_RATE_LIMIT_ENTRIES );
 		}
 	}
 
