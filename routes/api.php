@@ -102,7 +102,7 @@ $router->post(
 			}
 
 			// Run activation hook manually if needed
-			do_action( 'activate_' . $plugin_file );
+			do_action( 'surefeedback_activate_' . $plugin_file );
 
 			return rest_ensure_response(
 				array(

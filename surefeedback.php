@@ -92,7 +92,7 @@ if ( ! defined( 'SUREFEEDBACK_APP_BASE_URL' ) ) {
 |
 */
 
-$app = require_once __DIR__ . '/bootstrap/app.php';
+$surefeedback_app = require_once __DIR__ . '/bootstrap/app.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -109,8 +109,8 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 // Boot the application when plugins are loaded
 add_action(
 	'plugins_loaded',
-	function () use ( $app ) {
-		$app->boot();
+	function () use ( $surefeedback_app ) {
+		$surefeedback_app->boot();
 	}
 );
 
@@ -141,7 +141,7 @@ add_action(
 			delete_transient( 'surefeedback_activation_redirect' );
 
 			// Redirect to get started screen (Welcome page)
-			wp_redirect( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
 			exit;
 		}
 	},
