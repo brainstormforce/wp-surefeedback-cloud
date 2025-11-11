@@ -233,6 +233,73 @@ class SecurityService {
 	}
 
 	/**
+	 * Verify webhook signature with timestamp validation
+	 *
+	 * @param string $payload Raw webhook payload
+	 * @param string $signature Received signature (with sha256= prefix)
+	 * @param string $timestamp Webhook timestamp
+	 * @param string $secret Webhook signing secret
+	 * @param int $tolerance Timestamp tolerance in seconds (default 300 = 5 minutes)
+	 * @return bool
+	 */
+	public function verifyWebhookSignature( string $payload, string $signature, string $timestamp, string $secret, int $tolerance = 300 ): bool {
+		// Validate timestamp to prevent replay attacks
+		$current_time = time();
+		$webhook_time = (int) $timestamp;
+
+		if ( abs( $current_time - $webhook_time ) > $tolerance ) {
+			error_log( 'SureFeedback: Webhook timestamp validation failed - request too old or future' );
+			return false;
+		}
+
+		// Remove sha256= prefix if present
+		if ( str_starts_with( $signature, 'sha256=' ) ) {
+			$signature = substr( $signature, 7 );
+		}
+
+		// Generate expected signature
+		$expected = $this->generateSignature( $payload, $secret, 'sha256' );
+
+		// Compare signatures using timing-safe comparison
+		return hash_equals( $expected, $signature );
+	}
+
+	/**
+	 * Get webhook signing secret (shared with Laravel API)
+	 *
+	 * @return string
+	 */
+	public function getWebhookSigningSecret(): string {
+		// Try to get the secret from WordPress options first
+		$stored_secret = get_option( 'surefeedback_webhook_signing_secret' );
+
+		if ( ! empty( $stored_secret ) ) {
+			return $stored_secret;
+		}
+
+		// If not stored, we need to get it from the Laravel API during connection
+		// For now, return a default that will be updated during webhook setup
+		$default_secret = get_option( 'surefeedback_access_token', '' );
+
+		if ( empty( $default_secret ) ) {
+			// Generate a temporary secret if nothing is available
+			$default_secret = wp_generate_password( 64, false );
+		}
+
+		return $default_secret;
+	}
+
+	/**
+	 * Store webhook signing secret received from Laravel API
+	 *
+	 * @param string $secret The webhook signing secret
+	 * @return bool
+	 */
+	public function storeWebhookSigningSecret( string $secret ): bool {
+		return update_option( 'surefeedback_webhook_signing_secret', sanitize_text_field( $secret ) );
+	}
+
+	/**
 	 * Sanitize input data recursively
 	 *
 	 * @param mixed $data Input data

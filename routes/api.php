@@ -41,7 +41,6 @@ $router->group(
 		$router->getPublic( 'status', array( ConnectionController::class, 'status' ) );
 		$router->post( 'connect', array( ConnectionController::class, 'connect' ) );
 		$router->post( 'reset', array( ConnectionController::class, 'reset' ) );
-		$router->getPublic( 'health', array( ConnectionController::class, 'health' ) );
 		$router->post( 'store-state', array( ConnectionController::class, 'store_state' ) );
 	}
 );
@@ -179,20 +178,14 @@ $router->group(
 	}
 );
 
-// Legacy compatibility routes
+// Legacy compatibility routes (minimal for API compatibility only)
 $router->get(
 	'pages',
 	function () {
-		// Legacy route for backward compatibility
+		// Legacy route for backward compatibility - returns empty pages array
 		return rest_ensure_response(
 			array(
-				'pages' => get_pages(
-					array(
-						'post_type'   => 'page',
-						'post_status' => 'publish',
-						'numberposts' => -1,
-					)
-				),
+				'pages' => array(),
 			)
 		);
 	}
