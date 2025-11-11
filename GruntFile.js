@@ -39,21 +39,14 @@ module.exports = function (grunt) {
       },
     },
 
-    makepot: {
-      target: {
+    // Custom WP-CLI task for better JavaScript/JSX support
+    shell: {
+      makepot: {
+        command: 'wp i18n make-pot . languages/surefeedback.pot --domain=surefeedback --include="*.php,*.js,*.jsx" --exclude="node_modules,tests,vendor/*/tests,vendor/*/test"',
         options: {
-          domainPath: "/languages",
-          exclude: [".git/*", "bin/*", "node_modules/*", "tests/*"],
-          mainFile: "surefeedback.php",
-          potFilename: "surefeedback.pot",
-          potHeaders: {
-            poedit: true,
-            "x-poedit-keywordslist": true,
-          },
-          type: "wp-plugin",
-          updateTimestamp: true,
-        },
-      },
+          stderr: false
+        }
+      }
     },
 
     compress: {
@@ -471,6 +464,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-copy");
+  grunt.loadNpmTasks("grunt-shell");
 
   // Custom task to install production composer dependencies
   grunt.registerTask("composer-install", "Install production Composer dependencies", function() {
@@ -572,7 +566,8 @@ module.exports = function (grunt) {
   // - Can be overridden in wp-config.php per environment
   // - No .env files needed - WordPress.org compliant
 
-  grunt.registerTask("i18n", ["addtextdomain", "makepot"]);
+  grunt.registerTask("i18n", ["addtextdomain", "shell:makepot"]);
+  grunt.registerTask("makepot", ["shell:makepot"]); // Alias for backward compatibility
   grunt.registerTask("readme", ["wp_readme_to_markdown"]);
   grunt.registerTask("build", ["composer-install", "build-assets", "i18n"]);
 
