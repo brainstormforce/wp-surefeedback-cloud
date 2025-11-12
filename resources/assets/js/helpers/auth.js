@@ -1,5 +1,5 @@
 /**
- * SureFeedback Authentication Helpers
+ * SureFeedback Authentication Helpers (Production Cleaned)
  */
 
 import { apiGateway } from '../api/gateway.js';
@@ -7,8 +7,8 @@ import { API_ENDPOINTS } from '../constants/api.js';
 
 /**
  * Generate a cryptographically secure random hex string
- * @param {number} length - Number of bytes to generate
- * @returns {string} Hex string of random data
+ * @param {number} length
+ * @returns {string}
  */
 const generateSecureRandomHex = (length = 16) => {
   const array = new Uint8Array(length);
@@ -18,104 +18,317 @@ const generateSecureRandomHex = (length = 16) => {
 
 /**
  * Generate a secure UUID v4
- * @returns {string} UUID string
+ * @returns {string}
  */
-const generateSecureUUID = () => {
-  return crypto.randomUUID();
-};
+const generateSecureUUID = () => crypto.randomUUID();
 
+/**
+ * Start authentication redirect process
+ */
 export const authenticateRedirect = async () => {
   const { sureFeedbackAdmin } = window;
-
-  if (!sureFeedbackAdmin || !sureFeedbackAdmin.connection) {
-    return;
-  }
+  if (!sureFeedbackAdmin?.connection) return;
 
   const { connection } = sureFeedbackAdmin;
-
-  // Generate a cryptographically secure state token for security
   const state = generateSecureRandomHex(16);
 
-  // Store state in WordPress for webhook verification
   try {
-    await apiGateway.post(API_ENDPOINTS.CONNECTION.STORE_STATE, {
-      state: state
-    });
-  } catch (error) {
-    console.warn('Error storing state for webhook verification:', error);
-  }
+    await apiGateway.post(API_ENDPOINTS.CONNECTION.STORE_STATE, { state });
+  } catch (_) {}
+
+  const authContext = {
+    wp_nonce: sureFeedbackAdmin.rest_nonce || sureFeedbackAdmin.nonce || '',
+    admin_url: sureFeedbackAdmin.admin_url || '',
+    user_id: sureFeedbackAdmin.current_user?.ID || '',
+    timestamp: Date.now(),
+  };
 
   const params = new URLSearchParams({
     source: 'wordpress',
     action: 'connect_site',
     callback_url: connection.callback_url,
-    state: state,
-    site_data: btoa(JSON.stringify(connection.site_data)), // base64 encode like PHP version
+    state,
+    site_data: btoa(JSON.stringify(connection.site_data)),
+    auth_context: btoa(JSON.stringify(authContext)),
   });
 
-  // Construct the connection URL using localized app URL
   const connectUrl = `${connection.app_url}/connect?${params.toString()}`;
-
-  // Store connection intent in sessionStorage for redirect after login
   const connectionIntent = {
     url: connectUrl,
     timestamp: Date.now(),
     source: 'wordpress_plugin',
-    state: state
+    state,
+    auth_context: authContext,
   };
 
-  // Store in both sessionStorage and localStorage for reliability
   sessionStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
   localStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
 
-  // Redirect to parent site for authentication
-  window.open(connectUrl, '_blank');
+  const popup = window.open(
+    connectUrl,
+    'surefeedback_auth',
+    'width=600,height=700,scrollbars=yes,resizable=yes,centerscreen=yes,modal=yes'
+  );
+
+  if (popup) {
+    const checkClosed = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(checkClosed);
+        handleAuthCompletion();
+      }
+    }, 1000);
+
+    const messageHandler = (event) => {
+      if (event.origin !== new URL(connection.app_url).origin) return;
+
+      if (event.data?.type === 'surefeedback_auth_complete') {
+        clearInterval(checkClosed);
+        window.removeEventListener('message', messageHandler);
+        if (!popup.closed) popup.close();
+        handleAuthCompletion(event.data);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+
+    setTimeout(() => {
+      clearInterval(checkClosed);
+      window.removeEventListener('message', messageHandler);
+      if (!popup.closed) popup.close();
+    }, 5 * 60 * 1000);
+  } else {
+    window.location.href = connectUrl;
+  }
 };
 
+/**
+ * Handle authentication completion
+ */
+const handleAuthCompletion = async (authData = null) => {
+  try {
+    const intentData =
+      sessionStorage.getItem('surefeedback_connection_intent') ||
+      localStorage.getItem('surefeedback_connection_intent');
+
+    if (!intentData) return;
+
+    const intent = JSON.parse(intentData);
+
+    if (authData?.token) {
+      apiGateway.setAuthToken(authData.token);
+      if (authData.token !== intent.auth_context?.wp_nonce && window.sureFeedbackAdmin) {
+        window.sureFeedbackAdmin.rest_nonce = authData.token;
+        window.sureFeedbackAdmin.nonce = authData.token;
+      }
+    }
+
+    const connectionStatus = await apiGateway.get(API_ENDPOINTS.CONNECTION.STATUS);
+
+    if (connectionStatus?.connected) {
+      sessionStorage.removeItem('surefeedback_connection_intent');
+      localStorage.removeItem('surefeedback_connection_intent');
+
+      if (window.SureFeedback?.admin) {
+        window.SureFeedback.admin.handleConnectionSuccess(connectionStatus);
+      } else {
+        window.location.reload();
+      }
+    }
+  } catch (_) {
+    if (window.SureFeedback?.admin) {
+      window.SureFeedback.admin.showError('Authentication failed. Please try again.');
+    }
+  }
+};
+
+/**
+ * Reconnect existing site
+ */
 export const reconnectSite = async () => {
   const { sureFeedbackAdmin } = window;
-
-  if (!sureFeedbackAdmin || !sureFeedbackAdmin.connection) {
-    return;
-  }
+  if (!sureFeedbackAdmin?.connection) return;
 
   const { connection } = sureFeedbackAdmin;
-
-  // Generate a cryptographically secure state token for security
   const state = generateSecureUUID();
 
-  // Store state in WordPress for webhook verification
   try {
-    await apiGateway.post(API_ENDPOINTS.CONNECTION.STORE_STATE, {
-      state: state
-    });
-  } catch (error) {
-    console.warn('Error storing state for webhook verification:', error);
-  }
+    await apiGateway.post(API_ENDPOINTS.CONNECTION.STORE_STATE, { state });
+  } catch (_) {}
 
-  // Build reconnection URL parameters
+  const authContext = {
+    wp_nonce: sureFeedbackAdmin.rest_nonce || sureFeedbackAdmin.nonce || '',
+    admin_url: sureFeedbackAdmin.admin_url || '',
+    user_id: sureFeedbackAdmin.current_user?.ID || '',
+    timestamp: Date.now(),
+  };
+
   const params = new URLSearchParams({
     source: 'wordpress',
     action: 'reconnect_site',
     callback_url: connection.callback_url,
-    state: state,
-    site_data: btoa(JSON.stringify(connection.site_data)), // base64 encode like PHP version
+    state,
+    site_data: btoa(JSON.stringify(connection.site_data)),
+    auth_context: btoa(JSON.stringify(authContext)),
   });
-  const reconnectUrl = `${connection.app_url}/reconnect?${params.toString()}`;
 
+  const reconnectUrl = `${connection.app_url}/reconnect?${params.toString()}`;
   const connectionIntent = {
     url: reconnectUrl,
     timestamp: Date.now(),
     source: 'wordpress_plugin',
     action: 'reconnect',
-    state: state
+    state,
+    auth_context: authContext,
   };
+
   sessionStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
   localStorage.setItem('surefeedback_connection_intent', JSON.stringify(connectionIntent));
-  window.open(reconnectUrl, '_blank');
+
+  const popup = window.open(
+    reconnectUrl,
+    'surefeedback_reconnect',
+    'width=600,height=700,scrollbars=yes,resizable=yes,centerscreen=yes,modal=yes'
+  );
+
+  if (popup) {
+    const checkClosed = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(checkClosed);
+        handleAuthCompletion();
+      }
+    }, 1000);
+
+    const messageHandler = (event) => {
+      if (event.origin !== new URL(connection.app_url).origin) return;
+
+      if (event.data?.type === 'surefeedback_auth_complete') {
+        clearInterval(checkClosed);
+        window.removeEventListener('message', messageHandler);
+        if (!popup.closed) popup.close();
+        handleAuthCompletion(event.data);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+
+    setTimeout(() => {
+      clearInterval(checkClosed);
+      window.removeEventListener('message', messageHandler);
+      if (!popup.closed) popup.close();
+    }, 5 * 60 * 1000);
+  } else {
+    window.location.href = reconnectUrl;
+  }
 };
 
+/**
+ * Get a URL parameter
+ */
+export const getUrlParam = (param) =>
+  new URL(window.location.href).searchParams.get(param);
 
-export const getUrlParam = (param) => {
-  return new URL(window.location.href).searchParams.get(param);
+/**
+ * Initialize authentication handling
+ */
+export const initializeAuthHandling = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const authSuccess = urlParams.get('auth_success');
+  const authError = urlParams.get('auth_error');
+  const state = urlParams.get('state');
+  const token = urlParams.get('token');
+
+  if (authSuccess === 'true' || authError) {
+    handleAuthReturn({ authSuccess, authError, state, token });
+  }
+
+  window.addEventListener('storage', handleStorageChange);
+};
+
+/**
+ * Handle authentication return
+ */
+const handleAuthReturn = async ({ authSuccess, authError, state, token }) => {
+  try {
+    const cleanUrl = window.location.pathname +
+      window.location.search
+        .replace(/[?&](auth_success|auth_error|state|token)=[^&]*/g, '')
+        .replace(/^&/, '?')
+        .replace(/\?&/, '?')
+        .replace(/\?$/, '');
+
+    window.history.replaceState({}, document.title, cleanUrl);
+
+    if (authError && window.SureFeedback?.admin) {
+      window.SureFeedback.admin.showError('Authentication failed. Please try again.');
+      return;
+    }
+
+    if (authSuccess === 'true') {
+      const intentData =
+        sessionStorage.getItem('surefeedback_connection_intent') ||
+        localStorage.getItem('surefeedback_connection_intent');
+
+      if (intentData) {
+        const intent = JSON.parse(intentData);
+        if (state && state !== intent.state) return;
+      }
+
+      if (token) {
+        apiGateway.setAuthToken(token);
+        if (window.sureFeedbackAdmin) {
+          window.sureFeedbackAdmin.rest_nonce = token;
+          window.sureFeedbackAdmin.nonce = token;
+        }
+      }
+
+      await handleAuthCompletion({ token, type: 'surefeedback_auth_complete' });
+    }
+  } catch (_) {}
+};
+
+/**
+ * Handle localStorage communication
+ */
+const handleStorageChange = (event) => {
+  if (event.key === 'surefeedback_auth_complete' && event.newValue) {
+    try {
+      const authData = JSON.parse(event.newValue);
+      handleAuthCompletion(authData);
+      localStorage.removeItem('surefeedback_auth_complete');
+    } catch (_) {}
+  }
+};
+
+/**
+ * Notify parent window about authentication completion
+ */
+export const signalAuthCompletion = (authData) => {
+  if (window.opener) {
+    window.opener.postMessage(
+      { type: 'surefeedback_auth_complete', ...authData },
+      window.location.origin
+    );
+  }
+
+  localStorage.setItem(
+    'surefeedback_auth_complete',
+    JSON.stringify({ type: 'surefeedback_auth_complete', timestamp: Date.now(), ...authData })
+  );
+
+  if (window.opener) window.close();
+};
+
+// Auto-initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeAuthHandling);
+} else {
+  initializeAuthHandling();
+}
+
+window.SureFeedbackAuth = {
+  authenticateRedirect,
+  reconnectSite,
+  signalAuthCompletion,
+  initializeAuthHandling,
+  getUrlParam,
 };

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-12T10:55:24+00:00\n"
+"POT-Creation-Date: 2025-11-12T13:00:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback\n"
@@ -47,7 +47,7 @@ msgstr ""
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:175
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:221
 #: includes/app/Http/Controllers/Api/PageSettingsController.php:260
-#: includes/app/Http/Controllers/Controller.php:457
+#: includes/app/Http/Controllers/Controller.php:314
 #: includes/app/Services/AdminService.php:665
 #: includes/app/Services/AdminService.php:701
 #: includes/app/Services/AdminService.php:722
@@ -137,67 +137,67 @@ msgstr ""
 msgid "Insufficient permissions. Administrator access required."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:166
+#: includes/app/Http/Controllers/Controller.php:123
 msgid "Validation failed"
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:275
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:212
 #, php-format
 msgid "The %s field is required."
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:277
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:214
 #, php-format
 msgid "The %s field must be a string."
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:279
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:216
 #, php-format
 msgid "The %s field must be numeric."
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:281
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:218
 #, php-format
 msgid "The %s field must be a valid email."
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:283
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:220
 #, php-format
 msgid "The %s field must be a valid URL."
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:285
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:222
 #, php-format
 msgid "The %s field must be true or false."
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:287
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:224
 #, php-format
 msgid "The %s field must be an array."
 msgstr ""
 
-#. translators: %s: field name
-#: includes/app/Http/Controllers/Controller.php:291
+#. translators: %s: Field name
+#: includes/app/Http/Controllers/Controller.php:228
 #, php-format
 msgid "The %s field is invalid."
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:431
+#: includes/app/Http/Controllers/Controller.php:301
 msgid "Nonce not provided"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:443
+#: includes/app/Http/Controllers/Controller.php:306
 msgid "Invalid nonce"
 msgstr ""
 
-#: includes/app/Http/Controllers/Controller.php:534
+#: includes/app/Http/Controllers/Controller.php:335
 msgid "An error occurred while processing your request."
 msgstr ""
 

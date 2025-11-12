@@ -16,34 +16,10 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Controller {
 
-	/**
-	 * Application instance
-	 *
-	 * @var Application
-	 */
 	protected $app;
-
-	/**
-	 * Configuration instance
-	 *
-	 * @var Config_Interface
-	 */
 	protected $config;
-
-	/**
-	 * Logger instance
-	 *
-	 * @var Logger_Interface
-	 */
 	protected $logger;
 
-	/**
-	 * Create a new controller instance
-	 *
-	 * @param Application|null      $app    Application instance.
-	 * @param Config_Interface|null $config Configuration instance.
-	 * @param Logger_Interface|null $logger Logger instance.
-	 */
 	public function __construct( ?Application $app = null, ?Config_Interface $config = null, ?Logger_Interface $logger = null ) {
 		$this->app    = $app;
 		$this->config = $config;
@@ -51,19 +27,16 @@ abstract class Controller {
 	}
 
 	/**
-	 * Return a successful response
+	 * Return a successful response.
 	 *
 	 * @param mixed  $data    Response data.
-	 * @param string $message Response message.
-	 * @param int    $status  HTTP status code.
+	 * @param string $message Optional message.
+	 * @param int    $status  HTTP status.
 	 * @return WP_REST_Response
 	 */
 	protected function success( $data = null, string $message = '', int $status = 200 ): WP_REST_Response {
-		$response = array(
-			'success' => true,
-		);
+		$response = array( 'success' => true );
 
-		// Handle array data format for detailed success responses
 		if ( is_array( $data ) ) {
 			$response = array_merge( $response, $data );
 		} elseif ( $data !== null ) {
@@ -74,81 +47,65 @@ abstract class Controller {
 			$response['message'] = $message;
 		}
 
-		// Log successful operations for debugging (only for important operations)
-		if ( $status === 200 && isset( $data['webhook_processed'] ) && $data['webhook_processed'] ) {
-			$log_context = array(
+		// Log important successful events only.
+		if ( $status === 200 && isset( $data['webhook_processed'] ) && $data['webhook_processed'] && $this->logger ) {
+			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			$context     = array(
 				'success_message' => $message,
 				'status_code'     => $status,
 				'response_keys'   => array_keys( $response ),
-				'request_uri'     => $_SERVER['REQUEST_URI'] ?? '',
+				'request_uri'     => $request_uri,
 				'timestamp'       => current_time( 'mysql' ),
 			);
-			
-			error_log( '[SureFeedback Success] ' . $message . ' | Status: ' . $status );
-			
-			// Also use the logger if available
-			if ( $this->logger ) {
-				$this->logger->log( 'info', $message, $log_context );
-			}
+			$this->logger->log( 'info', $message, $context );
 		}
 
 		return new WP_REST_Response( $response, $status );
 	}
 
 	/**
-	 * Return an error response
+	 * Return an error response.
 	 *
-	 * @param string|array $message Error message or array of error data.
-	 * @param mixed        $data    Error data.
-	 * @param int          $status  HTTP status code.
+	 * @param string|array $message Error message or array.
+	 * @param mixed        $data    Extra data.
+	 * @param int          $status  HTTP status.
 	 * @return WP_Error
 	 */
 	protected function error( $message, $data = null, int $status = 400 ): WP_Error {
-		// Handle array message format for detailed error responses
 		if ( is_array( $message ) ) {
 			$error_message = $message['message'] ?? 'An error occurred';
-			$error_data = array( 'status' => $status );
-			
-			// Merge the message array data with error_data
-			$error_data = array_merge( $error_data, $message );
-			
-			// Remove 'message' from data to avoid duplication
+			$error_data    = array_merge( array( 'status' => $status ), $message );
 			unset( $error_data['message'] );
 		} else {
 			$error_message = $message;
-			$error_data = array( 'status' => $status );
+			$error_data    = array( 'status' => $status );
 		}
 
 		if ( $data !== null ) {
 			$error_data['data'] = $data;
 		}
 
-		// Log the error for debugging (WordPress error_log)
-		$log_context = array(
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$user_agent  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+
+		$context = array(
 			'error_message' => $error_message,
 			'status_code'   => $status,
 			'error_data'    => $error_data,
-			'request_uri'   => $_SERVER['REQUEST_URI'] ?? '',
-			'user_agent'    => $_SERVER['HTTP_USER_AGENT'] ?? '',
+			'request_uri'   => $request_uri,
+			'user_agent'    => $user_agent,
 			'timestamp'     => current_time( 'mysql' ),
 		);
-		
-		error_log( '[SureFeedback Error] ' . $error_message . ' | Status: ' . $status . ' | Data: ' . wp_json_encode( $error_data ) );
 
-		// Also use the logger if available
 		if ( $this->logger ) {
-			$this->logger->log( 'error', $error_message, $log_context );
+			$this->logger->log( 'error', $error_message, $context );
 		}
 
 		return new WP_Error( 'rest_error', $error_message, $error_data );
 	}
 
 	/**
-	 * Validate request data
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @param array           $rules   Validation rules.
-	 * @return array|WP_Error
+	 * Validate request data based on rules.
 	 */
 	protected function validate( WP_REST_Request $request, array $rules ) {
 		$data   = $request->get_json_params() ?: $request->get_params();
@@ -170,13 +127,7 @@ abstract class Controller {
 	}
 
 	/**
-	 * Validate a single field
-	 *
-	 * @param string $field Field name.
-	 * @param mixed  $value Field value.
-	 * @param string $rule  Validation rule.
-	 * @param array  $data  All data.
-	 * @return bool
+	 * Validate individual fields.
 	 */
 	protected function validateField( string $field, $value, string $rule, array $data ): bool {
 		$rules = explode( '|', $rule );
@@ -192,31 +143,26 @@ abstract class Controller {
 						return false;
 					}
 					break;
-
 				case 'string':
 					if ( ! is_string( $value ) ) {
 						return false;
 					}
 					break;
-
 				case 'numeric':
 					if ( ! is_numeric( $value ) ) {
 						return false;
 					}
 					break;
-
 				case 'email':
 					if ( ! is_email( $value ) ) {
 						return false;
 					}
 					break;
-
 				case 'url':
 					if ( ! filter_var( $value, FILTER_VALIDATE_URL ) ) {
 						return false;
 					}
 					break;
-
 				case 'min':
 					if ( is_string( $value ) && strlen( $value ) < (int) $ruleParam ) {
 						return false;
@@ -225,7 +171,6 @@ abstract class Controller {
 						return false;
 					}
 					break;
-
 				case 'max':
 					if ( is_string( $value ) && strlen( $value ) > (int) $ruleParam ) {
 						return false;
@@ -234,20 +179,17 @@ abstract class Controller {
 						return false;
 					}
 					break;
-
 				case 'in':
 					$validValues = explode( ',', $ruleParam );
 					if ( ! in_array( $value, $validValues, true ) ) {
 						return false;
 					}
 					break;
-
 				case 'boolean':
 					if ( ! is_bool( $value ) && ! in_array( $value, array( 0, 1, '0', '1', 'true', 'false' ), true ) ) {
 						return false;
 					}
 					break;
-
 				case 'array':
 					if ( ! is_array( $value ) ) {
 						return false;
@@ -255,48 +197,39 @@ abstract class Controller {
 					break;
 			}
 		}
-
 		return true;
 	}
 
 	/**
-	 * Get validation error message
-	 *
-	 * @param string $field Field name.
-	 * @param string $rule  Validation rule.
-	 * @return string
+	 * Generate translated validation messages.
 	 */
 	protected function getValidationMessage( string $field, string $rule ): string {
 		$rules       = explode( '|', $rule );
 		$primaryRule = $rules[0];
 
 		$messages = array(
-			// translators: %s: field name
+			/* translators: %s: Field name */
 			'required' => sprintf( __( 'The %s field is required.', 'surefeedback' ), $field ),
-			// translators: %s: field name
+			/* translators: %s: Field name */
 			'string'   => sprintf( __( 'The %s field must be a string.', 'surefeedback' ), $field ),
-			// translators: %s: field name
+			/* translators: %s: Field name */
 			'numeric'  => sprintf( __( 'The %s field must be numeric.', 'surefeedback' ), $field ),
-			// translators: %s: field name
+			/* translators: %s: Field name */
 			'email'    => sprintf( __( 'The %s field must be a valid email.', 'surefeedback' ), $field ),
-			// translators: %s: field name
+			/* translators: %s: Field name */
 			'url'      => sprintf( __( 'The %s field must be a valid URL.', 'surefeedback' ), $field ),
-			// translators: %s: field name
+			/* translators: %s: Field name */
 			'boolean'  => sprintf( __( 'The %s field must be true or false.', 'surefeedback' ), $field ),
-			// translators: %s: field name
+			/* translators: %s: Field name */
 			'array'    => sprintf( __( 'The %s field must be an array.', 'surefeedback' ), $field ),
 		);
 
-		// translators: %s: field name
+		/* translators: %s: Field name */
 		return $messages[ $primaryRule ] ?? sprintf( __( 'The %s field is invalid.', 'surefeedback' ), $field );
 	}
 
 	/**
-	 * Sanitize data based on validation rules
-	 *
-	 * @param array $data  Data to sanitize.
-	 * @param array $rules Validation rules.
-	 * @return array
+	 * Sanitize data securely.
 	 */
 	protected function sanitizeData( array $data, array $rules ): array {
 		$sanitized = array();
@@ -317,23 +250,18 @@ abstract class Controller {
 					case 'string':
 						$value = sanitize_text_field( $value );
 						break;
-
 					case 'email':
 						$value = sanitize_email( $value );
 						break;
-
 					case 'url':
 						$value = esc_url_raw( $value );
 						break;
-
 					case 'numeric':
 						$value = is_float( $value + 0 ) ? (float) $value : (int) $value;
 						break;
-
 					case 'boolean':
 						$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
 						break;
-
 					case 'array':
 						if ( is_array( $value ) ) {
 							$value = $this->sanitizeArraySecurely( $value );
@@ -348,97 +276,32 @@ abstract class Controller {
 		return $sanitized;
 	}
 
-	/**
-	 * Get current user
-	 *
-	 * @return \WP_User|null
-	 */
 	protected function user(): ?\WP_User {
 		$user = wp_get_current_user();
 		return $user->exists() ? $user : null;
 	}
 
-	/**
-	 * Check if user is authenticated
-	 *
-	 * @return bool
-	 */
 	protected function isAuthenticated(): bool {
 		return is_user_logged_in();
 	}
 
-	/**
-	 * Check if user has capability
-	 *
-	 * @param string $capability Capability to check.
-	 * @return bool
-	 */
 	protected function can( string $capability ): bool {
 		return current_user_can( $capability );
 	}
 
-	/**
-	 * Log activity
-	 *
-	 * @param string $message Log message.
-	 * @param array  $context Log context.
-	 * @param string $level   Log level.
-	 * @return void
-	 */
 	protected function log( string $message, array $context = array(), string $level = 'info' ): void {
 		if ( $this->logger ) {
 			$this->logger->log( $level, $message, $context );
 		}
 	}
 
-	/**
-	 * Log info message
-	 *
-	 * @param string $message Log message.
-	 * @param array  $context Log context.
-	 * @return void
-	 */
-	protected function logInfo( string $message, array $context = array() ): void {
-		// Logging disabled
-	}
-
-	/**
-	 * Log error message
-	 *
-	 * @param string $message Log message.
-	 * @param array  $context Log context.
-	 * @return void
-	 */
-	protected function logError( string $message, array $context = array() ): void {
-		if ( $this->logger ) {
-			$this->logger->log( 'error', $message, $context );
-		}
-	}
-
-	/**
-	 * Validate WordPress nonce
-	 *
-	 * @param \WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
-	 */
 	protected function validateNonce( \WP_REST_Request $request ) {
-		$nonce = $request->get_header( 'X-WP-Nonce' );
-		if ( ! $nonce ) {
-			$nonce = $request->get_param( '_wpnonce' );
-		}
-
+		$nonce = $request->get_header( 'X-WP-Nonce' ) ?: $request->get_param( '_wpnonce' );
 		if ( ! $nonce ) {
 			return $this->error( __( 'Nonce not provided', 'surefeedback' ), null, 403 );
 		}
 
-		// Try verifying with different nonce actions
-		$nonce_valid = wp_verify_nonce( $nonce, 'wp_rest' );
-
-		// If wp_rest fails, try other common nonce actions
-		if ( ! $nonce_valid ) {
-			$nonce_valid = wp_verify_nonce( $nonce, 'wp_json' );
-		}
-
+		$nonce_valid = wp_verify_nonce( $nonce, 'wp_rest' ) || wp_verify_nonce( $nonce, 'wp_json' );
 		if ( ! $nonce_valid ) {
 			return $this->error( __( 'Invalid nonce', 'surefeedback' ), null, 403 );
 		}
@@ -446,90 +309,28 @@ abstract class Controller {
 		return true;
 	}
 
-	/**
-	 * Validate user capability
-	 *
-	 * @param string $capability Capability to check.
-	 * @return bool|WP_Error
-	 */
 	protected function validateCapability( string $capability ) {
 		if ( ! current_user_can( $capability ) ) {
 			return $this->error( __( 'Insufficient permissions', 'surefeedback' ), null, 403 );
 		}
-
 		return true;
 	}
 
-	/**
-	 * Get configuration value
-	 *
-	 * @param string $key     Configuration key.
-	 * @param mixed  $default Default value.
-	 * @return mixed
-	 */
-	protected function config( string $key, $default = null ) {
-		return $this->config->get( $key, $default );
-	}
-
-	/**
-	 * Resolve service from container
-	 *
-	 * @param string $abstract Service identifier.
-	 * @return mixed
-	 */
-	protected function resolve( string $abstract ) {
-		return $this->app->resolve( $abstract );
-	}
-
-	/**
-	 * Transform data for response
-	 *
-	 * @param mixed $data Data to transform.
-	 * @return mixed
-	 */
-	protected function transform( $data ) {
-		// Override in child classes for data transformation
-		return $data;
-	}
-
-	/**
-	 * Get paginated data
-	 *
-	 * @param \WP_Query $query    Query object.
-	 * @param array     $items    Items array.
-	 * @param int       $per_page Items per page.
-	 * @return array
-	 */
-	protected function paginate( \WP_Query $query, array $items, int $per_page ): array {
-		return array(
-			'data'         => $items,
-			'current_page' => max( 1, $query->get( 'paged', 1 ) ),
-			'per_page'     => $per_page,
-			'total'        => $query->found_posts,
-			'total_pages'  => $query->max_num_pages,
-			'has_more'     => $query->get( 'paged', 1 ) < $query->max_num_pages,
-		);
-	}
-
-	/**
-	 * Handle exceptions
-	 *
-	 * @param \Exception $e Exception to handle.
-	 * @return WP_Error
-	 */
 	protected function handleException( \Exception $e ): WP_Error {
-		$this->logger->error(
-			$e->getMessage(),
-			array(
-				'exception' => get_class( $e ),
-				'file'      => $e->getFile(),
-				'line'      => $e->getLine(),
-				'trace'     => $e->getTraceAsString(),
-			)
-		);
+		if ( $this->logger ) {
+			$this->logger->log(
+				'error',
+				$e->getMessage(),
+				array(
+					'exception' => get_class( $e ),
+					'file'      => $e->getFile(),
+					'line'      => $e->getLine(),
+				)
+			);
+		}
 
 		return $this->error(
-			$this->app->isEnvironment( 'development' )
+			$this->app && $this->app->isEnvironment( 'development' )
 				? $e->getMessage()
 				: __( 'An error occurred while processing your request.', 'surefeedback' ),
 			null,
@@ -538,25 +339,10 @@ abstract class Controller {
 	}
 
 	/**
-	 * Securely sanitize arrays with depth and size limits
-	 *
-	 * @param mixed $value Value to sanitize
-	 * @param int   $depth Current depth (for recursion tracking)
-	 * @param int   $count Current item count
-	 * @return mixed
+	 * Sanitize nested arrays safely.
 	 */
 	private function sanitizeArraySecurely( $value, int $depth = 0, int &$count = 0 ): array {
-		// Security: Limit array depth to prevent deeply nested attacks
-		if ( $depth > 5 ) {
-			return array();
-		}
-
-		// Security: Limit total array items to prevent memory exhaustion
-		if ( $count > 1000 ) {
-			return array();
-		}
-
-		if ( ! is_array( $value ) ) {
+		if ( $depth > 5 || $count > 1000 || ! is_array( $value ) ) {
 			return array();
 		}
 
@@ -564,13 +350,10 @@ abstract class Controller {
 
 		foreach ( $value as $key => $item ) {
 			++$count;
-
-			// Security: Limit individual items processed
 			if ( $count > 1000 ) {
 				break;
 			}
 
-			// Sanitize the key
 			$clean_key = sanitize_key( $key );
 
 			if ( is_array( $item ) ) {
