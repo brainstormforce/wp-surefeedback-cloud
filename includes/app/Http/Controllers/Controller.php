@@ -63,12 +63,33 @@ abstract class Controller {
 			'success' => true,
 		);
 
-		if ( $data !== null ) {
+		// Handle array data format for detailed success responses
+		if ( is_array( $data ) ) {
+			$response = array_merge( $response, $data );
+		} elseif ( $data !== null ) {
 			$response['data'] = $data;
 		}
 
 		if ( $message ) {
 			$response['message'] = $message;
+		}
+
+		// Log successful operations for debugging (only for important operations)
+		if ( $status === 200 && isset( $data['webhook_processed'] ) && $data['webhook_processed'] ) {
+			$log_context = array(
+				'success_message' => $message,
+				'status_code'     => $status,
+				'response_keys'   => array_keys( $response ),
+				'request_uri'     => $_SERVER['REQUEST_URI'] ?? '',
+				'timestamp'       => current_time( 'mysql' ),
+			);
+			
+			error_log( '[SureFeedback Success] ' . $message . ' | Status: ' . $status );
+			
+			// Also use the logger if available
+			if ( $this->logger ) {
+				$this->logger->log( 'info', $message, $log_context );
+			}
 		}
 
 		return new WP_REST_Response( $response, $status );
@@ -77,19 +98,49 @@ abstract class Controller {
 	/**
 	 * Return an error response
 	 *
-	 * @param string $message Error message.
-	 * @param mixed  $data    Error data.
-	 * @param int    $status  HTTP status code.
+	 * @param string|array $message Error message or array of error data.
+	 * @param mixed        $data    Error data.
+	 * @param int          $status  HTTP status code.
 	 * @return WP_Error
 	 */
-	protected function error( string $message, $data = null, int $status = 400 ): WP_Error {
-		$error_data = array( 'status' => $status );
+	protected function error( $message, $data = null, int $status = 400 ): WP_Error {
+		// Handle array message format for detailed error responses
+		if ( is_array( $message ) ) {
+			$error_message = $message['message'] ?? 'An error occurred';
+			$error_data = array( 'status' => $status );
+			
+			// Merge the message array data with error_data
+			$error_data = array_merge( $error_data, $message );
+			
+			// Remove 'message' from data to avoid duplication
+			unset( $error_data['message'] );
+		} else {
+			$error_message = $message;
+			$error_data = array( 'status' => $status );
+		}
 
 		if ( $data !== null ) {
 			$error_data['data'] = $data;
 		}
 
-		return new WP_Error( 'rest_error', $message, $error_data );
+		// Log the error for debugging (WordPress error_log)
+		$log_context = array(
+			'error_message' => $error_message,
+			'status_code'   => $status,
+			'error_data'    => $error_data,
+			'request_uri'   => $_SERVER['REQUEST_URI'] ?? '',
+			'user_agent'    => $_SERVER['HTTP_USER_AGENT'] ?? '',
+			'timestamp'     => current_time( 'mysql' ),
+		);
+		
+		error_log( '[SureFeedback Error] ' . $error_message . ' | Status: ' . $status . ' | Data: ' . wp_json_encode( $error_data ) );
+
+		// Also use the logger if available
+		if ( $this->logger ) {
+			$this->logger->log( 'error', $error_message, $log_context );
+		}
+
+		return new WP_Error( 'rest_error', $error_message, $error_data );
 	}
 
 	/**

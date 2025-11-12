@@ -134,8 +134,8 @@ const GeneralSettings = () => {
       const data = await apiGateway.get('settings');
 
       if (data.success) {
-        const availableRolesList = data.data.availableRoles || [];
-        const savedRoles = data.data.general?.roles || [];
+        const availableRolesList = data.availableRoles || [];
+        const savedRoles = data.general?.roles || [];
 
         // If no roles are saved yet, enable all roles by default
         const defaultRoles = savedRoles.length === 0

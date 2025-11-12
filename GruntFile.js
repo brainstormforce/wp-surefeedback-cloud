@@ -553,7 +553,6 @@ module.exports = function (grunt) {
     "compress:local",
     "copy:release_local",
     "clean:root_zips",
-    "clean:node_modules"
   ]);
 
   grunt.registerTask("release:staging", [
@@ -563,7 +562,6 @@ module.exports = function (grunt) {
     "compress:staging",
     "copy:release_staging",
     "clean:root_zips",
-    "clean:node_modules"
   ]);
 
   grunt.registerTask("release:production", [
@@ -573,7 +571,6 @@ module.exports = function (grunt) {
     "compress:production",
     "copy:release_production",
     "clean:root_zips",
-    "clean:node_modules"
   ]);
 
   grunt.registerTask("release:all", [
@@ -587,7 +584,6 @@ module.exports = function (grunt) {
     "compress:production",
     "copy:release_production",
     "clean:root_zips",
-    "clean:node_modules"
   ]);
 
   // Default release command creates all three zips

@@ -42,8 +42,8 @@ const WidgetControl = () => {
       const response = await apiGateway.get('page-settings');
 
       if (response.success) {
-        setPages(response.data.pages || []);
-        setSettings(response.data.settings || {});
+        setPages(response.pages || []);
+        setSettings(response.settings || {});
       }
     } catch (error) {
       toast.error(__('Failed to load page settings', 'surefeedback'));
