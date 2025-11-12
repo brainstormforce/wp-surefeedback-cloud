@@ -17,6 +17,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use SureFeedback\Application;
 
 // Create application instance
-$app = new Application( dirname( __DIR__ ) );
+$surefeedback_app = new Application( dirname( __DIR__ ) );
 
-return $app;
+return $surefeedback_app;

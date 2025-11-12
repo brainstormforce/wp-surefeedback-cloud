@@ -129,8 +129,14 @@ class Application {
 	 * @return void
 	 */
 	protected function bootServices(): void {
-		// Setup CORS for development
-		$this->setupCors();
+		// Initialize CORS Service
+		$this->register(
+			'corsService',
+			function () {
+				return new \SureFeedback\Services\CorsService();
+			}
+		);
+		$this->make( 'corsService' );
 
 		// Register REST API routes first (must be done early)
 		$this->registerApiRoutes();
@@ -168,71 +174,7 @@ class Application {
 		);
 	}
 
-	/**
-	 * Setup CORS headers for development
-	 *
-	 * @return void
-	 */
-	protected function setupCors(): void {
-		// Add CORS support for development
-		add_action(
-			'rest_api_init',
-			function () {
-				// Remove default CORS filters to prevent conflicts
-				remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
 
-				// Add custom CORS handling
-				add_filter(
-					'rest_pre_serve_request',
-					function ( $value ) {
-						$origin = get_http_origin();
-
-						// Allow requests from development server
-						if ( $origin ) {
-							// Parse the origin to check if it's localhost or a dev server
-							$parsed = wp_parse_url( $origin );
-							$host   = $parsed['host'] ?? '';
-
-							// Allow localhost and local dev domains
-							$allowed_patterns = array(
-								'localhost',
-								'127.0.0.1',
-								'.local',
-								'.test',
-								'.dev',
-							);
-
-							$is_dev = false;
-							foreach ( $allowed_patterns as $pattern ) {
-								if ( strpos( $host, $pattern ) !== false ) {
-									$is_dev = true;
-									break;
-								}
-							}
-
-							if ( $is_dev ) {
-								header( 'Access-Control-Allow-Origin: ' . $origin );
-								header( 'Access-Control-Allow-Credentials: true' );
-								header( 'Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH' );
-								header( 'Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce, X-Requested-With' );
-								header( 'Access-Control-Max-Age: 86400' );
-							}
-						}
-
-						// Handle preflight requests
-						$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
-						if ( $request_method === 'OPTIONS' ) {
-							status_header( 200 );
-							exit;
-						}
-
-						return $value;
-					}
-				);
-			},
-			15
-		);
-	}
 
 	/**
 	 * Register REST API routes

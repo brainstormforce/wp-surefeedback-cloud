@@ -1,7 +1,7 @@
 {
   "name": "surefeedback",
   "version": "0.0.1",
-  "description": "SureFeedback client plugin for collecting and managing user feedback",
+  "description": "SureFeedback plugin for collecting and managing user feedback",
   "main": "index.js",
   "scripts": {
     "dev": "vite build --watch",
@@ -94,6 +94,7 @@
     "grunt-contrib-clean": "^2.0.1",
     "grunt-contrib-compress": "^2.0.0",
     "grunt-contrib-copy": "^1.0.0",
+    "grunt-shell": "^4.0.0",
     "grunt-wp-i18n": "^1.0.4",
     "grunt-wp-readme-to-markdown": "^2.1.0",
     "postcss": "^8.4.41",

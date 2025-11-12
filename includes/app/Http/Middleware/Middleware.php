@@ -69,34 +69,14 @@ abstract class Middleware {
 	 * @return string
 	 */
 	protected function getClientIp( WP_REST_Request $request ): string {
-		$headers = array(
-			'HTTP_CF_CONNECTING_IP',     // Cloudflare
-			'HTTP_X_REAL_IP',            // Nginx proxy
-			'HTTP_X_FORWARDED_FOR',      // Load balancer/proxy
-			'HTTP_X_FORWARDED',          // Proxy
-			'HTTP_X_CLUSTER_CLIENT_IP',  // Cluster
-			'HTTP_FORWARDED_FOR',        // Proxy
-			'HTTP_FORWARDED',            // Proxy
-			'REMOTE_ADDR',                // Standard
-		);
-
-		foreach ( $headers as $header ) {
-			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
-				$server_value = isset( $_SERVER[ $header ] ) ? sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) : '';
-				if ( ! empty( $server_value ) ) {
-					$ips = explode( ',', $server_value );
-					$ip  = trim( $ips[0] );
-
-					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-						return $ip;
-					}
-				}
-			}
-		}
-
+		// Use only REMOTE_ADDR for security - no proxy headers to prevent IP spoofing
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
 			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			return $remote_addr ?: '0.0.0.0';
+
+			// Validate IP format
+			if ( filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
+				return $remote_addr;
+			}
 		}
 
 		return '0.0.0.0';

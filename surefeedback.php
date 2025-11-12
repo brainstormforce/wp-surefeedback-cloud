@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: SureFeedback Client
+ * Plugin Name: SureFeedback
  * Plugin URI: http://surefeedback.com
  * Description: Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.
  * Author: Brainstorm Force
@@ -92,7 +92,7 @@ if ( ! defined( 'SUREFEEDBACK_APP_BASE_URL' ) ) {
 |
 */
 
-$app = require_once __DIR__ . '/bootstrap/app.php';
+$surefeedback_app = require_once __DIR__ . '/bootstrap/app.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -109,8 +109,8 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 // Boot the application when plugins are loaded
 add_action(
 	'plugins_loaded',
-	function () use ( $app ) {
-		$app->boot();
+	function () use ( $surefeedback_app ) {
+		$surefeedback_app->boot();
 	}
 );
 
@@ -141,7 +141,7 @@ add_action(
 			delete_transient( 'surefeedback_activation_redirect' );
 
 			// Redirect to get started screen (Welcome page)
-			wp_redirect( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
 			exit;
 		}
 	},
@@ -158,6 +158,20 @@ register_deactivation_hook(
 		// Clear scheduled events
 		wp_clear_scheduled_hook( 'surefeedback_auto_verify' );
 		wp_clear_scheduled_hook( 'surefeedback_hourly_verify' );
+		wp_clear_scheduled_hook( 'surefeedback_cleanup_rate_limits' );
+	}
+);
+
+/**
+ * Register security cleanup cron job
+ */
+add_action(
+	'surefeedback_cleanup_rate_limits',
+	function () {
+		if ( class_exists( '\\SureFeedback\\Services\\SecurityService' ) ) {
+			$security_service = new \SureFeedback\Services\SecurityService();
+			$security_service->cleanupRateLimits();
+		}
 	}
 );
 

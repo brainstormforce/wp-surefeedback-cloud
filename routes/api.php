@@ -38,10 +38,10 @@ $router->group(
 		'namespace' => 'Api',
 	),
 	function ( $router ) {
-		$router->get( 'status', array( ConnectionController::class, 'status' ) );
+		$router->getPublic( 'status', array( ConnectionController::class, 'status' ) );
 		$router->post( 'connect', array( ConnectionController::class, 'connect' ) );
 		$router->post( 'reset', array( ConnectionController::class, 'reset' ) );
-		$router->get( 'health', array( ConnectionController::class, 'health' ) );
+		$router->post( 'store-state', array( ConnectionController::class, 'store_state' ) );
 	}
 );
 
@@ -55,22 +55,41 @@ $router->group(
 	}
 );
 
-// Webhook endpoint for SureFeedback API callbacks
-$router->post( 'webhook', array( ConnectionController::class, 'webhook' ) );
+// Webhook endpoint for SureFeedback API callbacks (public - uses webhook signature for auth)
+$router->postPublic( 'webhook', array( ConnectionController::class, 'webhook' ) );
 
 // Secure disconnect webhook endpoint (Webhook Secret protected)
-$router->post( 'webhook/disconnect', array( ConnectionController::class, 'disconnect_webhook' ) );
+$router->postPublic( 'webhook/disconnect', array( ConnectionController::class, 'disconnect_webhook' ) );
 
 // Plugin activation endpoint (for SaaS auto-installation)
 $router->post(
 	'plugin/activate',
-	function () {
+	function ( WP_REST_Request $request ) {
+		// Apply rate limiting to prevent abuse
+		$rate_limit_check = \SureFeedback\Http\Middleware\RateLimitMiddleware::checkRateLimit(
+			'/surefeedback/v1/plugin/activate',
+			$request
+		);
+		if ( is_wp_error( $rate_limit_check ) ) {
+			return $rate_limit_check;
+		}
+
 		// Check if user is authenticated and has admin capabilities
 		if ( ! is_user_logged_in() || ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to activate plugins.', 'surefeedback' ),
 				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		// Verify nonce for CSRF protection
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Invalid nonce. CSRF protection failed.', 'surefeedback' ),
+				array( 'status' => 403 )
 			);
 		}
 
@@ -102,7 +121,7 @@ $router->post(
 			}
 
 			// Run activation hook manually if needed
-			do_action( 'activate_' . $plugin_file );
+			do_action( 'surefeedback_activate_' . $plugin_file );
 
 			return rest_ensure_response(
 				array(
@@ -124,29 +143,11 @@ $router->post(
 	}
 );
 
-// Plugin status endpoint
-$router->get(
-	'plugin/status',
-	function () {
-		$plugin_file = SUREFEEDBACK_PLUGIN_BASENAME;
-
-		return rest_ensure_response(
-			array(
-				'plugin'    => $plugin_file,
-				'is_active' => is_plugin_active( $plugin_file ),
-				'version'   => SUREFEEDBACK_VERSION,
-				'name'      => 'SureFeedback Client',
-				'status'    => is_plugin_active( $plugin_file ) ? 'active' : 'inactive',
-			)
-		);
-	}
-);
-
-// Verification endpoints
+// Verification endpoints (public - uses JWT for auth)
 $router->group(
 	array( 'prefix' => 'verification' ),
 	function ( $router ) {
-		$router->post( 'verify', array( VerificationController::class, 'verify_connection' ) );
+		$router->postPublic( 'verify', array( VerificationController::class, 'verify_connection' ) );
 	}
 );
 
@@ -177,36 +178,14 @@ $router->group(
 	}
 );
 
-// Legacy compatibility routes
+// Legacy compatibility routes (minimal for API compatibility only)
 $router->get(
 	'pages',
 	function () {
-		// Legacy route for backward compatibility
+		// Legacy route for backward compatibility - returns empty pages array
 		return rest_ensure_response(
 			array(
-				'pages' => get_pages(
-					array(
-						'post_type'   => 'page',
-						'post_status' => 'publish',
-						'numberposts' => -1,
-					)
-				),
-			)
-		);
-	}
-);
-
-// Health check endpoint
-$router->get(
-	'health',
-	function () {
-		return rest_ensure_response(
-			array(
-				'status'    => 'ok',
-				'version'   => SUREFEEDBACK_VERSION,
-				'wordpress' => get_bloginfo( 'version' ),
-				'php'       => PHP_VERSION,
-				'timestamp' => current_time( 'timestamp' ),
+				'pages' => array(),
 			)
 		);
 	}

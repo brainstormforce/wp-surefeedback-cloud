@@ -39,21 +39,14 @@ module.exports = function (grunt) {
       },
     },
 
-    makepot: {
-      target: {
+    // Custom WP-CLI task for better JavaScript/JSX support
+    shell: {
+      makepot: {
+        command: 'wp i18n make-pot . languages/surefeedback.pot --domain=surefeedback --include="*.php,*.js,*.jsx" --exclude="node_modules,tests,vendor/*/tests,vendor/*/test"',
         options: {
-          domainPath: "/languages",
-          exclude: [".git/*", "bin/*", "node_modules/*", "tests/*"],
-          mainFile: "surefeedback.php",
-          potFilename: "surefeedback.pot",
-          potHeaders: {
-            poedit: true,
-            "x-poedit-keywordslist": true,
-          },
-          type: "wp-plugin",
-          updateTimestamp: true,
-        },
-      },
+          stderr: false
+        }
+      }
     },
 
     compress: {
@@ -68,112 +61,94 @@ module.exports = function (grunt) {
           {
             src: [
               "**/*",
-              "!node_modules/**",
+              // Exclude node_modules at any level (comprehensive patterns)
+              "!node_modules",
+              "!node_modules/**", 
+              "!**/node_modules",
+              "!**/node_modules/**",
+              "!**/*node_modules*",
+              "!**/*node_modules*/**",
+              // Development and build files
               "!tests/**",
-              "!.git/**",
-              "!.gitignore",
-              "!.claude/**",
-              "!bin/**",
+              "!bin/**", 
               "!src/**",
-              "!release/**",
+              "!resources/**",
               "!database/**",
+              "!release/**",
+              // Git and version control
+              "!.git/**",
+              "!.github/**",
+              "!.gitignore",
+              "!.gitattributes",
+              // Claude AI and documentation
+              "!.claude/**",
+              "!*.md",
+              "!CLAUDE.md",
+              "!GithubCopilot.md",
+              // WordPress.org assets (not needed in production)
+              "!.wordpress-org/**",
+              "!.distignore",
+              // Build and config files
               "!vite.config.js",
-              "!postcss.config.cjs",
+              "!postcss.config.cjs", 
               "!tailwind.config.cjs",
               "!package.json",
               "!package-lock.json",
+              "!pnpm-lock.yaml",
+              "!yarn.lock",
               "!composer.lock",
-              "!phpcs.xml.dist",
-              "!phpstan.neon",
-              "!phpstan-baseline.neon",
-              "!phpunit.xml",
-              "!stubs-generator.php",
               "!jsconfig.json",
+              "!tsconfig.json",
               "!components.json",
               "!GruntFile.js",
-              "!*.md",
-              "!.env*",
-              "!*.log",
-              "!*.tmp",
-              "!.DS_Store",
-              "!Thumbs.db",
-              "!.phpunit.cache/**",
-              "!surefeedback-*.zip",
-              "!surefeedback.zip",
-              "!*.map",
+              // Code quality and testing
+              "!phpcs.xml.dist",
+              "!phpstan.neon",
+              "!phpstan-baseline.neon", 
+              "!phpunit.xml",
+              "!stubs-generator.php",
               "!*.test.*",
               "!*.spec.*",
               "!__tests__/**",
               "!coverage/**",
-              "!.git/**",
-              "!.github/**",
+              "!.phpunit.cache/**",
+              // Environment and logs
+              "!.env*",
+              "!*.log",
+              "!*.tmp",
+              // OS files
+              "!.DS_Store",
+              "!Thumbs.db",
+              // Generated zip files
+              "!surefeedback-*.zip",
+              "!surefeedback.*.zip",
+              "!surefeedback.zip",
+              // Source maps and dev files
+              "!*.map",
+              "!*.dev.*",
+              // IDE and editor files
               "!.vscode/**",
-              "!.idea/**",
+              "!.idea/**", 
               "!*.sublime-*",
               "!.editorconfig",
+              // Linting and formatting
               "!.eslintrc*",
               "!.prettierrc*",
+              "!.stylelintrc*",
+              // Build tools config
               "!babel.config.*",
               "!.babelrc*",
-              "!tsconfig.json",
               "!eslint.config.*",
               "!prettier.config.*",
               "!jest.config.*",
+              "!vitest.config.*",
               "!webpack.config.*",
               "!rollup.config.*",
               "!*.config.js",
               "!*.config.cjs",
               "!*.config.mjs",
               "!*.config.ts",
-              "!vendor/bin/**",
-              "!vendor/*/tests/**",
-              "!vendor/*/test/**",
-              "!vendor/*/docs/**",
-              "!vendor/*/doc/**",
-              "!vendor/*/.git/**",
-              "!vendor/*/phpunit.xml*",
-              "!vendor/*/phpcs.xml*",
-              "!vendor/*/.php-cs-fixer*",
-              "!vendor/*/CHANGELOG*",
-              "!vendor/*/README*",
-              "!vendor/*/LICENSE*",
-              "!vendor/*/LICENCE*",
-              "!vendor/*/CONTRIBUTING*",
-              "!vendor/*/CODE_OF_CONDUCT*",
-              "!vendor/*/.github/**",
-              "!vendor/*/.gitignore",
-              "!vendor/*/.gitattributes",
-              "!vendor/*/composer.json",
-              "!vendor/*/composer.lock",
-              "!vendor/*/package.json",
-              "!vendor/*/package-lock.json",
-              "!vendor/*/yarn.lock",
-              "!vendor/*/Gruntfile.js",
-              "!vendor/*/gulpfile.js",
-              "!vendor/*/webpack.config.js",
-              "!vendor/*/babel.config.js",
-              "!vendor/*/.eslintrc*",
-              "!vendor/*/.prettierrc*",
-              "!vendor/*/tsconfig.json",
-              "!vendor/*/jsconfig.json",
-              "!vendor/*/*.map",
-              "!vendor/*/node_modules/**",
-              "!vendor/*/tests/**",
-              "!vendor/*/test/**",
-              "!vendor/*/docs/**",
-              "!vendor/*/doc/**",
-              "!vendor/*/examples/**",
-              "!vendor/*/example/**",
-              "!vendor/*/samples/**",
-              "!vendor/*/sample/**",
-              "!vendor/*/demo/**",
-              "!vendor/*/demos/**",
-              "!vendor/*/benchmarks/**",
-              "!vendor/*/benchmark/**",
-              "!vendor/*/tools/**",
-              "!vendor/*/tool/**",
-              "!vendor/*/scripts/**",
-              "!vendor/*/script/**",
+              // Include complete vendor folder (no exclusions)
             ],
             dest: "surefeedback/",
           },
@@ -190,112 +165,94 @@ module.exports = function (grunt) {
           {
             src: [
               "**/*",
-              "!node_modules/**",
+              // Exclude node_modules at any level (comprehensive patterns)
+              "!node_modules",
+              "!node_modules/**", 
+              "!**/node_modules",
+              "!**/node_modules/**",
+              "!**/*node_modules*",
+              "!**/*node_modules*/**",
+              // Development and build files
               "!tests/**",
-              "!.git/**",
-              "!.gitignore",
-              "!.claude/**",
-              "!bin/**",
+              "!bin/**", 
               "!src/**",
-              "!release/**",
+              "!resources/**",
               "!database/**",
+              "!release/**",
+              // Git and version control
+              "!.git/**",
+              "!.github/**",
+              "!.gitignore",
+              "!.gitattributes",
+              // Claude AI and documentation
+              "!.claude/**",
+              "!*.md",
+              "!CLAUDE.md",
+              "!GithubCopilot.md",
+              // WordPress.org assets (not needed in production)
+              "!.wordpress-org/**",
+              "!.distignore",
+              // Build and config files
               "!vite.config.js",
-              "!postcss.config.cjs",
+              "!postcss.config.cjs", 
               "!tailwind.config.cjs",
               "!package.json",
               "!package-lock.json",
+              "!pnpm-lock.yaml",
+              "!yarn.lock",
               "!composer.lock",
-              "!phpcs.xml.dist",
-              "!phpstan.neon",
-              "!phpstan-baseline.neon",
-              "!phpunit.xml",
-              "!stubs-generator.php",
               "!jsconfig.json",
+              "!tsconfig.json",
               "!components.json",
               "!GruntFile.js",
-              "!*.md",
-              "!.env*",
-              "!*.log",
-              "!*.tmp",
-              "!.DS_Store",
-              "!Thumbs.db",
-              "!.phpunit.cache/**",
-              "!surefeedback-*.zip",
-              "!surefeedback.zip",
-              "!*.map",
+              // Code quality and testing
+              "!phpcs.xml.dist",
+              "!phpstan.neon",
+              "!phpstan-baseline.neon", 
+              "!phpunit.xml",
+              "!stubs-generator.php",
               "!*.test.*",
               "!*.spec.*",
               "!__tests__/**",
               "!coverage/**",
-              "!.git/**",
-              "!.github/**",
+              "!.phpunit.cache/**",
+              // Environment and logs
+              "!.env*",
+              "!*.log",
+              "!*.tmp",
+              // OS files
+              "!.DS_Store",
+              "!Thumbs.db",
+              // Generated zip files
+              "!surefeedback-*.zip",
+              "!surefeedback.*.zip",
+              "!surefeedback.zip",
+              // Source maps and dev files
+              "!*.map",
+              "!*.dev.*",
+              // IDE and editor files
               "!.vscode/**",
-              "!.idea/**",
+              "!.idea/**", 
               "!*.sublime-*",
               "!.editorconfig",
+              // Linting and formatting
               "!.eslintrc*",
               "!.prettierrc*",
+              "!.stylelintrc*",
+              // Build tools config
               "!babel.config.*",
               "!.babelrc*",
-              "!tsconfig.json",
               "!eslint.config.*",
               "!prettier.config.*",
               "!jest.config.*",
+              "!vitest.config.*",
               "!webpack.config.*",
               "!rollup.config.*",
               "!*.config.js",
               "!*.config.cjs",
               "!*.config.mjs",
               "!*.config.ts",
-              "!vendor/bin/**",
-              "!vendor/*/tests/**",
-              "!vendor/*/test/**",
-              "!vendor/*/docs/**",
-              "!vendor/*/doc/**",
-              "!vendor/*/.git/**",
-              "!vendor/*/phpunit.xml*",
-              "!vendor/*/phpcs.xml*",
-              "!vendor/*/.php-cs-fixer*",
-              "!vendor/*/CHANGELOG*",
-              "!vendor/*/README*",
-              "!vendor/*/LICENSE*",
-              "!vendor/*/LICENCE*",
-              "!vendor/*/CONTRIBUTING*",
-              "!vendor/*/CODE_OF_CONDUCT*",
-              "!vendor/*/.github/**",
-              "!vendor/*/.gitignore",
-              "!vendor/*/.gitattributes",
-              "!vendor/*/composer.json",
-              "!vendor/*/composer.lock",
-              "!vendor/*/package.json",
-              "!vendor/*/package-lock.json",
-              "!vendor/*/yarn.lock",
-              "!vendor/*/Gruntfile.js",
-              "!vendor/*/gulpfile.js",
-              "!vendor/*/webpack.config.js",
-              "!vendor/*/babel.config.js",
-              "!vendor/*/.eslintrc*",
-              "!vendor/*/.prettierrc*",
-              "!vendor/*/tsconfig.json",
-              "!vendor/*/jsconfig.json",
-              "!vendor/*/*.map",
-              "!vendor/*/node_modules/**",
-              "!vendor/*/tests/**",
-              "!vendor/*/test/**",
-              "!vendor/*/docs/**",
-              "!vendor/*/doc/**",
-              "!vendor/*/examples/**",
-              "!vendor/*/example/**",
-              "!vendor/*/samples/**",
-              "!vendor/*/sample/**",
-              "!vendor/*/demo/**",
-              "!vendor/*/demos/**",
-              "!vendor/*/benchmarks/**",
-              "!vendor/*/benchmark/**",
-              "!vendor/*/tools/**",
-              "!vendor/*/tool/**",
-              "!vendor/*/scripts/**",
-              "!vendor/*/script/**",
+              // Include complete vendor folder (no exclusions)
             ],
             dest: "surefeedback/",
           },
@@ -310,116 +267,103 @@ module.exports = function (grunt) {
         },
         files: [
           {
+            expand: true,
+            filter: function(filepath) {
+              // Exclude node_modules at any level (comprehensive patterns)
+              return !filepath.match(/node_modules/) && 
+                     !filepath.includes('node_modules') &&
+                     !filepath.match(/\/node_modules\//) &&
+                     !filepath.match(/\\node_modules\\/);
+            },
             src: [
               "**/*",
-              "!node_modules/**",
+              // Exclude node_modules at any level (comprehensive patterns)
+              "!node_modules",
+              "!node_modules/**", 
+              "!**/node_modules",
+              "!**/node_modules/**",
+              "!**/*node_modules*",
+              "!**/*node_modules*/**",
+              // Development and build files
               "!tests/**",
-              "!.git/**",
-              "!.gitignore",
-              "!.claude/**",
-              "!bin/**",
+              "!bin/**", 
               "!src/**",
-              "!release/**",
+              "!resources/**",
               "!database/**",
+              "!release/**",
+              // Git and version control
+              "!.git/**",
+              "!.github/**",
+              "!.gitignore",
+              "!.gitattributes",
+              // Claude AI and documentation
+              "!.claude/**",
+              "!*.md",
+              "!CLAUDE.md",
+              "!GithubCopilot.md",
+              // WordPress.org assets (keep for production)
+              "!.distignore",
+              // Build and config files
               "!vite.config.js",
-              "!postcss.config.cjs",
+              "!postcss.config.cjs", 
               "!tailwind.config.cjs",
               "!package.json",
               "!package-lock.json",
+              "!pnpm-lock.yaml",
+              "!yarn.lock",
               "!composer.lock",
-              "!phpcs.xml.dist",
-              "!phpstan.neon",
-              "!phpstan-baseline.neon",
-              "!phpunit.xml",
-              "!stubs-generator.php",
               "!jsconfig.json",
+              "!tsconfig.json",
               "!components.json",
               "!GruntFile.js",
-              "!*.md",
-              "!.env*",
-              "!*.log",
-              "!*.tmp",
-              "!.DS_Store",
-              "!Thumbs.db",
-              "!.phpunit.cache/**",
-              "!database/**",
-              "!surefeedback-*.zip",
-              "!surefeedback.*.zip",
-              "!surefeedback.zip",
-              "!*.map",
+              // Code quality and testing
+              "!phpcs.xml.dist",
+              "!phpstan.neon",
+              "!phpstan-baseline.neon", 
+              "!phpunit.xml",
+              "!stubs-generator.php",
               "!*.test.*",
               "!*.spec.*",
               "!__tests__/**",
               "!coverage/**",
-              "!.git/**",
-              "!.github/**",
+              "!.phpunit.cache/**",
+              // Environment and logs
+              "!.env*",
+              "!*.log",
+              "!*.tmp",
+              // OS files
+              "!.DS_Store",
+              "!Thumbs.db",
+              // Generated zip files
+              "!surefeedback-*.zip",
+              "!surefeedback.*.zip",
+              "!surefeedback.zip",
+              // Source maps and dev files
+              "!*.map",
+              "!*.dev.*",
+              // IDE and editor files
               "!.vscode/**",
-              "!.idea/**",
+              "!.idea/**", 
               "!*.sublime-*",
               "!.editorconfig",
+              // Linting and formatting
               "!.eslintrc*",
               "!.prettierrc*",
+              "!.stylelintrc*",
+              // Build tools config
               "!babel.config.*",
               "!.babelrc*",
-              "!tsconfig.json",
               "!eslint.config.*",
               "!prettier.config.*",
               "!jest.config.*",
+              "!vitest.config.*",
               "!webpack.config.*",
               "!rollup.config.*",
               "!*.config.js",
               "!*.config.cjs",
               "!*.config.mjs",
               "!*.config.ts",
-              "!vendor/bin/**",
-              "!vendor/*/tests/**",
-              "!vendor/*/test/**",
-              "!vendor/*/docs/**",
-              "!vendor/*/doc/**",
-              "!vendor/*/.git/**",
-              "!vendor/*/phpunit.xml*",
-              "!vendor/*/phpcs.xml*",
-              "!vendor/*/.php-cs-fixer*",
-              "!vendor/*/CHANGELOG*",
-              "!vendor/*/README*",
-              "!vendor/*/LICENSE*",
-              "!vendor/*/LICENCE*",
-              "!vendor/*/CONTRIBUTING*",
-              "!vendor/*/CODE_OF_CONDUCT*",
-              "!vendor/*/.github/**",
-              "!vendor/*/.gitignore",
-              "!vendor/*/.gitattributes",
-              "!vendor/*/composer.json",
-              "!vendor/*/composer.lock",
-              "!vendor/*/package.json",
-              "!vendor/*/package-lock.json",
-              "!vendor/*/yarn.lock",
-              "!vendor/*/Gruntfile.js",
-              "!vendor/*/gulpfile.js",
-              "!vendor/*/webpack.config.js",
-              "!vendor/*/babel.config.js",
-              "!vendor/*/.eslintrc*",
-              "!vendor/*/.prettierrc*",
-              "!vendor/*/tsconfig.json",
-              "!vendor/*/jsconfig.json",
-              "!vendor/*/*.map",
-              "!vendor/*/node_modules/**",
-              "!vendor/*/tests/**",
-              "!vendor/*/test/**",
-              "!vendor/*/docs/**",
-              "!vendor/*/doc/**",
-              "!vendor/*/examples/**",
-              "!vendor/*/example/**",
-              "!vendor/*/samples/**",
-              "!vendor/*/sample/**",
-              "!vendor/*/demo/**",
-              "!vendor/*/demos/**",
-              "!vendor/*/benchmarks/**",
-              "!vendor/*/benchmark/**",
-              "!vendor/*/tools/**",
-              "!vendor/*/tool/**",
-              "!vendor/*/scripts/**",
-              "!vendor/*/script/**",
+              // Include complete vendor folder (no exclusions)
             ],
             dest: "surefeedback/",
           },
@@ -435,6 +379,15 @@ module.exports = function (grunt) {
       release_all: ["release/**/*.zip"],
       // Clean root-level zips
       root_zips: ["surefeedback*.zip"],
+      // Clean development artifacts (only clean files that actually exist)
+      dev_artifacts: [
+        ".DS_Store",
+        "Thumbs.db"
+      ],
+      // Clean node_modules to ensure it's not included
+      node_modules: [
+        "node_modules"
+      ],
     },
 
     copy: {
@@ -471,6 +424,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-copy");
+  grunt.loadNpmTasks("grunt-shell");
 
   // Custom task to install production composer dependencies
   grunt.registerTask("composer-install", "Install production Composer dependencies", function() {
@@ -492,13 +446,23 @@ module.exports = function (grunt) {
     var done = this.async();
     var spawn = require('child_process').spawn;
     grunt.log.writeln("Building Vite assets...");
-    var build = spawn('npm', ['run', 'build'], { stdio: 'inherit' });
+    
+    // Check if npm exists, fallback to pnpm or yarn
+    var buildCommand = 'npm';
+    var buildArgs = ['run', 'build'];
+    
+    var build = spawn(buildCommand, buildArgs, { stdio: 'inherit' });
     build.on('close', function(code) {
       if (code !== 0) {
         grunt.fail.fatal('Vite build failed with code ' + code);
       }
       grunt.log.writeln("Vite assets built successfully.");
       done();
+    });
+    
+    build.on('error', function(err) {
+      grunt.log.error('Build command failed:', err.message);
+      grunt.fail.fatal('Could not execute build command');
     });
   });
 
@@ -572,9 +536,10 @@ module.exports = function (grunt) {
   // - Can be overridden in wp-config.php per environment
   // - No .env files needed - WordPress.org compliant
 
-  grunt.registerTask("i18n", ["addtextdomain", "makepot"]);
+  grunt.registerTask("i18n", ["addtextdomain", "shell:makepot"]);
+  grunt.registerTask("makepot", ["shell:makepot"]); // Alias for backward compatibility
   grunt.registerTask("readme", ["wp_readme_to_markdown"]);
-  grunt.registerTask("build", ["composer-install", "build-assets", "i18n"]);
+  grunt.registerTask("build", ["clean:dev_artifacts", "composer-install", "build-assets", "i18n"]);
 
   // Release tasks for different environments
   // Note: Using simple constants pattern (Sigmize style)
@@ -587,7 +552,8 @@ module.exports = function (grunt) {
     "clean:release_local",
     "compress:local",
     "copy:release_local",
-    "clean:root_zips"
+    "clean:root_zips",
+    "clean:node_modules"
   ]);
 
   grunt.registerTask("release:staging", [
@@ -596,7 +562,8 @@ module.exports = function (grunt) {
     "clean:release_staging",
     "compress:staging",
     "copy:release_staging",
-    "clean:root_zips"
+    "clean:root_zips",
+    "clean:node_modules"
   ]);
 
   grunt.registerTask("release:production", [
@@ -605,7 +572,8 @@ module.exports = function (grunt) {
     "clean:release_production",
     "compress:production",
     "copy:release_production",
-    "clean:root_zips"
+    "clean:root_zips",
+    "clean:node_modules"
   ]);
 
   grunt.registerTask("release:all", [
@@ -618,7 +586,8 @@ module.exports = function (grunt) {
     "copy:release_staging",
     "compress:production",
     "copy:release_production",
-    "clean:root_zips"
+    "clean:root_zips",
+    "clean:node_modules"
   ]);
 
   // Default release command creates all three zips

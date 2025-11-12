@@ -1,4 +1,4 @@
-=== SureFeedback Client ===
+=== SureFeedback ===
 Contributors: brainstormforce
 Donate link: https://surefeedback.com
 Tags: surefeedback, client, feedback, design
@@ -21,7 +21,7 @@ Using SureFeedback, the client can show as well as tell, providing targeted feed
 
 SureFeedback is a self-hosted client feedback system that allows you to get feedback on an endless amount of client sites from one central dashboard.
 
-The [SureFeedback](https://surefeedback.com) Client Site plugin is used to securely sync multiple WordPress client identities with your SureFeedback parent site.
+The [SureFeedback](https://surefeedback.com) plugin is used to securely sync multiple WordPress client identities with your SureFeedback parent site.
 
 All you need to do is install the plugin on the site you want feedback on and it's ready to go.
 
@@ -36,7 +36,7 @@ All you need to do is install the plugin on the site you want feedback on and it
 
 == Installation ==
 
-1. Go to `Plugins -> Add New` and search for SureFeedback Client Site
+1. Go to `Plugins -> Add New` and search for SureFeedback
 2. Activate the plugin through the 'Plugins' screen in WordPress.
 3. Go to `Settings -> SureFeedback` to configure the plugin options.
 

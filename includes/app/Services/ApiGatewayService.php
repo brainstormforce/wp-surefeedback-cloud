@@ -115,10 +115,9 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'GET',
-			'headers'   => $headers,
-			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
+			'method'  => 'GET',
+			'headers' => $headers,
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'GET' );
@@ -137,11 +136,10 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'POST',
-			'headers'   => $headers,
-			'body'      => json_encode( $data ),
-			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
+			'method'  => 'POST',
+			'headers' => $headers,
+			'body'    => json_encode( $data ),
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'POST' );
@@ -160,11 +158,10 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'PUT',
-			'headers'   => $headers,
-			'body'      => json_encode( $data ),
-			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
+			'method'  => 'PUT',
+			'headers' => $headers,
+			'body'    => json_encode( $data ),
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'PUT' );
@@ -183,10 +180,9 @@ class ApiGatewayService {
 		$headers = array_merge( $this->default_headers, $headers );
 
 		$args = array(
-			'method'    => 'DELETE',
-			'headers'   => $headers,
-			'timeout'   => $this->timeout,
-			'sslverify' => $this->shouldVerifySsl(),
+			'method'  => 'DELETE',
+			'headers' => $headers,
+			'timeout' => $this->timeout,
 		);
 
 		return $this->executeRequest( $url, $args, 'DELETE' );
@@ -239,13 +235,22 @@ class ApiGatewayService {
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 
-		// Decode JSON response
-		$decoded = json_decode( $response_body, true );
+		// Security: Validate response size (max 10MB)
+		if ( strlen( $response_body ) > 10485760 ) {
+			return new WP_Error(
+				'response_too_large',
+				'API response exceeds maximum allowed size',
+				array( 'status' => 413 )
+			);
+		}
+
+		// Security: Decode JSON with depth limit to prevent JSON bombs
+		$decoded = json_decode( $response_body, true, 10 );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
 			return new WP_Error(
 				'invalid_response',
-				'Invalid JSON response from API',
+				'Invalid JSON response from API: ' . json_last_error_msg(),
 				array(
 					'status'       => 500,
 					'raw_response' => $response_body,
@@ -316,6 +321,7 @@ class ApiGatewayService {
 			'sec-fetch-dest'     => 'empty',
 			'sec-fetch-mode'     => 'cors',
 			'sec-fetch-site'     => 'same-site',
+			// Use a server-constructed user-agent identifying plugin and platform
 			'user-agent'         => $this->getUserAgent(),
 			'x-requested-with'   => 'XMLHttpRequest',
 			'x-wp-version'       => get_bloginfo( 'version' ),
@@ -353,14 +359,13 @@ class ApiGatewayService {
 	 * @return string
 	 */
 	private function getUserAgent(): string {
-		// Use server's user agent if available
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
-			return $user_agent;
-		}
+		// Construct a server-side user agent that does not rely on client-supplied values.
+		$plugin_version = defined( 'SUREFEEDBACK_VERSION' ) ? SUREFEEDBACK_VERSION : '1.0.0';
+		$wp_version     = get_bloginfo( 'version' );
+		$php_version    = PHP_VERSION;
 
-		// Fallback to default user agent
-		return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
+		$ua = sprintf( 'SureFeedback-Plugin/%s WordPress/%s PHP/%s', $plugin_version, $wp_version, $php_version );
+		return $ua;
 	}
 
 	/**
@@ -369,41 +374,18 @@ class ApiGatewayService {
 	 * @return string
 	 */
 	private function getPlatform(): string {
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$user_agent       = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
-			$user_agent_lower = strtolower( $user_agent );
-		} else {
-			$user_agent_lower = '';
-		}
-
-		if ( strpos( $user_agent_lower, 'mac' ) !== false ) {
+		// Use PHP's OS information rather than client supplied headers
+		$os = PHP_OS;
+		if ( stripos( $os, 'Darwin' ) !== false || stripos( $os, 'Mac' ) !== false ) {
 			return 'macOS';
 		}
-
-		if ( strpos( $user_agent_lower, 'windows' ) !== false ) {
+		if ( stripos( $os, 'WIN' ) !== false ) {
 			return 'Windows';
 		}
-
-		if ( strpos( $user_agent_lower, 'linux' ) !== false ) {
+		if ( stripos( $os, 'LINUX' ) !== false ) {
 			return 'Linux';
 		}
-
 		return 'Unknown';
-	}
-
-	/**
-	 * Determine if SSL should be verified
-	 *
-	 * @return bool
-	 */
-	private function shouldVerifySsl(): bool {
-		// Disable SSL verification in local development
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			return false;
-		}
-
-		// Always verify SSL in production
-		return true;
 	}
 
 	/**

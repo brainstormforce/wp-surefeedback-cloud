@@ -90,8 +90,8 @@ class AdminService {
 		// Plugin action links
 		// add_filter('plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME, [$this, 'add_plugin_action_links']);
 
-		// Admin bar
-		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu' ), 100 );
+		// Admin bar (disabled)
+		// add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu' ), 100 );
 
 		// Dashboard widgets
 		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );
@@ -366,22 +366,23 @@ class AdminService {
 		*/
 
 		// Show success notices
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		// This is a read-only display of GET parameter, not processing form data
-		if ( isset( $_GET['message'] ) ) {
-			$message = sanitize_text_field( wp_unslash( $_GET['message'] ) );
+		if ( isset( $_GET['message'] ) && isset( $_GET['_wpnonce'] ) ) {
+			// Security: Verify nonce for message display
+			if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'surefeedback_admin_message' ) ) {
+				$message = sanitize_text_field( wp_unslash( $_GET['message'] ) );
 
-			$messages = array(
-				'settings_saved'        => __( 'Settings saved successfully.', 'surefeedback' ),
-				'connection_successful' => __( 'Connection established successfully.', 'surefeedback' ),
-				'disconnected'          => __( 'Disconnected successfully.', 'surefeedback' ),
-				'reset_complete'        => __( 'Plugin reset completed.', 'surefeedback' ),
-			);
+				$messages = array(
+					'settings_saved'        => __( 'Settings saved successfully.', 'surefeedback' ),
+					'connection_successful' => __( 'Connection established successfully.', 'surefeedback' ),
+					'disconnected'          => __( 'Disconnected successfully.', 'surefeedback' ),
+					'reset_complete'        => __( 'Plugin reset completed.', 'surefeedback' ),
+				);
 
-			if ( isset( $messages[ $message ] ) ) {
-				echo '<div class="notice notice-success is-dismissible">';
-				echo '<p>' . esc_html( $messages[ $message ] ) . '</p>';
-				echo '</div>';
+				if ( isset( $messages[ $message ] ) ) {
+					echo '<div class="notice notice-success is-dismissible">';
+					echo '<p>' . esc_html( $messages[ $message ] ) . '</p>';
+					echo '</div>';
+				}
 			}
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -909,11 +910,9 @@ class AdminService {
 			'site_url'       => home_url(), // Always include site_url to match Next.js types
 			'wp_version'     => get_bloginfo( 'version' ),
 			'plugin_version' => SUREFEEDBACK_VERSION,
-			'admin_email'    => get_option( 'admin_email' ),
 			'language'       => get_locale(),
 			'timezone'       => get_option( 'timezone_string' ) ?: 'UTC',
 			'theme'          => get_option( 'current_theme' ) ?: wp_get_theme()->get( 'Name' ),
-			'active_plugins' => $this->get_active_plugins_list(),
 		);
 
 		// Determine if connected - check for essential connection data

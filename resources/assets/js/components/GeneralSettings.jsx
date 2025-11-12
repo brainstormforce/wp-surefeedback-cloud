@@ -8,6 +8,7 @@ import { toast, Toaster } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { __ } from "@wordpress/i18n";
 import { Loader2, Save, Shield, Trash2, AlertTriangle, Ban } from "lucide-react";
+import { apiGateway } from '../api/gateway.js';
 
 const ResetConnectionButton = () => {
   const [resetting, setResetting] = useState(false);
@@ -21,27 +22,16 @@ const ResetConnectionButton = () => {
 
     try {
       setResetting(true);
-      const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/connection/reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
-        },
-      });
+      const data = await apiGateway.post('connection/reset');
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          toast.success(__('Site connection reset successfully! All SureFeedback data has been cleared.', 'surefeedback'));
-          // Reload the page after a short delay to refresh the UI
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
-        } else {
-          throw new Error(data.message || 'Reset failed');
-        }
+      if (data.success) {
+        toast.success(__('Site connection reset successfully! All SureFeedback data has been cleared.', 'surefeedback'));
+        // Reload the page after a short delay to refresh the UI
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
-        throw new Error('Reset request failed');
+        throw new Error(data.message || 'Reset failed');
       }
     } catch (error) {
       toast.error(__('Failed to reset site connection', 'surefeedback'));
@@ -141,30 +131,21 @@ const GeneralSettings = () => {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/settings', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
-        },
-      });
+      const data = await apiGateway.get('settings');
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          const availableRolesList = data.data.availableRoles || [];
-          const savedRoles = data.data.general?.roles || [];
+      if (data.success) {
+        const availableRolesList = data.data.availableRoles || [];
+        const savedRoles = data.data.general?.roles || [];
 
-          // If no roles are saved yet, enable all roles by default
-          const defaultRoles = savedRoles.length === 0
-            ? availableRolesList.map(role => role.name)
-            : savedRoles;
+        // If no roles are saved yet, enable all roles by default
+        const defaultRoles = savedRoles.length === 0
+          ? availableRolesList.map(role => role.name)
+          : savedRoles;
 
-          setSettings({
-            roles: defaultRoles
-          });
-          setAvailableRoles(availableRolesList);
-        }
+        setSettings({
+          roles: defaultRoles
+        });
+        setAvailableRoles(availableRolesList);
       }
     } catch (error) {
       toast.error(__('Failed to load settings', 'surefeedback'));
@@ -177,22 +158,12 @@ const GeneralSettings = () => {
     try {
       setSaving(true);
 
-      const response = await fetch(window.sureFeedbackAdmin?.rest_url + 'surefeedback/v1/settings/general', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-WP-Nonce': window.sureFeedbackAdmin?.rest_nonce,
-        },
-        body: JSON.stringify(settings),
-      });
+      const data = await apiGateway.post('settings/general', settings);
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          toast.success(__('Settings saved successfully!', 'surefeedback'));
-          setHasUnsavedChanges(false);
-          return true;
-        }
+      if (data.success) {
+        toast.success(__('Settings saved successfully!', 'surefeedback'));
+        setHasUnsavedChanges(false);
+        return true;
       }
       throw new Error('Save failed');
     } catch (error) {

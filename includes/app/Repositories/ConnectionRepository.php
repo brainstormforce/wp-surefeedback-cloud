@@ -201,30 +201,71 @@ class ConnectionRepository extends BaseRepository {
 	 * @return string
 	 */
 	public function getJwtSecret(): string {
-		$jwt_secret = $this->getOption( 'jwt_secret' );
-
-		if ( empty( $jwt_secret ) ) {
-			// Fallback to WordPress SECURE_AUTH_KEY.
-			if ( defined( 'SECURE_AUTH_KEY' ) && ! empty( SECURE_AUTH_KEY ) ) {
-				$jwt_secret = SECURE_AUTH_KEY;
-			} else {
-				// Generate and store a new secret.
-				$jwt_secret = wp_generate_password( 64, false );
-				$this->setJwtSecret( $jwt_secret );
-			}
+		// Check for stored JWT secret first
+		$stored_secret = get_option( 'surefeedback_jwt_secret' );
+		if ( $stored_secret ) {
+			return $stored_secret;
 		}
 
-		return $jwt_secret;
+		// Generate new random JWT secret
+		$secret = $this->generateSecureJwtSecret();
+		update_option( 'surefeedback_jwt_secret', $secret );
+
+		return $secret;
 	}
 
 	/**
-	 * Set JWT secret
+	 * Generate a cryptographically secure JWT secret
+	 *
+	 * @return string
+	 */
+	private function generateSecureJwtSecret(): string {
+		// Ensure WordPress auth constants are defined
+		if ( ! defined( 'SECURE_AUTH_KEY' ) || empty( SECURE_AUTH_KEY ) ) {
+			wp_die( 'SECURE_AUTH_KEY is not defined in wp-config.php. Please add WordPress authentication keys.' );
+		}
+
+		// Combine multiple entropy sources for better security
+		$entropy_sources = array(
+			wp_generate_password( 64, true, true ), // High entropy random string
+			SECURE_AUTH_KEY,
+			defined( 'AUTH_KEY' ) ? AUTH_KEY : '',
+			defined( 'LOGGED_IN_KEY' ) ? LOGGED_IN_KEY : '',
+			defined( 'NONCE_KEY' ) ? NONCE_KEY : '',
+			get_site_url(),
+			time(),
+			wp_rand(),
+		);
+
+		// Create secure hash from all entropy sources
+		$combined_entropy = implode( '|', $entropy_sources );
+		return hash( 'sha256', $combined_entropy );
+	}
+
+	/**
+	 * Rotate JWT secret (for security maintenance)
+	 *
+	 * @return string New JWT secret
+	 */
+	public function rotateJwtSecret(): string {
+		$new_secret = $this->generateSecureJwtSecret();
+		update_option( 'surefeedback_jwt_secret', $new_secret );
+
+		// Log secret rotation for audit trail
+
+		return $new_secret;
+	}
+
+	/**
+	 * Set JWT secret (not needed - secrets are derived from WordPress keys)
 	 *
 	 * @param string $secret JWT secret.
 	 * @return bool
+	 * @deprecated Secrets are now derived from WordPress authentication keys
 	 */
 	public function setJwtSecret( string $secret ): bool {
-		return $this->setOption( 'jwt_secret', sanitize_text_field( $secret ) );
+		// Secrets are now derived from WordPress keys, no storage needed
+		return true;
 	}
 
 	/**

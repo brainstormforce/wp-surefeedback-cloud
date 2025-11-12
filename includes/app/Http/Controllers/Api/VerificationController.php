@@ -70,115 +70,25 @@ class VerificationController {
 			// Get stored JWT token for API authentication using repository
 			$jwt_token = $this->connection_repository->getUserToken();
 
-			// Validate JWT token - must be non-empty and not just whitespace
-			// JWT token is required for verification endpoint
-			if ( empty( $jwt_token ) || trim( $jwt_token ) === '' ) {
-				return new WP_Error(
-					'jwt_token_missing',
-					'Authentication token not found. Please reconnect your site to refresh the authentication token.',
-					array(
-						'status'                => 401,
-						'requires_reconnection' => true,
-					)
-				);
+			// Trim whitespace from token if it exists
+			if ( ! empty( $jwt_token ) ) {
+				$jwt_token = trim( $jwt_token );
 			}
 
-			// Trim whitespace from token
-			$jwt_token = trim( $jwt_token );
+			// If no JWT token exists, we'll attempt verification without it
+			// This allows for initial connection verification
+			if ( empty( $jwt_token ) ) {
+				$jwt_token = null;
+			}
 
 			// Call Laravel API via Gateway Service
 			$response = $this->api_gateway->verifyIntegration( $site_token, $jwt_token );
 
 			// Handle API errors
 			if ( is_wp_error( $response ) ) {
-				$error_data    = $response->get_error_data();
-				$error_message = $response->get_error_message();
-				$error_code    = $response->get_error_code();
-
-				// Check if it's a "Token not provided" error from Laravel API
-				// Check multiple possible error message formats
-				$is_token_error = false;
-
-				// Check error message directly
-				if ( stripos( $error_message, 'token not provided' ) !== false ||
-					stripos( $error_message, 'token not found' ) !== false ||
-					stripos( $error_message, 'unauthorized' ) !== false ) {
-					$is_token_error = true;
-				}
-
-				// Check error data structure
-				if ( isset( $error_data['response'] ) ) {
-					// Check both 'message' and 'error' fields in response
-					$response_message = $error_data['response']['message'] ?? '';
-					$response_error   = $error_data['response']['error'] ?? '';
-					$response_status  = $error_data['response']['status'] ?? '';
-
-					// Check for token-related errors in various fields
-					$token_error_patterns = array(
-						'token not provided',
-						'token not found',
-						'token_not_found',
-						'TOKEN_NOT_FOUND',
-						'unauthorized',
-						'script token not found',
-					);
-
-					$combined_message = strtolower( $response_message . ' ' . $response_error . ' ' . $response_status );
-					foreach ( $token_error_patterns as $pattern ) {
-						if ( stripos( $combined_message, $pattern ) !== false ) {
-							$is_token_error = true;
-							break;
-						}
-					}
-				}
-
-				// Check status code (401 or 404 can indicate authentication/token issues)
-				if ( isset( $error_data['status'] ) ) {
-					$status_code = $error_data['status'];
-					if ( $status_code === 401 ) {
-						$is_token_error = true;
-					} elseif ( $status_code === 404 ) {
-						// 404 might also indicate token not found
-						if ( isset( $error_data['response']['status'] ) &&
-							stripos( $error_data['response']['status'], 'TOKEN' ) !== false ) {
-							$is_token_error = true;
-						}
-					}
-				}
-
-				if ( $is_token_error ) {
-					// Determine the specific error message based on the response
-					$user_message = 'Authentication or connection issue detected. ';
-					if ( isset( $error_data['response']['error'] ) ) {
-						$laravel_error = $error_data['response']['error'];
-						if ( stripos( $laravel_error, 'script token not found' ) !== false ||
-							stripos( $laravel_error, 'site is inactive' ) !== false ) {
-							$user_message = 'Site token not found in the system or site is inactive. Please reconnect your site.';
-						} elseif ( stripos( $laravel_error, 'token not provided' ) !== false ) {
-							$user_message = 'Authentication token not found or expired. Please reconnect your site to refresh the authentication token.';
-						} else {
-							$user_message = $laravel_error . ' Please reconnect your site.';
-						}
-					} else {
-						$user_message = 'Authentication token not found or expired. Please reconnect your site to refresh the authentication token.';
-					}
-
-					return new WP_Error(
-						'jwt_token_missing',
-						$user_message,
-						array(
-							'status'                => isset( $error_data['status'] ) ? $error_data['status'] : 401,
-							'requires_reconnection' => true,
-							'original_error'        => $error_message,
-							'laravel_error'         => $error_data['response']['error'] ?? '',
-						)
-					);
-				}
-
+				// Pass through the error as-is
 				return $response;
-			}
-
-			// Extract response data
+			}           // Extract response data
 			$decoded     = $response['data'] ?? array();
 			$status_code = $response['status_code'] ?? 200;
 

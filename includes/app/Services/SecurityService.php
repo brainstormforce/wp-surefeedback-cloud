@@ -31,6 +31,156 @@ class SecurityService {
 	const RATE_LIMIT_PREFIX = 'surefeedback_rate_';
 
 	/**
+	 * Constructor - Initialize security measures
+	 */
+	public function __construct() {
+		$this->initSecurityHeaders();
+		$this->initSecurityLogging();
+	}
+
+	/**
+	 * Initialize security headers
+	 *
+	 * @return void
+	 */
+	protected function initSecurityHeaders(): void {
+		// Apply security headers early
+		add_action( 'init', array( $this, 'applySecurityHeaders' ), 1 );
+
+		// Apply security headers for admin pages
+		add_action( 'admin_init', array( $this, 'applySecurityHeaders' ), 1 );
+
+		// Apply security headers for REST API responses
+		add_filter( 'rest_pre_serve_request', array( $this, 'applySecurityHeadersToRestApi' ), 10, 4 );
+	}
+
+	/**
+	 * Apply security headers to REST API responses
+	 *
+	 * @param bool             $served  Whether the request has already been served.
+	 * @param WP_HTTP_Response $result  Result to send to the client.
+	 * @param WP_REST_Request  $request Request used to generate the response.
+	 * @param WP_REST_Server   $server  Server instance.
+	 * @return bool
+	 */
+	public function applySecurityHeadersToRestApi( $served, $result, $request, $server ) {
+		$this->applySecurityHeaders();
+		return $served;
+	}
+
+	/**
+	 * Initialize comprehensive security logging
+	 *
+	 * @return void
+	 */
+	protected function initSecurityLogging(): void {
+		// Log authentication failures
+		add_action( 'wp_login_failed', array( $this, 'logFailedLogin' ) );
+
+		// Log successful logins
+		add_action( 'wp_login', array( $this, 'logSuccessfulLogin' ), 10, 2 );
+
+		// Log REST API authentication failures
+		add_filter( 'rest_authentication_errors', array( $this, 'logRestAuthFailure' ), 100, 1 );
+
+		// Log permission denials
+		add_action( 'rest_request_after_callbacks', array( $this, 'logPermissionDenials' ), 10, 3 );
+	}
+
+	/**
+	 * Log failed login attempts
+	 *
+	 * @param string $username Username used in failed login
+	 * @return void
+	 */
+	public function logFailedLogin( string $username ): void {
+		$this->logSecurityEvent(
+			'login_failed',
+			array(
+				'username'   => sanitize_user( $username ),
+				'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+				'referer'    => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '',
+			)
+		);
+	}
+
+	/**
+	 * Log successful login attempts
+	 *
+	 * @param string  $user_login Username
+	 * @param WP_User $user       User object
+	 * @return void
+	 */
+	public function logSuccessfulLogin( string $user_login, $user ): void {
+		$this->logSecurityEvent(
+			'login_success',
+			array(
+				'user_id'    => $user->ID,
+				'username'   => $user->user_login,
+				'user_role'  => implode( ', ', $user->roles ),
+				'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+			)
+		);
+	}
+
+	/**
+	 * Log REST API authentication failures
+	 *
+	 * @param mixed $result Current authentication result
+	 * @return mixed
+	 */
+	public function logRestAuthFailure( $result ) {
+		if ( is_wp_error( $result ) ) {
+			$this->logSecurityEvent(
+				'rest_auth_failed',
+				array(
+					'error_code'     => $result->get_error_code(),
+					'error_message'  => $result->get_error_message(),
+					'request_uri'    => isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+					'request_method' => isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '',
+				)
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Log permission denials from REST API responses
+	 *
+	 * @param WP_REST_Response $response Response object
+	 * @param array            $handler  Route handler array
+	 * @param WP_REST_Request  $request  Request object
+	 * @return void
+	 */
+	public function logPermissionDenials( $response, $handler, $request ): void {
+		if ( $response instanceof \WP_Error ) {
+			$error_codes = array( 'rest_forbidden', 'rest_unauthorized', 'rest_unauthenticated' );
+
+			if ( in_array( $response->get_error_code(), $error_codes, true ) ) {
+				$this->logSecurityEvent(
+					'permission_denied',
+					array(
+						'error_code'    => $response->get_error_code(),
+						'error_message' => $response->get_error_message(),
+						'route'         => $request->get_route(),
+						'method'        => $request->get_method(),
+					)
+				);
+			}
+		} elseif ( $response instanceof \WP_REST_Response && $response->get_status() >= 400 ) {
+			$this->logSecurityEvent(
+				'http_error',
+				array(
+					'status_code' => $response->get_status(),
+					'route'       => $request->get_route(),
+					'method'      => $request->get_method(),
+				)
+			);
+		}
+	}
+
+	/**
 	 * Generate secure random token
 	 *
 	 * @param int $length Token length
@@ -80,6 +230,72 @@ class SecurityService {
 	public function verifySignature( string $data, string $signature, string $secret, string $algo = self::DEFAULT_HASH_ALGO ): bool {
 		$expected = $this->generateSignature( $data, $secret, $algo );
 		return hash_equals( $expected, $signature );
+	}
+
+	/**
+	 * Verify webhook signature with timestamp validation
+	 *
+	 * @param string $payload Raw webhook payload
+	 * @param string $signature Received signature (with sha256= prefix)
+	 * @param string $timestamp Webhook timestamp
+	 * @param string $secret Webhook signing secret
+	 * @param int $tolerance Timestamp tolerance in seconds (default 300 = 5 minutes)
+	 * @return bool
+	 */
+	public function verifyWebhookSignature( string $payload, string $signature, string $timestamp, string $secret, int $tolerance = 300 ): bool {
+		// Validate timestamp to prevent replay attacks
+		$current_time = time();
+		$webhook_time = (int) $timestamp;
+
+		if ( abs( $current_time - $webhook_time ) > $tolerance ) {
+			return false;
+		}
+
+		// Remove sha256= prefix if present
+		if ( str_starts_with( $signature, 'sha256=' ) ) {
+			$signature = substr( $signature, 7 );
+		}
+
+		// Generate expected signature
+		$expected = $this->generateSignature( $payload, $secret, 'sha256' );
+
+		// Compare signatures using timing-safe comparison
+		return hash_equals( $expected, $signature );
+	}
+
+	/**
+	 * Get webhook signing secret (shared with Laravel API)
+	 *
+	 * @return string
+	 */
+	public function getWebhookSigningSecret(): string {
+		// Try to get the secret from WordPress options first
+		$stored_secret = get_option( 'surefeedback_webhook_signing_secret' );
+
+		if ( ! empty( $stored_secret ) ) {
+			return $stored_secret;
+		}
+
+		// If not stored, we need to get it from the Laravel API during connection
+		// For now, return a default that will be updated during webhook setup
+		$default_secret = get_option( 'surefeedback_access_token', '' );
+
+		if ( empty( $default_secret ) ) {
+			// Generate a temporary secret if nothing is available
+			$default_secret = wp_generate_password( 64, false );
+		}
+
+		return $default_secret;
+	}
+
+	/**
+	 * Store webhook signing secret received from Laravel API
+	 *
+	 * @param string $secret The webhook signing secret
+	 * @return bool
+	 */
+	public function storeWebhookSigningSecret( string $secret ): bool {
+		return update_option( 'surefeedback_webhook_signing_secret', sanitize_text_field( $secret ) );
 	}
 
 	/**
@@ -152,18 +368,42 @@ class SecurityService {
 	 * @return bool
 	 */
 	public function checkRateLimit( string $key, int $limit, int $window = 3600, string $prefix = self::RATE_LIMIT_PREFIX ): bool {
+		// Use WordPress options for persistent storage instead of transients
 		$cache_key = $prefix . md5( $key );
-		$current   = get_transient( $cache_key );
+		$rate_data = get_option( $cache_key, array() );
 
-		if ( false === $current ) {
-			$current = 0;
+		$now          = time();
+		$window_start = $now - $window;
+
+		// Clean old entries
+		if ( isset( $rate_data['attempts'] ) ) {
+			$rate_data['attempts'] = array_filter(
+				$rate_data['attempts'],
+				function ( $timestamp ) use ( $window_start ) {
+					return $timestamp > $window_start;
+				}
+			);
+		} else {
+			$rate_data['attempts'] = array();
 		}
 
-		if ( $current >= $limit ) {
+		// Check if limit exceeded
+		if ( count( $rate_data['attempts'] ) >= $limit ) {
 			return false;
 		}
 
-		set_transient( $cache_key, $current + 1, $window );
+		// Add current attempt
+		$rate_data['attempts'][]  = $now;
+		$rate_data['last_update'] = $now;
+
+		// Store updated data
+		update_option( $cache_key, $rate_data );
+
+		// Schedule cleanup of old rate limit data
+		if ( ! wp_next_scheduled( 'surefeedback_cleanup_rate_limits' ) ) {
+			wp_schedule_event( time(), 'hourly', 'surefeedback_cleanup_rate_limits' );
+		}
+
 		return true;
 	}
 
@@ -291,32 +531,14 @@ class SecurityService {
 	 * @return string
 	 */
 	public function getClientIp(): string {
-		$ip_keys = array(
-			'HTTP_CF_CONNECTING_IP',     // Cloudflare
-			'HTTP_CLIENT_IP',            // Proxy
-			'HTTP_X_FORWARDED_FOR',      // Load balancer/proxy
-			'HTTP_X_FORWARDED',          // Proxy
-			'HTTP_X_CLUSTER_CLIENT_IP',  // Cluster
-			'HTTP_FORWARDED_FOR',        // Proxy
-			'HTTP_FORWARDED',            // Proxy
-			'REMOTE_ADDR',               // Standard
-		);
-
-		foreach ( $ip_keys as $key ) {
-			if ( isset( $_SERVER[ $key ] ) && ! empty( $_SERVER[ $key ] ) ) {
-				$server_value = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
-				$ips          = explode( ',', $server_value );
-				$ip           = trim( $ips[0] );
-
-				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-					return $ip;
-				}
-			}
-		}
-
+		// Use only REMOTE_ADDR for security - no proxy headers
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
 			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			return $remote_addr ?: '0.0.0.0';
+
+			// Validate IP format
+			if ( filter_var( $remote_addr, FILTER_VALIDATE_IP ) ) {
+				return $remote_addr;
+			}
 		}
 
 		return '0.0.0.0';
@@ -405,14 +627,54 @@ class SecurityService {
 			return false;
 		}
 
-		// Additional webhook-specific validation
 		$parsed = wp_parse_url( $url );
 
-		// Reject local/private IPs for security
+		// Security: Only allow HTTPS for webhooks
+		if ( $parsed['scheme'] !== 'https' ) {
+			return false;
+		}
+
+		// Security: Validate hostname and prevent SSRF attacks
 		if ( isset( $parsed['host'] ) ) {
-			$ip = gethostbyname( $parsed['host'] );
-			if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false ) {
+			$host = $parsed['host'];
+
+			// Validate domain format
+			if ( ! filter_var( $host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) && ! filter_var( $host, FILTER_VALIDATE_IP ) ) {
 				return false;
+			}
+
+			// Block internal/private IP addresses to prevent SSRF
+			if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+				// Block private IP ranges and localhost
+				if ( ! filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+					return false;
+				}
+
+				// Additional check for cloud metadata endpoints
+				if ( $host === '169.254.169.254' ) {
+					return false;
+				}
+			}
+
+			// Block localhost and local domains
+			$blocked_hosts = array(
+				'localhost',
+				'127.0.0.1',
+				'::1',
+				'0.0.0.0',
+				'[::1]',
+			);
+
+			if ( in_array( strtolower( $host ), $blocked_hosts, true ) ) {
+				return false;
+			}
+
+			// Block common local TLDs
+			$blocked_tlds = array( '.local', '.localhost', '.test', '.invalid' );
+			foreach ( $blocked_tlds as $tld ) {
+				if ( substr( $host, -strlen( $tld ) ) === $tld ) {
+					return false;
+				}
 			}
 		}
 
@@ -425,13 +687,60 @@ class SecurityService {
 	 * @return array
 	 */
 	public function getSecurityHeaders(): array {
-		return array(
-			'X-Content-Type-Options'  => 'nosniff',
-			'X-Frame-Options'         => 'SAMEORIGIN',
-			'X-XSS-Protection'        => '1; mode=block',
-			'Referrer-Policy'         => 'strict-origin-when-cross-origin',
-			'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+		$headers = array(
+			'X-Content-Type-Options'            => 'nosniff',
+			'X-Frame-Options'                   => 'SAMEORIGIN',
+			'X-XSS-Protection'                  => '1; mode=block',
+			'Referrer-Policy'                   => 'strict-origin-when-cross-origin',
+			'X-Permitted-Cross-Domain-Policies' => 'none',
+			'Permissions-Policy'                => 'camera=(), microphone=(), geolocation=(), payment=()',
 		);
+
+		// Add HSTS header for HTTPS sites
+		if ( is_ssl() ) {
+			$headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload';
+		}
+
+		// Enhanced CSP for SureFeedback
+		$app_url = defined( 'SUREFEEDBACK_APP_BASE_URL' ) ? SUREFEEDBACK_APP_BASE_URL : 'https://app.surefeedback.com';
+		$api_url = defined( 'SUREFEEDBACK_API_BASE_URL' ) ? SUREFEEDBACK_API_BASE_URL : 'https://api.surefeedback.com';
+
+		$csp_parts = array(
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline' " . esc_url( $app_url ) . ' ' . esc_url( $api_url ),
+			"style-src 'self' 'unsafe-inline' " . esc_url( $app_url ),
+			"img-src 'self' data: " . esc_url( $app_url ) . ' ' . esc_url( $api_url ),
+			"font-src 'self' " . esc_url( $app_url ),
+			"connect-src 'self' " . esc_url( $api_url ) . ' ' . esc_url( $app_url ),
+			"frame-src 'none'",
+			"object-src 'none'",
+			"base-uri 'self'",
+			"form-action 'self'",
+		);
+
+		$headers['Content-Security-Policy'] = implode( '; ', $csp_parts );
+
+		/**
+		 * Filter security headers
+		 *
+		 * @param array $headers Security headers
+		 */
+		return apply_filters( 'surefeedback_security_headers', $headers );
+	}
+
+	/**
+	 * Apply security headers to the current response
+	 *
+	 * @return void
+	 */
+	public function applySecurityHeaders(): void {
+		$headers = $this->getSecurityHeaders();
+
+		foreach ( $headers as $name => $value ) {
+			if ( ! headers_sent() ) {
+				header( $name . ': ' . $value );
+			}
+		}
 	}
 
 	/**
@@ -491,5 +800,32 @@ class SecurityService {
 	 */
 	public function clearSecurityLogs(): void {
 		delete_transient( 'surefeedback_security_events' );
+	}
+
+	/**
+	 * Cleanup old rate limit data
+	 *
+	 * @return void
+	 */
+	public function cleanupRateLimits(): void {
+		$now    = time();
+		$cutoff = $now - ( 24 * 3600 ); // 24 hours ago
+
+		// Get all options with rate limit prefix using WordPress API
+		$all_options = wp_load_alloptions();
+
+		foreach ( $all_options as $option_name => $option_value ) {
+			// Check if this is a rate limit option
+			if ( strpos( $option_name, self::RATE_LIMIT_PREFIX ) === 0 ) {
+				$data = maybe_unserialize( $option_value );
+
+				if ( is_array( $data ) && isset( $data['last_update'] ) ) {
+					// Delete old rate limit data
+					if ( $data['last_update'] < $cutoff ) {
+						delete_option( $option_name );
+					}
+				}
+			}
+		}
 	}
 }
