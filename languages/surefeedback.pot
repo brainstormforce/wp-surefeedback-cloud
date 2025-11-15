@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-12T13:00:27+00:00\n"
+"POT-Creation-Date: 2025-11-15T18:00:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback\n"
@@ -621,81 +621,81 @@ msgstr ""
 msgid "Test Connection"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:58
+#: resources/assets/js/components/Welcome.jsx:20
 msgid "SureFeedback Logo"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:62
+#: resources/assets/js/components/Welcome.jsx:24
 msgid "Welcome to the Setup Wizard!"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:65
+#: resources/assets/js/components/Welcome.jsx:27
 msgid "SureFeedback makes it easy to collect and manage customer comments, helping you take action and improve satisfaction with less effort."
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:77
-#: resources/assets/js/components/Welcome.jsx:189
+#: resources/assets/js/components/Welcome.jsx:39
+#: resources/assets/js/components/Welcome.jsx:151
 msgid "Get Started Now"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:85
-#: resources/assets/js/components/Welcome.jsx:196
+#: resources/assets/js/components/Welcome.jsx:47
+#: resources/assets/js/components/Welcome.jsx:158
 msgid "Go Back to the Dashboard"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:101
+#: resources/assets/js/components/Welcome.jsx:63
 msgid "Welcome Illustration"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:111
+#: resources/assets/js/components/Welcome.jsx:73
 msgid "Accelerate Issue Resolution with"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:113
+#: resources/assets/js/components/Welcome.jsx:75
 msgid "Seamless Client Collaboration"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:121
+#: resources/assets/js/components/Welcome.jsx:83
 msgid "Lightweight and Easy to Use"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:122
+#: resources/assets/js/components/Welcome.jsx:84
 msgid "SureFeedback is lightweight, bloat-free, and user-friendly with no training required."
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:129
+#: resources/assets/js/components/Welcome.jsx:91
 msgid "Report Bugs Easily"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:130
+#: resources/assets/js/components/Welcome.jsx:92
 msgid "Bug reporting and tracking made easy. Simply point your cursor and leave review comments."
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:137
+#: resources/assets/js/components/Welcome.jsx:99
 msgid "1-click Client Approvals"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:138
+#: resources/assets/js/components/Welcome.jsx:100
 msgid "Clients can review and approve designs/projects with one click, reducing email exchanges."
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:145
+#: resources/assets/js/components/Welcome.jsx:107
 msgid "Keeps Records"
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:146
+#: resources/assets/js/components/Welcome.jsx:108
 msgid "SureFeedback records all feedback, simplifying referencing and tracking revisions."
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:170
+#: resources/assets/js/components/Welcome.jsx:132
 msgid "One Dashboard. Unlimited Websites. Any Platform."
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:173
+#: resources/assets/js/components/Welcome.jsx:135
 msgid "Once installed on WordPress, SureFeedback works on unlimited websites, ANY platform. Central dashboard management included."
 msgstr ""
 
-#: resources/assets/js/components/Welcome.jsx:180
+#: resources/assets/js/components/Welcome.jsx:142
 msgid "Footer Illustration"
 msgstr ""
 
