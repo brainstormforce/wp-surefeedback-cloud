@@ -1,4 +1,4 @@
-=== SureFeedback ===
+=== SureFeedback Cloud Connector ===
 Contributors: brainstormforce
 Donate link: https://surefeedback.com
 Tags: surefeedback, client, feedback, design
@@ -73,7 +73,7 @@ This plugin requires WordPress 4.7 or higher and PHP 7.4 or higher.
 
 = 0.0.1 =
 * Initial release
-* Connections - Secure connection to SureFeedback parent site with verification and status management
+* Connections - Secure connection to SureFeedback Cloud platform with verification and status management
 * Widget Control - Per-page widget visibility control with search, filter, and bulk enable/disable options
 * Permission Management - User role permissions, site visitor access, dashboard commenting, and guest access control
 * Modern React-based admin interface

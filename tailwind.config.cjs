@@ -2,9 +2,9 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './index.html',
-    './resources/**/*.{tsx,ts,js,jsx}',
-    './resources/assets/js/**/*.{tsx,ts,js,jsx}',
+    './src/**/*.{tsx,ts,js,jsx}',
+    './assets/**/*.{tsx,ts,js,jsx}',
+    './includes/**/*.php',
   ],
    theme: {
    	fontFamily: {
