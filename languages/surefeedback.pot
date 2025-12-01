@@ -2,28 +2,26 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: SureFeedback 0.0.1\n"
+"Project-Id-Version: SureFeedback Cloud Connector 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/surefeedback\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-15T18:00:50+00:00\n"
+"POT-Creation-Date: 2025-12-01T21:49:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback\n"
 
 #. Plugin Name of the plugin
 #: surefeedback.php
-#: includes/app/Services/AdminService.php:108
-#: includes/app/Services/AdminService.php:109
-msgid "SureFeedback"
+msgid "SureFeedback Cloud Connector"
 msgstr ""
 
 #. Plugin URI of the plugin
 #: surefeedback.php
-msgid "http://surefeedback.com"
+msgid "https://surefeedback.com"
 msgstr ""
 
 #. Description of the plugin
@@ -41,867 +39,77 @@ msgstr ""
 msgid "https://www.brainstormforce.com"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:45
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:83
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:129
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:175
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:221
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:260
-#: includes/app/Http/Controllers/Controller.php:314
-#: includes/app/Services/AdminService.php:665
-#: includes/app/Services/AdminService.php:701
-#: includes/app/Services/AdminService.php:722
-#: includes/app/Services/AdminService.php:765
-#: includes/app/Services/AdminService.php:800
-#: includes/app/Services/AdminService.php:832
-msgid "Insufficient permissions"
+#: includes/Admin/Admin_Menu.php:78
+#: includes/Admin/Admin_Menu.php:79
+msgid "SureFeedback"
 msgstr ""
 
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:51
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:89
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:135
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:181
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:227
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:266
-#: includes/app/Http/Controllers/Api/SettingsController.php:52
-msgid "Invalid security token"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:67
-msgid "Failed to fetch pages"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:96
-msgid "Invalid settings format"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:104
-msgid "Page settings updated successfully"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:110
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:113
-msgid "Failed to update page settings"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:142
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:188
-msgid "Page ID is required"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:150
-msgid "Widget enabled for page"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:156
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:159
-msgid "Failed to enable widget"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:196
-msgid "Widget disabled for page"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:202
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:205
-msgid "Failed to disable widget"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:236
-#: resources/assets/js/components/WidgetControl.jsx:100
-msgid "Widget enabled for all pages"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:241
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:244
-#: resources/assets/js/components/WidgetControl.jsx:105
-msgid "Failed to enable widget for all pages"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:275
-#: resources/assets/js/components/WidgetControl.jsx:123
-msgid "Widget disabled for all pages"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:280
-#: includes/app/Http/Controllers/Api/PageSettingsController.php:283
-#: resources/assets/js/components/WidgetControl.jsx:129
-msgid "Failed to disable widget for all pages"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/SettingsController.php:57
-msgid "Authentication required"
-msgstr ""
-
-#: includes/app/Http/Controllers/Api/SettingsController.php:61
-msgid "Insufficient permissions. Administrator access required."
-msgstr ""
-
-#: includes/app/Http/Controllers/Controller.php:123
-msgid "Validation failed"
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:212
-#, php-format
-msgid "The %s field is required."
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:214
-#, php-format
-msgid "The %s field must be a string."
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:216
-#, php-format
-msgid "The %s field must be numeric."
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:218
-#, php-format
-msgid "The %s field must be a valid email."
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:220
-#, php-format
-msgid "The %s field must be a valid URL."
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:222
-#, php-format
-msgid "The %s field must be true or false."
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:224
-#, php-format
-msgid "The %s field must be an array."
-msgstr ""
-
-#. translators: %s: Field name
-#: includes/app/Http/Controllers/Controller.php:228
-#, php-format
-msgid "The %s field is invalid."
-msgstr ""
-
-#: includes/app/Http/Controllers/Controller.php:301
-msgid "Nonce not provided"
-msgstr ""
-
-#: includes/app/Http/Controllers/Controller.php:306
-msgid "Invalid nonce"
-msgstr ""
-
-#: includes/app/Http/Controllers/Controller.php:335
-msgid "An error occurred while processing your request."
-msgstr ""
-
-#: includes/app/Http/Router.php:241
-msgid "Authentication required."
-msgstr ""
-
-#: includes/app/Http/Router.php:250
-#: includes/app/Http/Router.php:259
-#: includes/app/Services/JWTService.php:205
-msgid "Insufficient permissions."
-msgstr ""
-
-#: includes/app/Repositories/PageSettingsRepository.php:46
-#: resources/assets/js/components/WidgetControl.jsx:392
-msgid "Homepage"
-msgstr ""
-
-#: includes/app/Repositories/PageSettingsRepository.php:57
-msgid "Blog Page"
-msgstr ""
-
-#: includes/app/Repositories/PageSettingsRepository.php:76
-#: includes/app/Repositories/PageSettingsRepository.php:96
-#: includes/app/Repositories/PageSettingsRepository.php:126
-msgid "(No Title)"
-msgstr ""
-
-#: includes/app/Repositories/PageSettingsRepository.php:138
-msgid "All Archives"
-msgstr ""
-
-#: includes/app/Repositories/PageSettingsRepository.php:146
-msgid "Search Results"
-msgstr ""
-
-#: includes/app/Repositories/PageSettingsRepository.php:154
-msgid "404 Page"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:122
-#: includes/app/Services/AdminService.php:123
-msgid "Connection"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:132
-#: includes/app/Services/AdminService.php:133
-#: resources/assets/js/components/NavMenu.jsx:47
-#: resources/assets/js/components/WidgetControl.jsx:286
-msgid "Widget Control"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:144
-#: includes/app/Services/AdminService.php:145
-#: includes/app/Services/AdminService.php:438
-#: surefeedback.php:192
-#: resources/assets/js/components/NavMenu.jsx:48
-msgid "Settings"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:349
-msgid "SureFeedback is not connected to a parent site. "
-msgstr ""
-
-#: includes/app/Services/AdminService.php:351
-msgid "Connect now"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:375
-msgid "Settings saved successfully."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:376
-msgid "Connection established successfully."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:377
-msgid "Disconnected successfully."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:378
-msgid "Plugin reset completed."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:450
-msgid "Open Parent Dashboard"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:471
-msgid "SureFeedback Status"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:489
-msgid "Connection Status:"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:491
-#: includes/app/Services/AdminService.php:608
-msgid "Connected"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:493
-#: includes/app/Services/AdminService.php:609
-msgid "Disconnected"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:500
-msgid "Last Verification:"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:508
-msgid "Site Name:"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:516
-msgid "View Dashboard"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:521
-msgid "Connect Now"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:607
-#: resources/assets/js/components/UnverifiedState.jsx:92
-msgid "Connecting..."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:610
-msgid "Testing connection..."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:611
-#: resources/assets/js/components/GeneralSettings.jsx:298
-#: resources/assets/js/components/WidgetControl.jsx:531
-#: resources/assets/js/components/WidgetControl.jsx:532
-#: resources/assets/js/views/PermissionsView.jsx:340
-msgid "Saving..."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:612
-msgid "Saved"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:613
-msgid "Error"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:614
-msgid "Success"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:615
-msgid "Are you sure you want to reset all settings? This action cannot be undone."
-msgstr ""
-
-#: includes/app/Services/AdminService.php:678
-msgid "Settings saved successfully"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:685
-#: resources/assets/js/components/GeneralSettings.jsx:170
-#: resources/assets/js/components/WidgetControl.jsx:83
-msgid "Failed to save settings"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:707
-msgid "Connection is managed via webhook"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:786
-msgid "Plugin reset successfully"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:853
-msgid "No settings provided"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:877
-msgid "Settings imported successfully"
-msgstr ""
-
-#: includes/app/Services/AdminService.php:884
-msgid "Failed to import settings"
-msgstr ""
-
-#: includes/app/Services/JWTService.php:197
-msgid "Invalid or missing JWT token."
-msgstr ""
-
-#: routes/api.php:81
-msgid "You do not have permission to activate plugins."
-msgstr ""
-
-#: routes/api.php:91
-msgid "Invalid nonce. CSRF protection failed."
-msgstr ""
-
-#: routes/api.php:105
-msgid "Plugin is already active."
-msgstr ""
-
-#: routes/api.php:129
-msgid "Plugin activated successfully."
-msgstr ""
-
-#: surefeedback.php:191
-msgid "Dashboard"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:44
-msgid "Site disconnected successfully! Redirecting..."
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:54
-msgid "Failed to disconnect. Please try again."
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:60
-msgid "An error occurred while disconnecting. Please try again."
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:87
-msgid "Website Connected Successfully!"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:90
-msgid "Your site is now linked with SureFeedback. Start gathering client feedback without friction."
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:101
-msgid "Connection Site:"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:111
-msgid "Status:"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:116
-msgid "Active"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:134
-#: resources/assets/js/components/Connected.jsx:180
-msgid "Disconnecting..."
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:140
-#: resources/assets/js/components/Connected.jsx:183
-msgid "Disconnect"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:147
-#: resources/assets/js/components/UnverifiedState.jsx:80
-msgid "Go to Dashboard"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:159
-msgid "Disconnect Website?"
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:162
-msgid "This will disconnect your website from SureFeedback. All connection settings will be removed. You can reconnect at any time."
-msgstr ""
-
-#: resources/assets/js/components/Connected.jsx:170
-#: resources/assets/js/components/GeneralSettings.jsx:67
-#: resources/assets/js/components/WidgetControl.jsx:521
-#: resources/assets/js/components/WidgetControl.jsx:566
-#: resources/assets/js/components/WidgetControl.jsx:591
-msgid "Cancel"
-msgstr ""
-
-#: resources/assets/js/components/ConnectionFailed.jsx:14
-msgid "We couldn't connect your site. Please try again."
-msgstr ""
-
-#: resources/assets/js/components/ConnectionFailed.jsx:22
-msgid "Connection Failed..."
-msgstr ""
-
-#: resources/assets/js/components/ConnectionFailed.jsx:31
-msgid "Connect Again"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:28
-msgid "Site connection reset successfully! All SureFeedback data has been cleared."
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:37
-msgid "Failed to reset site connection"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:55
-msgid "Are you absolutely sure?"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:58
-msgid "This will permanently delete all SureFeedback data including connection settings, user permissions, and white label settings. This action cannot be undone."
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:78
-msgid "Resetting..."
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:83
-msgid "Yes, reset everything"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:98
-msgid "Reset Site Connection"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:101
-msgid "Permanently delete all SureFeedback data and disconnect from the parent site."
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:111
-#: resources/assets/js/components/GeneralSettings.jsx:315
-msgid "Reset Connection"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:151
-#: resources/assets/js/views/PermissionsView.jsx:65
-msgid "Failed to load settings"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:164
-msgid "Settings saved successfully!"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:253
-#: resources/assets/js/views/PermissionsView.jsx:119
-msgid "User Permissions"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:256
-#: resources/assets/js/views/PermissionsView.jsx:122
-msgid "Allow user roles to view comment widget on your site"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:302
-#: resources/assets/js/components/WidgetControl.jsx:536
-#: resources/assets/js/views/PermissionsView.jsx:343
-msgid "Save Changes"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:302
-#: resources/assets/js/views/PermissionsView.jsx:343
-msgid "No Changes"
-msgstr ""
-
-#: resources/assets/js/components/GeneralSettings.jsx:318
-msgid "Irreversible actions that will permanently delete data."
-msgstr ""
-
-#: resources/assets/js/components/NavMenu.jsx:46
+#: includes/Admin/Admin_Menu.php:90
+#: includes/Admin/Admin_Menu.php:91
 msgid "Connections"
 msgstr ""
 
-#: resources/assets/js/components/NavMenu.jsx:106
-msgid "Useful Resources"
+#: includes/Admin/Admin_Menu.php:100
+#: includes/Admin/Admin_Menu.php:101
+msgid "Widget Control"
 msgstr ""
 
-#: resources/assets/js/components/NavMenu.jsx:110
-msgid "Getting Started"
+#: includes/Admin/Admin_Menu.php:110
+#: includes/Admin/Admin_Menu.php:111
+msgid "Settings"
 msgstr ""
 
-#: resources/assets/js/components/NavMenu.jsx:115
-msgid "Start adding comments"
+#: includes/Admin/Admin_Menu.php:257
+#: includes/Admin/Admin_Menu.php:280
+#: includes/Admin/Admin_Menu.php:302
+#: includes/Auth_Manager.php:299
+msgid "Authentication failed. Please try again."
 msgstr ""
 
-#: resources/assets/js/components/NavMenu.jsx:120
-msgid "Contact us"
+#: includes/API/Rest_Controller.php:347
+msgid "State parameter is required."
 msgstr ""
 
-#: resources/assets/js/components/NotConnected.jsx:20
-msgid "SureFeedback Not Connected!"
+#: includes/API/Rest_Controller.php:376
+msgid "Failed to store state."
 msgstr ""
 
-#: resources/assets/js/components/NotConnected.jsx:23
-msgid "Click “Connect Website” to authorize this website with SureFeedback."
+#: includes/API/Rest_Controller.php:393
+msgid "Not connected to SureFeedback."
 msgstr ""
 
-#: resources/assets/js/components/NotConnected.jsx:35
-msgid "Connect Website"
+#: includes/API/Rest_Controller.php:667
+msgid "Site token is required."
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:35
-msgid "Connection verified successfully!"
+#: includes/API/Rest_Controller.php:679
+msgid "Not authenticated with SureFeedback."
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:40
-msgid "Verification is still pending. Please check your connection settings."
+#: includes/API/Rest_Controller.php:726
+msgid "Verification failed: "
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:45
-msgid "Connection verification failed. Please try again."
+#: includes/API/Rest_Controller.php:745
+msgid "Site token and site ID are required."
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:51
-msgid "An error occurred while testing the connection. Please try again."
+#: includes/API/Rest_Controller.php:758
+msgid "Invalid site token."
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:69
-msgid "Verification Pending"
+#: includes/API/Rest_Controller.php:822
+msgid "Site ID mismatch."
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:74
-msgid "Please add the SureFeedback script to complete integration."
+#: includes/API/Rest_Controller.php:859
+msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:76
-msgid "Your verification is in progress. You can check the status on your dashboard."
+#: surefeedback.php:257
+msgid "Access Dashboard"
 msgstr ""
 
-#: resources/assets/js/components/UnverifiedState.jsx:95
-msgid "Please wait while we verify your website with SureFeedback servers."
-msgstr ""
-
-#: resources/assets/js/components/UnverifiedState.jsx:118
-msgid "Test Connection"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:20
-msgid "SureFeedback Logo"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:24
-msgid "Welcome to the Setup Wizard!"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:27
-msgid "SureFeedback makes it easy to collect and manage customer comments, helping you take action and improve satisfaction with less effort."
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:39
-#: resources/assets/js/components/Welcome.jsx:151
+#: surefeedback.php:258
 msgid "Get Started Now"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:47
-#: resources/assets/js/components/Welcome.jsx:158
-msgid "Go Back to the Dashboard"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:63
-msgid "Welcome Illustration"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:73
-msgid "Accelerate Issue Resolution with"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:75
-msgid "Seamless Client Collaboration"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:83
-msgid "Lightweight and Easy to Use"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:84
-msgid "SureFeedback is lightweight, bloat-free, and user-friendly with no training required."
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:91
-msgid "Report Bugs Easily"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:92
-msgid "Bug reporting and tracking made easy. Simply point your cursor and leave review comments."
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:99
-msgid "1-click Client Approvals"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:100
-msgid "Clients can review and approve designs/projects with one click, reducing email exchanges."
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:107
-msgid "Keeps Records"
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:108
-msgid "SureFeedback records all feedback, simplifying referencing and tracking revisions."
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:132
-msgid "One Dashboard. Unlimited Websites. Any Platform."
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:135
-msgid "Once installed on WordPress, SureFeedback works on unlimited websites, ANY platform. Central dashboard management included."
-msgstr ""
-
-#: resources/assets/js/components/Welcome.jsx:142
-msgid "Footer Illustration"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:49
-msgid "Failed to load page settings"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:77
-msgid "Page settings saved successfully"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:288
-msgid "Control which pages display the SureFeedback widget"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:297
-msgid "Total Pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:309
-msgid "Enabled Pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:313
-msgid "synced"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:321
-msgid "Disabled Pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:325
-msgid "off - synced"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:335
-msgid "Page List"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:336
-msgid "Toggle widget visibility for individual pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:352
-msgid "Disable All Pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:353
-#: resources/assets/js/components/WidgetControl.jsx:599
-msgid "Disable All"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:367
-msgid "Enable All Pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:368
-#: resources/assets/js/components/WidgetControl.jsx:574
-msgid "Enable All"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:378
-msgid "Search pages..."
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:389
-msgid "All Types"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:390
-msgid "Enabled Only"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:391
-msgid "Disabled Only"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:393
-msgid "Pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:394
-msgid "Posts"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:395
-msgid "Archives"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:404
-msgid "No pages found"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:442
-#, js-format
-msgid "Showing %1$d-%2$d of %3$d pages"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:452
-msgid "Previous"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:490
-msgid "Next"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:504
-msgid "Unsaved changes"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:510
-msgid "All changes saved"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:537
-msgid "Save"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:560
-msgid "Enable Widget for All Pages?"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:562
-msgid "This will enable the SureFeedback widget on all pages of your website. This action can be undone."
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:571
-msgid "Enabling..."
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:585
-msgid "Disable Widget for All Pages?"
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:587
-msgid "This will disable the SureFeedback widget on all pages of your website. Users will not be able to leave feedback. This action can be undone."
-msgstr ""
-
-#: resources/assets/js/components/WidgetControl.jsx:596
-msgid "Disabling..."
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:91
-msgid "Permissions saved successfully!"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:97
-msgid "Failed to save permissions"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:155
-msgid "Site Visitor Access"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:161
-msgid "Allow Site Visitors"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:163
-msgid "Allow the site visitors to view and add comments on your site without access token."
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:174
-msgid "Dashboard Commenting"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:176
-msgid "Allow commenting in your site's WordPress dashboard area"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:187
-msgid "Guest Access"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:189
-msgid "Allow non-logged-in users to leave feedback"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:207
-msgid "Advanced Permissions"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:213
-msgid "Coming Soon"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:216
-msgid "Advanced permission settings including custom roles, time-based access, and IP restrictions will be available in a future update."
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:288
-msgid "Permission Management"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:291
-msgid "Control what each user role can do in SureFeedback."
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:304
-msgid "User Roles"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:313
-msgid "Site Access"
-msgstr ""
-
-#: resources/assets/js/views/PermissionsView.jsx:322
-msgid "Advanced"
 msgstr ""

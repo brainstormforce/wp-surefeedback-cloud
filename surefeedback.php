@@ -1,24 +1,21 @@
 <?php
+
 /**
- * Plugin Name: SureFeedback
- * Plugin URI: http://surefeedback.com
+ * Plugin Name: SureFeedback Cloud Connector
+ * Plugin URI: https://surefeedback.com
  * Description: Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.
+ * Version: 0.0.1
  * Author: Brainstorm Force
  * Author URI: https://www.brainstormforce.com
- * Version: 0.0.1
- * Developer: Anurag Singh <anurags@bsf.io>
- *
- * Requires at least: 4.7
- * Tested up to: 6.8
- * Requires PHP: 7.4
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- *
  * Text Domain: surefeedback
  * Domain Path: /languages
+ * Requires at least: 5.8
+ * Tested up to: 6.8
+ * Requires PHP: 7.4
  *
  * @package SureFeedback
- * @author Brainstorm Force
  */
 
 // Exit if accessed directly.
@@ -26,171 +23,275 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Check if running in local development environment
+$is_local_env = defined( 'WP_ENVIRONMENT_TYPE' ) && 'local' === WP_ENVIRONMENT_TYPE;
+
 /**
- * Setup Constants before init
- *
- * @since 1.0.0
+ * SaaS API Base URL constant
  */
-
-// Plugin Folder Path.
-if ( ! defined( 'SUREFEEDBACK_PLUGIN_DIR' ) ) {
-	define( 'SUREFEEDBACK_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-}
-
-// Plugin Folder URL.
-if ( ! defined( 'SUREFEEDBACK_PLUGIN_URL' ) ) {
-	define( 'SUREFEEDBACK_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-}
-
-// Plugin Root File.
-if ( ! defined( 'SUREFEEDBACK_PLUGIN_FILE' ) ) {
-	define( 'SUREFEEDBACK_PLUGIN_FILE', __FILE__ );
-}
-
-// Plugin Version.
-if ( ! defined( 'SUREFEEDBACK_VERSION' ) ) {
-	define( 'SUREFEEDBACK_VERSION', '0.0.1' );
-}
-
-// Plugin Basename.
-if ( ! defined( 'SUREFEEDBACK_PLUGIN_BASENAME' ) ) {
-	define( 'SUREFEEDBACK_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+if ( ! defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ) {
+	define( 'SUREFEEDBACK_SAAS_API_BASE_URL', $is_local_env ? 'http://localhost:8000' : 'https://api.surefeedback.com' );
 }
 
 /**
- * SureFeedback API Base URL constant
- *
- * Defaults to production API URL.
- * Can be overridden in wp-config.php for different environments.
- *
- * @since 0.0.1
+ * SaaS App Base URL constant
+ */
+if ( ! defined( 'SUREFEEDBACK_SAAS_BASE_URL' ) ) {
+	define( 'SUREFEEDBACK_SAAS_BASE_URL', $is_local_env ? 'http://localhost:3000' : 'https://app.surefeedback.com' );
+}
+
+/**
+ * API Base URL constant (alias for backward compatibility)
  */
 if ( ! defined( 'SUREFEEDBACK_API_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_API_BASE_URL', 'https://api.surefeedback.com' );
+	define( 'SUREFEEDBACK_API_BASE_URL', SUREFEEDBACK_SAAS_API_BASE_URL );
 }
 
 /**
- * SureFeedback App Base URL constant
- *
- * Defaults to production app URL.
- * Can be overridden in wp-config.php for different environments.
- *
- * @since 0.0.1
+ * App Base URL constant (alias for backward compatibility)
  */
 if ( ! defined( 'SUREFEEDBACK_APP_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_APP_BASE_URL', 'https://app.surefeedback.com' );
+	define( 'SUREFEEDBACK_APP_BASE_URL', SUREFEEDBACK_SAAS_BASE_URL );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Bootstrap The Application
-|--------------------------------------------------------------------------
-|
-| The first thing we will do is create a new Laravel-style application
-| instance which serves as the "glue" for all the components, and is
-| the IoC container for the system binding all of the various parts.
-|
-*/
-
-$surefeedback_app = require_once __DIR__ . '/bootstrap/app.php';
-
-/*
-|--------------------------------------------------------------------------
-| Run The Application
-|--------------------------------------------------------------------------
-|
-| Once we have the application, we can handle the incoming request
-| through the kernel, and send the associated response back to
-| the client's browser allowing them to enjoy the creative
-| and wonderful application we have prepared for them.
-|
-*/
-
-// Boot the application when plugins are loaded
-add_action(
-	'plugins_loaded',
-	function () use ( $surefeedback_app ) {
-		$surefeedback_app->boot();
-	}
-);
-
 /**
- * Plugin activation hook
+ * Main plugin class
  */
-register_activation_hook(
-	SUREFEEDBACK_PLUGIN_FILE,
-	function () {
-		// Set a flag to redirect to setup on first activation
-		set_transient( 'surefeedback_activation_redirect', true, 30 * MINUTE_IN_SECONDS );
-	}
-);
+final class SureFeedback {
 
-/**
- * Admin init - redirect to setup page after plugin activation
- */
-add_action(
-	'admin_init',
-	function () {
-		// Only for admin users
-		if ( ! current_user_can( 'manage_options' ) ) {
+	/**
+	 * Plugin version
+	 *
+	 * @var string
+	 */
+	const VERSION = '0.0.1';
+
+	/**
+	 * Plugin singleton instance
+	 *
+	 * @var SureFeedback
+	 */
+	private static $instance = null;
+
+	/**
+	 * Plugin directory path
+	 *
+	 * @var string
+	 */
+	private $plugin_path;
+
+	/**
+	 * Plugin directory URL
+	 *
+	 * @var string
+	 */
+	private $plugin_url;
+
+	/**
+	 * Get singleton instance
+	 *
+	 * @return SureFeedback
+	 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Private constructor to prevent direct instantiation
+	 */
+	private function __construct() {
+		$this->define_constants();
+		$this->setup_hooks();
+		$this->includes();
+		$this->init();
+	}
+
+	/**
+	 * Define plugin constants
+	 */
+	private function define_constants() {
+		$this->plugin_path = plugin_dir_path( __FILE__ );
+		$this->plugin_url  = plugin_dir_url( __FILE__ );
+
+		define( 'SUREFEEDBACK_VERSION', self::VERSION );
+		define( 'SUREFEEDBACK_PLUGIN_PATH', $this->plugin_path );
+		define( 'SUREFEEDBACK_PLUGIN_URL', $this->plugin_url );
+		define( 'SUREFEEDBACK_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+		define( 'SUREFEEDBACK_PLUGIN_FILE', __FILE__ );
+		define( 'SUREFEEDBACK_PLUGIN_DIR', $this->plugin_path );
+	}
+
+	/**
+	 * Setup plugin hooks
+	 */
+	private function setup_hooks() {
+		register_activation_hook( __FILE__, array( $this, 'activate' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
+
+		// Add plugin action links
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_action_links' ) );
+
+		// Handle activation redirect
+		add_action( 'admin_init', array( $this, 'activation_redirect' ) );
+	}
+
+	/**
+	 * Include required files
+	 */
+	private function includes() {
+		// Include autoloader
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Autoloader.php';
+
+		// Security & Encryption
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Encryption.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Secure_Cookie_Manager.php';
+
+		// Authentication
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Auth_Manager.php';
+
+		// SaaS Integration
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/SaaS_Client.php';
+
+		// Admin
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Admin/Admin_Menu.php';
+
+		// REST API
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/API/Rest_Controller.php';
+
+		// Frontend Script Loader
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Frontend_Script.php';
+	}
+
+	/**
+	 * Initialize plugin components
+	 */
+	private function init() {
+		// Initialize admin menu (instantiate early so menu registers properly)
+		if ( is_admin() ) {
+			new SureFeedback\Admin\Admin_Menu();
+		}
+
+		// Initialize REST API
+		add_action( 'rest_api_init', array( $this, 'init_rest_api' ) );
+
+		// Initialize frontend script loader
+		add_action( 'init', array( $this, 'init_frontend_script' ) );
+	}
+
+	/**
+	 * Initialize REST API
+	 */
+	public function init_rest_api() {
+		$rest_controller = new SureFeedback\API\Rest_Controller();
+		$rest_controller->register_routes();
+	}
+
+	/**
+	 * Initialize frontend script loader
+	 */
+	public function init_frontend_script() {
+		new SureFeedback\Frontend_Script();
+	}
+
+	/**
+	 * Plugin activation
+	 */
+	public function activate() {
+		// Clear permalinks
+		flush_rewrite_rules();
+
+		// Set transient for activation redirect
+		set_transient( 'surefeedback_activation_redirect', true, 30 );
+	}
+
+	/**
+	 * Plugin deactivation
+	 */
+	public function deactivate() {
+		flush_rewrite_rules();
+	}
+
+	/**
+	 * Handle activation redirect to setup view
+	 */
+	public function activation_redirect() {
+		// Check if we should redirect after activation
+		if ( ! get_transient( 'surefeedback_activation_redirect' ) ) {
 			return;
 		}
 
-		// Check for activation redirect transient
-		if ( get_transient( 'surefeedback_activation_redirect' ) ) {
-			delete_transient( 'surefeedback_activation_redirect' );
+		// Delete the transient so we only redirect once
+		delete_transient( 'surefeedback_activation_redirect' );
 
-			// Redirect to get started screen (Welcome page)
-			wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-connection#setup' ) );
-			exit;
+		// Don't redirect if doing AJAX, cron, or if user is not admin
+		if ( wp_doing_ajax() || wp_doing_cron() || ! current_user_can( 'manage_options' ) ) {
+			return;
 		}
-	},
-	20
-); // Priority 20 to ensure plugins are loaded
 
-
-/**
- * Plugin deactivation hook
- */
-register_deactivation_hook(
-	SUREFEEDBACK_PLUGIN_FILE,
-	function () {
-		// Clear scheduled events
-		wp_clear_scheduled_hook( 'surefeedback_auto_verify' );
-		wp_clear_scheduled_hook( 'surefeedback_hourly_verify' );
-		wp_clear_scheduled_hook( 'surefeedback_cleanup_rate_limits' );
-	}
-);
-
-/**
- * Register security cleanup cron job
- */
-add_action(
-	'surefeedback_cleanup_rate_limits',
-	function () {
-		if ( class_exists( '\\SureFeedback\\Services\\SecurityService' ) ) {
-			$security_service = new \SureFeedback\Services\SecurityService();
-			$security_service->cleanupRateLimits();
+		// Don't redirect if already on our plugin page
+		if ( isset( $_GET['page'] ) && strpos( $_GET['page'], 'surefeedback' ) !== false ) {
+			return;
 		}
+
+		// Redirect to dashboard with setup route (hash will be picked up by React router)
+		wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-dashboard#setup' ) );
+		exit;
 	}
-);
 
-/**
- * Load plugin text domain for internationalization
- * Note: WordPress automatically loads translations since version 4.6+
- * when the plugin is hosted on WordPress.org.
- * The translation files are loaded just-in-time when needed.
- */
+	/**
+	 * Add action links to plugin list
+	 *
+	 * @param array $links Existing plugin action links.
+	 * @return array Modified plugin action links.
+	 */
+	public function add_action_links( $links ) {
+		// Check if plugin is connected to SureFeedback
+		$auth_manager = new SureFeedback\Auth_Manager();
+		$is_connected = $auth_manager->is_authenticated();
 
-/**
- * Add settings link to plugin list table
- */
-add_filter(
-	'plugin_action_links_' . SUREFEEDBACK_PLUGIN_BASENAME,
-	function ( $links ) {
-		$dashboard_link = '<a href="' . admin_url( 'admin.php?page=surefeedback-connection' ) . '">' . __( 'Dashboard', 'surefeedback' ) . '</a>';
-		$settings_link  = '<a href="' . admin_url( 'admin.php?page=surefeedback-settings' ) . '">' . __( 'Settings', 'surefeedback' ) . '</a>';
-		array_unshift( $links, $dashboard_link, $settings_link );
+		// Show different link text based on connection status
+		$link_text = $is_connected
+			? __( 'Access Dashboard', 'surefeedback' )
+			: __( 'Get Started Now', 'surefeedback' );
+
+		$dashboard_link = sprintf(
+			'<a href="%s">%s</a>',
+			admin_url( 'admin.php?page=surefeedback-dashboard' ),
+			$link_text
+		);
+
+		// Add our link to the beginning of the array
+		array_unshift( $links, $dashboard_link );
+
 		return $links;
 	}
-);
+
+	/**
+	 * Get plugin directory path
+	 *
+	 * @return string
+	 */
+	public function get_plugin_path() {
+		return $this->plugin_path;
+	}
+
+	/**
+	 * Get plugin directory URL
+	 *
+	 * @return string
+	 */
+	public function get_plugin_url() {
+		return $this->plugin_url;
+	}
+}
+
+// Initialize the plugin
+function surefeedback() {
+	return SureFeedback::get_instance();
+}
+
+// Start the plugin
+surefeedback();

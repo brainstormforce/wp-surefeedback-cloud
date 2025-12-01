@@ -1,0 +1,68 @@
+/* Tailwind v4 @source lines */
+@source "../src/**/*.{js,jsx}";
+@source "../includes/**/*.php";
+@source "../surefeedback.php";
+
+/* Import Google Fonts - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Import Tailwind v4 */
+@import "tailwindcss/preflight";
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/* Import custom dashboard styles */
+@import "../src/assets/dashboard.css";
+
+/* Theme configuration */
+@theme inline {
+  /* Core shadcn colors */
+  --color-background: #FFFFFF;
+  --color-foreground: #0A0A0A;
+  --color-primary: #455AFB;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F5F5F5;
+  --color-secondary-foreground: #171717;
+  --color-muted: #FAFAFA;
+  --color-muted-foreground: #737373;
+  --color-accent: #F5F5F5;
+  --color-accent-foreground: #171717;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #E5E5E5;
+  --color-input: #E5E5E5;
+  --color-ring: #455AFB;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0A0A0A;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #0A0A0A;
+
+  /* Fonts */
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+  /* Radius */
+  --radius: 0.5rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+/* Base styles */
+@layer base {
+  html, body, * {
+    font-family: 'Figtree', ui-sans-serif, sans-serif;
+  }
+}
+
+/* Custom styles from src/styles.css */
+.toplevel_page_surefeedback #wpcontent,
+.post-type-elementor-hf #wpcontent {
+    padding-left: 0;
+}
+
+@media (max-width: 782px) {
+	.toplevel_page_surefeedback #wpcontent {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+}

@@ -5,8 +5,11 @@ includes:
 parameters:
   level: 5
   paths:
-    - .
+    - includes
+    - surefeedback.php
   excludePaths:
     - vendor/*
     - tests/*
     - node_modules/*
+  bootstrapFiles:
+    - tests/php/stubs/constants.php
