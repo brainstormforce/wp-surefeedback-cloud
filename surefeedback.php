@@ -139,6 +139,9 @@ final class SureFeedback {
 
 		// Poll for connection tokens automatically
 		add_action( 'admin_init', array( $this, 'poll_connection_tokens' ) );
+		
+		// Also poll after plugins are loaded (ensures REST API is available)
+		add_action( 'plugins_loaded', array( $this, 'poll_connection_tokens' ), 20 );
 
 		// Set up cron job for periodic token polling
 		add_action( 'surefeedback_poll_connection_tokens', array( $this, 'poll_connection_tokens' ) );
@@ -214,6 +217,10 @@ final class SureFeedback {
 
 		// Set transient for activation redirect
 		set_transient( 'surefeedback_activation_redirect', true, 30 );
+
+		// Poll for connection tokens immediately on activation
+		// This ensures automatic connection works right after installation
+		$this->poll_connection_tokens();
 	}
 
 	/**
@@ -259,7 +266,7 @@ final class SureFeedback {
 
 	/**
 	 * Poll for pending connection tokens and automatically connect
-	 * Called on admin_init and via cron
+	 * Called on admin_init, plugin activation, and via cron
 	 */
 	public function poll_connection_tokens() {
 		// Only poll if not already connected
@@ -268,8 +275,12 @@ final class SureFeedback {
 			return;
 		}
 
-		// Only poll in admin area or via cron (not on every page load)
-		if ( ! is_admin() && ! wp_doing_cron() ) {
+		// Allow polling in admin area, during cron, during activation, or after plugins loaded
+		// During activation, is_admin() might not be true yet, so we allow it
+		$is_activation = doing_action( 'activate_' . plugin_basename( __FILE__ ) );
+		$is_plugins_loaded = doing_action( 'plugins_loaded' );
+		
+		if ( ! is_admin() && ! wp_doing_cron() && ! $is_activation && ! $is_plugins_loaded ) {
 			return;
 		}
 
@@ -282,9 +293,16 @@ final class SureFeedback {
 		// Call the poll method (it will handle the logic internally)
 		$result = $rest_controller->poll_connection_tokens( $request );
 		
-		// Log result for debugging (only log errors)
+		// Log result for debugging
 		if ( is_wp_error( $result ) ) {
 			error_log( 'SureFeedback: Token polling failed - ' . $result->get_error_message() );
+		} elseif ( is_object( $result ) && method_exists( $result, 'get_data' ) ) {
+			$data = $result->get_data();
+			if ( isset( $data['connected'] ) && $data['connected'] ) {
+				error_log( 'SureFeedback: Connection established successfully via token polling' );
+			} elseif ( isset( $data['success'] ) && ! $data['success'] ) {
+				error_log( 'SureFeedback: Token polling returned: ' . ( $data['message'] ?? 'Unknown error' ) );
+			}
 		}
 	}
 

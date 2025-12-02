@@ -748,8 +748,14 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// Normalize domain to match Laravel's normalization (remove www, port, etc.)
+		$domain = $this->normalize_domain_for_query( $domain );
+
 		// Get Laravel API base URL
 		$api_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ? SUREFEEDBACK_SAAS_API_BASE_URL : 'https://api.surefeedback.com';
+
+		// Log polling attempt for debugging
+		error_log( 'SureFeedback: Polling for connection tokens - domain: ' . $domain );
 
 		// Fetch pending tokens
 		$saas_client = new SaaS_Client();
@@ -763,6 +769,7 @@ class Rest_Controller extends WP_REST_Controller {
 		);
 
 		if ( is_wp_error( $result ) ) {
+			error_log( 'SureFeedback: Failed to fetch pending tokens - ' . $result->get_error_message() );
 			return rest_ensure_response(
 				array(
 					'success'  => false,
@@ -773,6 +780,7 @@ class Rest_Controller extends WP_REST_Controller {
 		}
 
 		if ( ! isset( $result['success'] ) || ! $result['success'] ) {
+			error_log( 'SureFeedback: No pending tokens found in API response' );
 			return rest_ensure_response(
 				array(
 					'success'  => false,
@@ -785,6 +793,7 @@ class Rest_Controller extends WP_REST_Controller {
 		$tokens = $result['data']['tokens'] ?? array();
 
 		if ( empty( $tokens ) ) {
+			error_log( 'SureFeedback: No pending connection tokens found for domain: ' . $domain );
 			return rest_ensure_response(
 				array(
 					'success'  => true,
@@ -794,10 +803,13 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
+		error_log( 'SureFeedback: Found ' . count( $tokens ) . ' pending token(s)' );
+
 		// Get the most recent token (first in array)
 		$token = $tokens[0]['token'] ?? null;
 
 		if ( ! $token ) {
+			error_log( 'SureFeedback: Invalid token data in response' );
 			return rest_ensure_response(
 				array(
 					'success'  => false,
@@ -807,10 +819,13 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
+		error_log( 'SureFeedback: Attempting to exchange connection token' );
+
 		// Exchange token
 		$exchange_result = $this->exchange_connection_token( $token, $site_url );
 
 		if ( is_wp_error( $exchange_result ) ) {
+			error_log( 'SureFeedback: Token exchange failed - ' . $exchange_result->get_error_message() );
 			return rest_ensure_response(
 				array(
 					'success'  => false,
@@ -820,12 +835,15 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
+		$site_id = get_option( 'surefeedback_site_id', '' );
+		error_log( 'SureFeedback: Connection established successfully via token exchange - site_id: ' . $site_id );
+
 		return rest_ensure_response(
 			array(
 				'success'   => true,
 				'message'   => 'Connection established successfully',
 				'connected' => true,
-				'site_id'   => get_option( 'surefeedback_site_id', '' ),
+				'site_id'   => $site_id,
 			)
 		);
 	}
@@ -843,6 +861,8 @@ class Rest_Controller extends WP_REST_Controller {
 
 		// Build site API URL
 		$site_api_url = rtrim( $site_url, '/' ) . '/wp-json/surefeedback/v1';
+
+		error_log( 'SureFeedback: Exchanging token - API URL: ' . $api_url . ', Site API URL: ' . $site_api_url );
 
 		$response = wp_remote_post(
 			$api_url,
@@ -862,13 +882,17 @@ class Rest_Controller extends WP_REST_Controller {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			error_log( 'SureFeedback: Token exchange HTTP error - ' . $response->get_error_message() );
 			return $response;
 		}
 
 		$body = wp_remote_retrieve_body( $response );
 		$code = wp_remote_retrieve_response_code( $response );
 
+		error_log( 'SureFeedback: Token exchange response - Status: ' . $code . ', Body length: ' . strlen( $body ) );
+
 		if ( ! in_array( $code, array( 200, 201 ), true ) ) {
+			error_log( 'SureFeedback: Token exchange failed with status ' . $code . ' - ' . substr( $body, 0, 500 ) );
 			return new WP_Error(
 				'token_exchange_failed',
 				sprintf( 'Token exchange failed with status code %d', $code ),
@@ -882,11 +906,14 @@ class Rest_Controller extends WP_REST_Controller {
 		$data = json_decode( $body, true );
 
 		if ( ! isset( $data['success'] ) || ! $data['success'] ) {
+			error_log( 'SureFeedback: Token exchange returned unsuccessful - ' . ( $data['message'] ?? 'Unknown error' ) );
 			return new WP_Error(
 				'token_exchange_failed',
 				$data['message'] ?? 'Token exchange failed',
 			);
 		}
+
+		error_log( 'SureFeedback: Token exchange successful, processing response data' );
 
 		// Store connection data (same as manual OAuth flow)
 		$connection_data = $data['data'] ?? array();
@@ -904,32 +931,75 @@ class Rest_Controller extends WP_REST_Controller {
 
 		// Store using Auth_Manager (same as manual OAuth flow)
 		$auth_manager = new \SureFeedback\Auth_Manager();
-		$auth_manager->store_bearer_token( $access_token );
+		$store_result = $auth_manager->store_bearer_token( $access_token );
+		
+		if ( ! $store_result ) {
+			error_log( 'SureFeedback: Failed to store bearer token' );
+		} else {
+			error_log( 'SureFeedback: Bearer token stored successfully' );
+		}
 
 		// Store connection metadata (same as manual OAuth flow in Auth_Manager::exchange_token)
+		$options_stored = array();
+		
 		if ( ! empty( $connection_data['connection_id'] ) ) {
+			$options_stored[] = 'connection_id';
 			update_option( 'surefeedback_connection_id', sanitize_text_field( $connection_data['connection_id'] ) );
 		}
 
 		if ( ! empty( $site_id ) ) {
+			$options_stored[] = 'site_id';
 			update_option( 'surefeedback_site_id', sanitize_text_field( $site_id ) );
 		}
 
 		if ( ! empty( $organization_id ) ) {
+			$options_stored[] = 'organization_id';
 			update_option( 'surefeedback_organization_id', sanitize_text_field( $organization_id ) );
 		}
 
 		// Store script token (site token) for verification (same as manual OAuth flow)
 		if ( ! empty( $script_token ) ) {
+			$options_stored[] = 'access_token';
+			$options_stored[] = 'site_token';
 			update_option( 'surefeedback_access_token', sanitize_text_field( $script_token ) );
 			update_option( 'surefeedback_site_token', sanitize_text_field( $script_token ) );
 		}
 
 		// Store additional metadata for widget and parent URL
+		$options_stored[] = 'parent_url';
+		$options_stored[] = 'widget_script_url';
 		update_option( 'surefeedback_parent_url', esc_url_raw( $api_base_url ) );
 		update_option( 'surefeedback_widget_script_url', esc_url_raw( $api_base_url . '/dist/widget.js' ) );
 
+		error_log( 'SureFeedback: Stored WordPress options: ' . implode( ', ', $options_stored ) );
+
 		return true;
+	}
+
+	/**
+	 * Normalize domain for querying (matches Laravel's normalization)
+	 *
+	 * @param string $domain The domain to normalize.
+	 * @return string Normalized domain.
+	 */
+	private function normalize_domain_for_query( $domain ) {
+		// Remove protocol if present
+		$domain = preg_replace( '#^https?://#', '', $domain );
+		
+		// Remove trailing slash
+		$domain = rtrim( $domain, '/' );
+		
+		// Remove www. prefix
+		$domain = preg_replace( '#^www\.#', '', $domain );
+		
+		// Extract host (remove path if present)
+		$parts = explode( '/', $domain );
+		$domain = $parts[0];
+		
+		// Remove port if present
+		$domain = preg_replace( '#:\d+$#', '', $domain );
+		
+		return strtolower( $domain );
 	}
 
 	/**
