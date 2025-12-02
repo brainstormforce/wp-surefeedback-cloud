@@ -159,7 +159,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Webhook endpoint (disconnect) - no authentication required
 		register_rest_route(
 			$this->namespace,
 			'/webhook/disconnect',
