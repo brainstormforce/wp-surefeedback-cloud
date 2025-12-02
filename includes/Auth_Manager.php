@@ -54,7 +54,41 @@ class Auth_Manager {
 	 */
 	public function is_authenticated() {
 		$token = $this->get_bearer_token();
-		return ! empty( $token );
+		
+		// If we have a valid token, we're authenticated
+		if ( ! empty( $token ) ) {
+			return true;
+		}
+
+		// Fallback: Check if connection data exists (for webhook-based connections)
+		// This handles cases where bearer token decryption fails but connection data exists
+		$site_id = get_option( 'surefeedback_site_id', '' );
+		$site_token = get_option( 'surefeedback_site_token', '' );
+		$organization_id = get_option( 'surefeedback_organization_id', '' );
+
+		// If we have site_id and site_token, consider it connected
+		// This is a valid connection established via webhook
+		if ( ! empty( $site_id ) && ! empty( $site_token ) ) {
+			// Try to get bearer token from database (might be stored as plain text)
+			$db_token = get_option( self::BEARER_TOKEN_OPTION, false );
+			
+			// If token exists but decryption failed, try using it as plain text
+			// This handles backward compatibility for tokens stored before encryption
+			if ( $db_token && ! empty( $db_token ) ) {
+				// Check if it looks like a JWT (starts with eyJ)
+				if ( strpos( $db_token, 'eyJ' ) === 0 ) {
+					// It's a plain JWT token, store it properly encrypted
+					$this->store_bearer_token( $db_token );
+					return true;
+				}
+			}
+
+			// Connection data exists, consider connected even without valid bearer token
+			// The bearer token can be refreshed later if needed
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -74,25 +108,35 @@ class Auth_Manager {
 		}
 
 		// Fallback to database option
-		$encrypted_token = get_option( self::BEARER_TOKEN_OPTION, false );
-		if ( ! $encrypted_token ) {
+		$stored_token = get_option( self::BEARER_TOKEN_OPTION, false );
+		if ( ! $stored_token ) {
 			return false;
 		}
 
-		$encryption = new Encryption();
-		return $encryption->decrypt( $encrypted_token );
-	}
+		// Check if token is already a plain JWT (starts with "eyJ" for JWT header)
+		// This handles backward compatibility for tokens stored before encryption
+		if ( is_string( $stored_token ) && strpos( $stored_token, 'eyJ' ) === 0 ) {
+			// It's a plain JWT token, return it directly
+			// Also re-encrypt it for future use
+			$encryption = new Encryption();
+			$encrypted = $encryption->encrypt( $stored_token );
+			if ( $encrypted ) {
+				update_option( self::BEARER_TOKEN_OPTION, $encrypted );
+			}
+			return $stored_token;
+		}
 
-	/**
-	 * Check if there's an authentication error
-	 *
-	 * @since 0.0.1
-	 *
-	 * @return bool
-	 */
-	public function has_auth_error() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback, nonce not applicable for external redirects
-		return isset( $_GET['auth_error'] ) && sanitize_text_field( wp_unslash( $_GET['auth_error'] ) ) === '1';
+		// Try to decrypt (assumes it's encrypted)
+		$encryption = new Encryption();
+		$decrypted = $encryption->decrypt( $stored_token );
+		
+		// If decryption fails, it might be plain text stored incorrectly
+		// Return the stored value as-is if it looks like a JWT
+		if ( ! $decrypted && is_string( $stored_token ) && strpos( $stored_token, 'eyJ' ) === 0 ) {
+			return $stored_token;
+		}
+
+		return $decrypted;
 	}
 
 	/**
@@ -112,6 +156,18 @@ class Auth_Manager {
 		$db_result       = update_option( self::BEARER_TOKEN_OPTION, $encrypted_token );
 
 		return $cookie_result && $db_result;
+	}
+
+	/**
+	 * Check if there's an authentication error
+	 *
+	 * @since 0.0.1
+	 *
+	 * @return bool
+	 */
+	public function has_auth_error() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback, nonce not applicable for external redirects
+		return isset( $_GET['auth_error'] ) && sanitize_text_field( wp_unslash( $_GET['auth_error'] ) ) === '1';
 	}
 
 	/**
