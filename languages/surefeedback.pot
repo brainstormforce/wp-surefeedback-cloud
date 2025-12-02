@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-02T07:26:41+00:00\n"
+"POT-Creation-Date: 2025-12-02T09:30:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback\n"
@@ -66,50 +66,42 @@ msgstr ""
 msgid "Authentication failed. Please try again."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:346
+#: includes/API/Rest_Controller.php:334
 msgid "State parameter is required."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:375
+#: includes/API/Rest_Controller.php:363
 msgid "Failed to store state."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:392
+#: includes/API/Rest_Controller.php:380
 msgid "Not connected to SureFeedback."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:666
+#: includes/API/Rest_Controller.php:654
 msgid "Site token is required."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:678
+#: includes/API/Rest_Controller.php:666
 msgid "Not authenticated with SureFeedback."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:725
+#: includes/API/Rest_Controller.php:713
 msgid "Verification failed: "
 msgstr ""
 
-#: includes/API/Rest_Controller.php:744
-msgid "Site token and site ID are required."
+#: includes/API/Rest_Controller.php:746
+msgid "Unable to determine site domain."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:757
-msgid "Invalid site token."
-msgstr ""
-
-#: includes/API/Rest_Controller.php:845
-msgid "Site ID mismatch."
-msgstr ""
-
-#: includes/API/Rest_Controller.php:882
+#: includes/API/Rest_Controller.php:944
 msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-#: surefeedback.php:258
+#: surefeedback.php:304
 msgid "Access Dashboard"
 msgstr ""
 
-#: surefeedback.php:259
+#: surefeedback.php:305
 msgid "Get Started Now"
 msgstr ""

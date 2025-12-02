@@ -136,6 +136,15 @@ final class SureFeedback {
 
 		// Handle activation redirect
 		add_action( 'admin_init', array( $this, 'activation_redirect' ) );
+
+		// Poll for connection tokens automatically
+		add_action( 'admin_init', array( $this, 'poll_connection_tokens' ) );
+
+		// Set up cron job for periodic token polling
+		add_action( 'surefeedback_poll_connection_tokens', array( $this, 'poll_connection_tokens' ) );
+		if ( ! wp_next_scheduled( 'surefeedback_poll_connection_tokens' ) ) {
+			wp_schedule_event( time(), 'hourly', 'surefeedback_poll_connection_tokens' );
+		}
 	}
 
 	/**
@@ -212,6 +221,12 @@ final class SureFeedback {
 	 */
 	public function deactivate() {
 		flush_rewrite_rules();
+
+		// Clear scheduled cron job
+		$timestamp = wp_next_scheduled( 'surefeedback_poll_connection_tokens' );
+		if ( $timestamp ) {
+			wp_unschedule_event( $timestamp, 'surefeedback_poll_connection_tokens' );
+		}
 	}
 
 	/**
@@ -240,6 +255,37 @@ final class SureFeedback {
 		// Redirect to dashboard with setup route (hash will be picked up by React router)
 		wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-dashboard#setup' ) );
 		exit;
+	}
+
+	/**
+	 * Poll for pending connection tokens and automatically connect
+	 * Called on admin_init and via cron
+	 */
+	public function poll_connection_tokens() {
+		// Only poll if not already connected
+		$auth_manager = new SureFeedback\Auth_Manager();
+		if ( $auth_manager->is_authenticated() ) {
+			return;
+		}
+
+		// Only poll in admin area or via cron (not on every page load)
+		if ( ! is_admin() && ! wp_doing_cron() ) {
+			return;
+		}
+
+		// Get REST controller instance and call internal polling method
+		$rest_controller = new SureFeedback\API\Rest_Controller();
+		
+		// Create a mock REST request for the method
+		$request = new WP_REST_Request( 'POST', '/surefeedback/v1/connection/poll-tokens' );
+		
+		// Call the poll method (it will handle the logic internally)
+		$result = $rest_controller->poll_connection_tokens( $request );
+		
+		// Log result for debugging (only log errors)
+		if ( is_wp_error( $result ) ) {
+			error_log( 'SureFeedback: Token polling failed - ' . $result->get_error_message() );
+		}
 	}
 
 	/**

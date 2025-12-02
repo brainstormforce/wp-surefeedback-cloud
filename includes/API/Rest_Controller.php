@@ -146,27 +146,15 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Webhook endpoint (connect) - no authentication required, validated by site_token
+		// Poll for connection tokens (automatic connection)
 		register_rest_route(
 			$this->namespace,
-			'/webhook',
+			'/connection/poll-tokens',
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'handle_webhook' ),
-					'permission_callback' => '__return_true',
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/webhook/disconnect',
-			array(
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'handle_disconnect_webhook' ),
-					'permission_callback' => '__return_true',
+					'callback'            => array( $this, 'poll_connection_tokens' ),
+					'permission_callback' => array( $this, 'admin_permissions_check' ),
 				),
 			)
 		);
@@ -729,145 +717,219 @@ class Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Handle webhook from SaaS platform (connect)
+	 * Poll for pending connection tokens and automatically exchange them
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function handle_webhook( $request ) {
-		$data = $request->get_json_params();
+	public function poll_connection_tokens( $request ) {
+		// Check if already connected
+		$auth_manager = new \SureFeedback\Auth_Manager();
+		if ( $auth_manager->is_authenticated() ) {
+			return rest_ensure_response(
+				array(
+					'success'  => true,
+					'message'  => 'Already connected',
+					'connected' => true,
+				)
+			);
+		}
 
-		// Validate required fields
-		if ( empty( $data['site_token'] ) || empty( $data['site_id'] ) ) {
+		// Get site URL and domain
+		$site_url = get_site_url();
+		$parsed   = parse_url( $site_url );
+		$domain   = $parsed['host'] ?? '';
+
+		if ( empty( $domain ) ) {
 			return new WP_Error(
-				'rest_missing_param',
-				__( 'Site token and site ID are required.', 'surefeedback' ),
+				'rest_invalid_domain',
+				__( 'Unable to determine site domain.', 'surefeedback' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		$site_token = sanitize_text_field( $data['site_token'] );
-		$site_id    = sanitize_text_field( $data['site_id'] );
+		// Get Laravel API base URL
+		$api_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ? SUREFEEDBACK_SAAS_API_BASE_URL : 'https://api.surefeedback.com';
 
-		// Verify site token matches stored token (if already connected)
-		$stored_token = get_option( 'surefeedback_access_token', '' );
-		if ( ! empty( $stored_token ) && $stored_token !== $site_token ) {
-			return new WP_Error(
-				'rest_invalid_token',
-				__( 'Invalid site token.', 'surefeedback' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// Store connection data
-		update_option( 'surefeedback_access_token', $site_token );
-		update_option( 'surefeedback_site_token', $site_token );
-		update_option( 'surefeedback_site_id', $site_id );
-
-		// Always save organization_id if provided
-		if ( isset( $data['organization_id'] ) ) {
-			update_option( 'surefeedback_organization_id', sanitize_text_field( $data['organization_id'] ) );
-		}
-
-		// Store access_token using the same method as manual OAuth flow
-		// This ensures consistency between automatic and manual connections
-		if ( ! empty( $data['access_token'] ) ) {
-			// Don't sanitize JWT tokens - they're already validated by Laravel
-			// and contain special characters (dots, base64) that shouldn't be modified
-			$access_token = $data['access_token'];
-			
-			// Store in secure cookie (same as manual OAuth)
-			$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
-			$secure_cookie_manager->store_auth_token( $access_token, 30 * DAY_IN_SECONDS );
-			
-			// Encrypt and store in database (same as Auth_Manager::store_bearer_token)
-			// Note: Auth_Manager sanitizes before encrypting, so we do the same
-			$encryption = new \SureFeedback\Encryption();
-			$encrypted_token = $encryption->encrypt( sanitize_text_field( $access_token ) );
-			
-			// Store encrypted token
-			if ( false !== $encrypted_token && ! empty( $encrypted_token ) ) {
-				update_option( 'surefeedback_bearer_token', $encrypted_token );
-			}
-		} elseif ( ! empty( $site_token ) ) {
-			// Fallback: If no access_token provided, generate from site_token
-			$bearer_token = hash_hmac( 'sha256', $site_token, wp_salt( 'auth' ) . SECURE_AUTH_KEY );
-			$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
-			$secure_cookie_manager->set_secure_cookie( 'auth_token', $bearer_token );
-			
-			// Encrypt and store in database as backup
-			$encryption = new \SureFeedback\Encryption();
-			$encrypted_token = $encryption->encrypt( $bearer_token );
-			
-			// If encryption failed or openssl not available, store the token as-is
-			if ( false === $encrypted_token || empty( $encrypted_token ) ) {
-				update_option( 'surefeedback_bearer_token', $bearer_token );
-			} else {
-				update_option( 'surefeedback_bearer_token', $encrypted_token );
-			}
-		}
-
-		if ( ! empty( $data['parent_url'] ) ) {
-			update_option( 'surefeedback_parent_url', esc_url_raw( $data['parent_url'] ) );
-		}
-
-		if ( ! empty( $data['widget_script_url'] ) ) {
-			update_option( 'surefeedback_widget_script_url', esc_url_raw( $data['widget_script_url'] ) );
-		}
-
-		delete_option( 'surefeedback_webhook_state' );
-
-		$response_data = array(
-			'success'   => true,
-			'message'   => 'Webhook processed successfully',
-			'site_id'   => $site_id,
-			'connected' => true,
+		// Fetch pending tokens
+		$saas_client = new SaaS_Client();
+		$result      = $saas_client->get(
+			'connections/pending-tokens',
+			array(
+				'query' => array(
+					'domain' => $domain,
+				),
+			)
 		);
 
-		return rest_ensure_response( $response_data );
-	}
-
-	/**
-	 * Handle disconnect webhook from SaaS platform
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
-	 */
-	public function handle_disconnect_webhook( $request ) {
-		$data    = $request->get_json_params();
-		$site_id = isset( $data['site_id'] ) ? sanitize_text_field( $data['site_id'] ) : '';
-
-		// Verify site_id matches if provided
-		$stored_site_id = get_option( 'surefeedback_site_id', '' );
-		if ( ! empty( $site_id ) && ! empty( $stored_site_id ) && $site_id !== $stored_site_id ) {
-			return new WP_Error(
-				'rest_invalid_site_id',
-				__( 'Site ID mismatch.', 'surefeedback' ),
-				array( 'status' => 400 )
+		if ( is_wp_error( $result ) ) {
+			return rest_ensure_response(
+				array(
+					'success'  => false,
+					'message'  => 'Failed to fetch pending tokens: ' . $result->get_error_message(),
+					'connected' => false,
+				)
 			);
 		}
 
-		// Clear all connection data
-		$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
-		$secure_cookie_manager->delete_secure_cookie( 'auth_token' );
+		if ( ! isset( $result['success'] ) || ! $result['success'] ) {
+			return rest_ensure_response(
+				array(
+					'success'  => false,
+					'message'  => 'No pending tokens found',
+					'connected' => false,
+				)
+			);
+		}
 
-		delete_option( 'surefeedback_bearer_token' );
-		delete_option( 'surefeedback_connection_id' );
-		delete_option( 'surefeedback_site_id' );
-		delete_option( 'surefeedback_organization_id' );
-		delete_option( 'surefeedback_access_token' );
-		delete_option( 'surefeedback_site_token' );
-		delete_option( 'surefeedback_parent_url' );
-		delete_option( 'surefeedback_widget_script_url' );
-		delete_option( 'surefeedback_webhook_state' );
+		$tokens = $result['data']['tokens'] ?? array();
+
+		if ( empty( $tokens ) ) {
+			return rest_ensure_response(
+				array(
+					'success'  => true,
+					'message'  => 'No pending connection tokens found',
+					'connected' => false,
+				)
+			);
+		}
+
+		// Get the most recent token (first in array)
+		$token = $tokens[0]['token'] ?? null;
+
+		if ( ! $token ) {
+			return rest_ensure_response(
+				array(
+					'success'  => false,
+					'message'  => 'Invalid token data',
+					'connected' => false,
+				)
+			);
+		}
+
+		// Exchange token
+		$exchange_result = $this->exchange_connection_token( $token, $site_url );
+
+		if ( is_wp_error( $exchange_result ) ) {
+			return rest_ensure_response(
+				array(
+					'success'  => false,
+					'message'  => 'Token exchange failed: ' . $exchange_result->get_error_message(),
+					'connected' => false,
+				)
+			);
+		}
 
 		return rest_ensure_response(
 			array(
 				'success'   => true,
-				'message'   => 'Disconnected successfully via webhook',
-				'connected' => false,
+				'message'   => 'Connection established successfully',
+				'connected' => true,
+				'site_id'   => get_option( 'surefeedback_site_id', '' ),
 			)
 		);
+	}
+
+	/**
+	 * Exchange connection token for permanent JWT
+	 *
+	 * @param string $oauth_token The connection token.
+	 * @param string $site_url    The WordPress site URL.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	private function exchange_connection_token( $oauth_token, $site_url ) {
+		$api_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ? SUREFEEDBACK_SAAS_API_BASE_URL : 'https://api.surefeedback.com';
+		$api_url      = $api_base_url . '/api/v1/connections/exchange';
+
+		// Build site API URL
+		$site_api_url = rtrim( $site_url, '/' ) . '/wp-json/surefeedback/v1';
+
+		$response = wp_remote_post(
+			$api_url,
+			array(
+				'timeout' => 15,
+				'headers' => array(
+					'Content-Type' => 'application/json',
+					'Accept'       => 'application/json',
+				),
+				'body'    => wp_json_encode(
+					array(
+						'oauth_token' => $oauth_token,
+						'site_url'   => $site_api_url,
+					)
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$code = wp_remote_retrieve_response_code( $response );
+
+		if ( ! in_array( $code, array( 200, 201 ), true ) ) {
+			return new WP_Error(
+				'token_exchange_failed',
+				sprintf( 'Token exchange failed with status code %d', $code ),
+				array(
+					'body' => $body,
+					'code' => $code,
+				)
+			);
+		}
+
+		$data = json_decode( $body, true );
+
+		if ( ! isset( $data['success'] ) || ! $data['success'] ) {
+			return new WP_Error(
+				'token_exchange_failed',
+				$data['message'] ?? 'Token exchange failed',
+			);
+		}
+
+		// Store connection data (same as manual OAuth flow)
+		$connection_data = $data['data'] ?? array();
+		$access_token    = $connection_data['access_token'] ?? null;
+		$site_id         = $connection_data['site_id'] ?? null;
+		$organization_id = $connection_data['organization_id'] ?? null;
+		$script_token    = $connection_data['script_token'] ?? null;
+
+		if ( ! $access_token || ! $site_id ) {
+			return new WP_Error(
+				'token_exchange_invalid',
+				'Invalid response data from token exchange',
+			);
+		}
+
+		// Store using Auth_Manager (same as manual OAuth flow)
+		$auth_manager = new \SureFeedback\Auth_Manager();
+		$auth_manager->store_bearer_token( $access_token );
+
+		// Store connection metadata (same as manual OAuth flow in Auth_Manager::exchange_token)
+		if ( ! empty( $connection_data['connection_id'] ) ) {
+			update_option( 'surefeedback_connection_id', sanitize_text_field( $connection_data['connection_id'] ) );
+		}
+
+		if ( ! empty( $site_id ) ) {
+			update_option( 'surefeedback_site_id', sanitize_text_field( $site_id ) );
+		}
+
+		if ( ! empty( $organization_id ) ) {
+			update_option( 'surefeedback_organization_id', sanitize_text_field( $organization_id ) );
+		}
+
+		// Store script token (site token) for verification (same as manual OAuth flow)
+		if ( ! empty( $script_token ) ) {
+			update_option( 'surefeedback_access_token', sanitize_text_field( $script_token ) );
+			update_option( 'surefeedback_site_token', sanitize_text_field( $script_token ) );
+		}
+
+		// Store additional metadata for widget and parent URL
+		update_option( 'surefeedback_parent_url', esc_url_raw( $api_base_url ) );
+		update_option( 'surefeedback_widget_script_url', esc_url_raw( $api_base_url . '/dist/widget.js' ) );
+
+		return true;
 	}
 
 	/**

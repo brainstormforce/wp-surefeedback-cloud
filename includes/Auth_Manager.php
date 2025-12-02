@@ -101,7 +101,7 @@ class Auth_Manager {
 	 * @param string $token Bearer token.
 	 * @return bool
 	 */
-	private function store_bearer_token( $token ) {
+	public function store_bearer_token( $token ) {
 		// Store in secure cookie
 		$secure_cookie_manager = Secure_Cookie_Manager::get_instance();
 		$cookie_result         = $secure_cookie_manager->store_auth_token( $token, 30 * DAY_IN_SECONDS );
