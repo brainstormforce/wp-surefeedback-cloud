@@ -54,7 +54,7 @@ module.exports = function (grunt) {
       // Local/Development zip
       local: {
         options: {
-          archive: "surefeedback-v<%= version %>-local.zip",
+          archive: "surefeedback-local.zip",
           mode: 'zip',
           level: 9,
         },
@@ -158,7 +158,7 @@ module.exports = function (grunt) {
       // Staging zip
       staging: {
         options: {
-          archive: "surefeedback-v<%= version %>-staging.zip",
+          archive: "surefeedback-staging.zip",
           mode: 'zip',
           level: 9,
         },
@@ -396,16 +396,16 @@ module.exports = function (grunt) {
       release_local: {
         files: [
           {
-            src: "surefeedback-v<%= version %>-local.zip",
-            dest: "release/local/surefeedback-v<%= version %>-local.zip",
+            src: "surefeedback-local.zip",
+            dest: "release/local/surefeedback-local.zip",
           },
         ],
       },
       release_staging: {
         files: [
           {
-            src: "surefeedback-v<%= version %>-staging.zip",
-            dest: "release/staging/surefeedback-v<%= version %>-staging.zip",
+            src: "surefeedback-staging.zip",
+            dest: "release/staging/surefeedback-staging.zip",
           },
         ],
       },
