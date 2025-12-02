@@ -24,20 +24,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Check if running in local development environment
-$is_local_env = defined( 'WP_ENVIRONMENT_TYPE' ) && 'local' === WP_ENVIRONMENT_TYPE;
+$surefeedback_is_local_env = defined( 'WP_ENVIRONMENT_TYPE' ) && 'local' === WP_ENVIRONMENT_TYPE;
 
 /**
  * SaaS API Base URL constant
  */
 if ( ! defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_SAAS_API_BASE_URL', $is_local_env ? 'http://localhost:8000' : 'https://api.surefeedback.com' );
+	define( 'SUREFEEDBACK_SAAS_API_BASE_URL', $surefeedback_is_local_env ? 'http://localhost:8000' : 'https://api.surefeedback.com' );
 }
 
 /**
  * SaaS App Base URL constant
  */
 if ( ! defined( 'SUREFEEDBACK_SAAS_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_SAAS_BASE_URL', $is_local_env ? 'http://localhost:3000' : 'https://app.surefeedback.com' );
+	define( 'SUREFEEDBACK_SAAS_BASE_URL', $surefeedback_is_local_env ? 'http://localhost:3000' : 'https://app.surefeedback.com' );
 }
 
 /**
@@ -232,7 +232,8 @@ final class SureFeedback {
 		}
 
 		// Don't redirect if already on our plugin page
-		if ( isset( $_GET['page'] ) && strpos( $_GET['page'], 'surefeedback' ) !== false ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking page parameter for redirect prevention, no data processing
+		if ( isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'surefeedback' ) !== false ) {
 			return;
 		}
 

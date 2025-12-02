@@ -2,7 +2,7 @@
 Contributors: brainstormforce
 Donate link: https://surefeedback.com
 Tags: surefeedback, client, feedback, design
-Requires at least: 4.7
+Requires at least: 5.8
 Tested up to: 6.8
 Stable tag: 0.0.1
 Requires PHP: 7.4
