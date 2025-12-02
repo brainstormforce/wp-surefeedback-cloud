@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-02T09:44:05+00:00\n"
+"POT-Creation-Date: 2025-12-02T15:03:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback\n"
@@ -66,42 +66,70 @@ msgstr ""
 msgid "Authentication failed. Please try again."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:334
+#: includes/API/Rest_Controller.php:321
 msgid "State parameter is required."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:363
+#: includes/API/Rest_Controller.php:350
 msgid "Failed to store state."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:380
+#: includes/API/Rest_Controller.php:367
 msgid "Not connected to SureFeedback."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:654
+#: includes/API/Rest_Controller.php:641
 msgid "Site token is required."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:666
+#: includes/API/Rest_Controller.php:653
 msgid "Not authenticated with SureFeedback."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:713
+#: includes/API/Rest_Controller.php:700
 msgid "Verification failed: "
 msgstr ""
 
-#: includes/API/Rest_Controller.php:746
+#: includes/API/Rest_Controller.php:733
 msgid "Unable to determine site domain."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:1014
+#: includes/API/Rest_Controller.php:1001
 msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-#: surefeedback.php:322
+#: includes/API/WebhookController.php:97
+msgid "Invalid webhook data."
+msgstr ""
+
+#: includes/API/WebhookController.php:113
+msgid "Missing state parameter."
+msgstr ""
+
+#: includes/API/WebhookController.php:125
+msgid "Invalid state: no stored state found."
+msgstr ""
+
+#: includes/API/WebhookController.php:140
+msgid "State has expired."
+msgstr ""
+
+#: includes/API/WebhookController.php:150
+msgid "Invalid state: state mismatch."
+msgstr ""
+
+#: includes/API/WebhookController.php:273
+msgid "Invalid webhook secret."
+msgstr ""
+
+#: includes/API/WebhookController.php:286
+msgid "Invalid site ID."
+msgstr ""
+
+#: surefeedback.php:326
 msgid "Access Dashboard"
 msgstr ""
 
-#: surefeedback.php:323
+#: surefeedback.php:327
 msgid "Get Started Now"
 msgstr ""
