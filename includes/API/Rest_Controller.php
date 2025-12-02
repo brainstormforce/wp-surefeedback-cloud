@@ -769,11 +769,42 @@ class Rest_Controller extends WP_REST_Controller {
 			update_option( 'surefeedback_organization_id', sanitize_text_field( $data['organization_id'] ) );
 		}
 
-		if ( ! empty( $data['user_token'] ) ) {
-			// Store user token securely
+		// Store access_token using the same method as manual OAuth flow
+		// This ensures consistency between automatic and manual connections
+		if ( ! empty( $data['access_token'] ) ) {
+			// Don't sanitize JWT tokens - they're already validated by Laravel
+			// and contain special characters (dots, base64) that shouldn't be modified
+			$access_token = $data['access_token'];
+			
+			// Store in secure cookie (same as manual OAuth)
 			$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
-			$secure_cookie_manager->set_secure_cookie( 'auth_token', sanitize_text_field( $data['user_token'] ) );
-			update_option( 'surefeedback_bearer_token', sanitize_text_field( $data['user_token'] ) );
+			$secure_cookie_manager->store_auth_token( $access_token, 30 * DAY_IN_SECONDS );
+			
+			// Encrypt and store in database (same as Auth_Manager::store_bearer_token)
+			// Note: Auth_Manager sanitizes before encrypting, so we do the same
+			$encryption = new \SureFeedback\Encryption();
+			$encrypted_token = $encryption->encrypt( sanitize_text_field( $access_token ) );
+			
+			// Store encrypted token
+			if ( false !== $encrypted_token && ! empty( $encrypted_token ) ) {
+				update_option( 'surefeedback_bearer_token', $encrypted_token );
+			}
+		} elseif ( ! empty( $site_token ) ) {
+			// Fallback: If no access_token provided, generate from site_token
+			$bearer_token = hash_hmac( 'sha256', $site_token, wp_salt( 'auth' ) . SECURE_AUTH_KEY );
+			$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
+			$secure_cookie_manager->set_secure_cookie( 'auth_token', $bearer_token );
+			
+			// Encrypt and store in database as backup
+			$encryption = new \SureFeedback\Encryption();
+			$encrypted_token = $encryption->encrypt( $bearer_token );
+			
+			// If encryption failed or openssl not available, store the token as-is
+			if ( false === $encrypted_token || empty( $encrypted_token ) ) {
+				update_option( 'surefeedback_bearer_token', $bearer_token );
+			} else {
+				update_option( 'surefeedback_bearer_token', $encrypted_token );
+			}
 		}
 
 		if ( ! empty( $data['parent_url'] ) ) {
@@ -784,7 +815,6 @@ class Rest_Controller extends WP_REST_Controller {
 			update_option( 'surefeedback_widget_script_url', esc_url_raw( $data['widget_script_url'] ) );
 		}
 
-		// Clear any stored webhook state (no longer needed)
 		delete_option( 'surefeedback_webhook_state' );
 
 		$response_data = array(
@@ -793,12 +823,6 @@ class Rest_Controller extends WP_REST_Controller {
 			'site_id'   => $site_id,
 			'connected' => true,
 		);
-
-		// Include organization_id in response if it was saved
-		$saved_org_id = get_option( 'surefeedback_organization_id', '' );
-		if ( ! empty( $saved_org_id ) ) {
-			$response_data['organization_id'] = $saved_org_id;
-		}
 
 		return rest_ensure_response( $response_data );
 	}
