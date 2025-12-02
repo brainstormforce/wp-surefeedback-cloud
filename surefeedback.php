@@ -172,6 +172,7 @@ final class SureFeedback {
 
 		// REST API
 		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/API/Rest_Controller.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/API/WebhookController.php';
 
 		// Frontend Script Loader
 		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Frontend_Script.php';
@@ -199,6 +200,9 @@ final class SureFeedback {
 	public function init_rest_api() {
 		$rest_controller = new SureFeedback\API\Rest_Controller();
 		$rest_controller->register_routes();
+
+		$webhook_controller = new SureFeedback\API\WebhookController();
+		$webhook_controller->register_routes();
 	}
 
 	/**

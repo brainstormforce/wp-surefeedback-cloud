@@ -145,19 +145,6 @@ class Rest_Controller extends WP_REST_Controller {
 				),
 			)
 		);
-
-		// Poll for connection tokens (automatic connection)
-		register_rest_route(
-			$this->namespace,
-			'/connection/poll-tokens',
-			array(
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'poll_connection_tokens' ),
-					'permission_callback' => array( $this, 'admin_permissions_check' ),
-				),
-			)
-		);
 	}
 
 	/**
