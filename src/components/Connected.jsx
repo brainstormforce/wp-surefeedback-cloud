@@ -70,11 +70,7 @@ const Connected = ({ connectionData, verificationResult }) => {
   };
 
   const handleGoToDashboard = () => {
-    const appUrl =
-      window.surefeedbackAdmin?.appUrl ||
-      window.sureFeedbackAdmin?.connection?.app_url ||
-      "https://app.surefeedback.com";
-    window.open(`${appUrl}/sites`, "_blank");
+    window.open("https://app.surefeedback.com/sites", "_blank");
   };
 
   return (
