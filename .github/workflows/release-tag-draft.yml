@@ -1,0 +1,98 @@
+name: Create a release tag
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      # Release happens only if the version number in main file is updated.
+      - 'surefeedback.php'
+
+env:
+  PLUGIN_SLUG: ${{ github.event.repository.name }}
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build-artifact:
+    name: Build Release Artifact
+    runs-on: ubuntu-latest
+    outputs:
+      current_version: ${{ steps.get_version.outputs.current_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: Use desired version of NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Compute current version
+        id: get_version
+        run: |
+          CURRENT_VERSION=$(sed -n -e 's/^.*Version: //p' ${{ env.PLUGIN_SLUG }}.php)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build plugin ZIP file
+        run: npm run zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PLUGIN_SLUG }}-plugin
+          path: release/production/${{ env.PLUGIN_SLUG }}.${{ steps.get_version.outputs.current_version }}.zip
+
+  create-release:
+    name: Create Release Draft and Attach Asset
+    needs: [build-artifact]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Release Version
+        id: get_release_version
+        env:
+          VERSION: ${{ needs.build-artifact.outputs.current_version }}
+        run: |
+          CLEAN_VERSION=$(echo $VERSION | cut -d / -f 3 | sed 's/-rc./ RC/' )
+          echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download Plugin Zip Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PLUGIN_SLUG }}-plugin
+
+      - name: Create Release Draft
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: Version ${{ steps.get_release_version.outputs.version }}
+          tag_name: 'v${{ steps.get_release_version.outputs.version }}'
+          target_commitish: master
+          draft: true
+          prerelease: false
+          body: 'Replace changelog here'
+          files: ./release/production/${{ env.PLUGIN_SLUG }}.${{ needs.build-artifact.outputs.current_version }}.zip
+

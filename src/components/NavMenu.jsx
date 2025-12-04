@@ -1,280 +1,145 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Topbar, Button, Badge, DropdownMenu } from "@bsf/force-ui";
+import React, { useEffect, useState } from "react";
 import {
-	ArrowUpRight,
-	CircleHelp,
-	FileText,
-	Headset,
-	House,
-	User,
-} from "lucide-react";
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { CircleHelp, FileText, Headset, User } from "lucide-react";
 import { __ } from "@wordpress/i18n";
-import { routes } from "../admin/settings/routes";
-import { Link, RouterContext } from "../router/index";
+import { NavLink, useRouter } from "@/utils/Router";
+import SFLogo from "../../assets/images/settings/surefeedback-logo-img.svg"
+import AutomationIcon from "../../assets/images/settings/automation.svg"
+import SettingsIcon from "../../assets/images/settings/settings.svg"
+import DashboardCustomizeIcon from "../../assets/images/settings/dashboard_customize.svg"
 
-function updateNavMenuActiveState() {
-	const currentPath = window.location.hash;
-	const menuItems = document.querySelectorAll(
-		"#adminmenu #toplevel_page_surefeedback a"
-	);
-
-	menuItems.forEach((item) => {
-		const href = item.getAttribute("href");
-		const parentLi = item.closest("li");
-		const itemText = item.textContent.trim();
-
-		if (
-			href &&
-			(currentPath.includes(href.split("#")[1]) ||
-				("#dashboard" === currentPath && itemText === "Dashboard") ||
-				("#settings" === currentPath && itemText === "Settings"))
-		) {
-			parentLi.classList.add("current");
-		} else {
-			parentLi.classList.remove("current");
-		}
-	});
-}
+// Create icon components that accept className prop
+const ConnectionIcon = ({ className }) => <img src={AutomationIcon} alt="" className={className} />;
+const SettingsIconComponent = ({ className }) => <img src={SettingsIcon} alt="" className={className} />;
+const WidgetControlIcon = ({ className }) => <img src={DashboardCustomizeIcon} alt="" className={className} />;
 
 const NavMenu = () => {
-	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const { route } = useContext(RouterContext);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { currentRoute, navigate } = useRouter();
 
-	useEffect(() => {
-		updateNavMenuActiveState();
-		window.addEventListener("hashchange", updateNavMenuActiveState);
+  const isActive = (path) => currentRoute === path;
 
-		return () => {
-			window.removeEventListener("hashchange", updateNavMenuActiveState);
-		};
-	}, [route]);
+  const handleRedirect = (url) => {
+    window.open(url, "_blank");
+    setIsDropdownOpen(false);
+  };
 
-	// Get the current URL's hash part (after the #).
-	const currentPath = route.hash.substr(1);
+  // Check if website is connected
+  const isConnected = window.sureFeedbackAdmin?.connection?.connected || false;
 
-	const isActive = (path) => currentPath === path;
+  // Filter nav items based on connection status
+  const allNavItems = [
+    { label: __("Connections", "surefeedback-cloud"), path: "connections", icon: ConnectionIcon, showWhenConnected: true },
+    { label: __("Widget Control", "surefeedback-cloud"), path: "widget-control", icon: WidgetControlIcon, showWhenConnected: true },
+    { label: __("Settings", "surefeedback-cloud"), path: "settings", icon: SettingsIconComponent, showWhenConnected: true },
+  ];
 
-	const linkStyle = (path) => ({
-		color: isActive(path) ? "#111827" : "#4B5563",
-		borderBottom: isActive(path) ? "2px solid #6005FF" : "none",
-		paddingBottom: "22px",
-		marginBottom: "-16px",
-	});
+  const navItems = allNavItems.filter(item =>
+    isConnected ? item.showWhenConnected : true
+  );
 
-	const handleRedirect = (url) => {
-		window.open(url, "_blank");
-		setIsDropdownOpen(false);
-	};
+  return (
+    <div
+      className="surefeedback-nav-menu w-full px-6 py-3 grid grid-cols-3 items-center bg-white border-b border-gray-200"
+      style={{ zIndex: 9 }}
+    >
+      {/* Left: Logo */}
+      <div className="flex items-center justify-start min-w-0">
+        <NavLink to="connections" className="focus:outline-none flex-shrink-0">
+          <img
+            src={SFLogo}
+            alt="SureFeedback"
+            className="h-[25px] w-auto cursor-pointer focus:outline-none"
+          />
+        </NavLink>
+      </div>
 
-	return (
-		<Topbar
-			className="surefeedback-nav-menu relative"
-			style={{
-				width: "unset",
-				padding: "0.5rem",
-				zIndex: "9",
-				paddingTop: "1rem",
-			}}
-		>
-			<div className="flex flex-col lg:flex-row items-start md:items-center w-full">
-				{/* Top row on mobile: Logo and Nav menu */}
-				<div className="flex flex-row md:items-center md:gap-8 w-full">
-					<Topbar.Left>
-						<Topbar.Item>
-							<Link to={routes.dashboard.path}>
-								<img
-									src={`${sureFeedbackAdmin.icon_url}`}
-									alt="Icon"
-									className="ml-4 cursor-pointer"
-									style={{ height: "35px", width: "35px" }}
-								/>
-							</Link>
-						</Topbar.Item>
-					</Topbar.Left>
-					<Topbar.Middle className="flex-grow" align="left">
-						<Topbar.Item>
-							<nav className="flex flex-wrap gap-6 mt-2 md:mt-0 cursor-pointer">
-								<Link
-									to={routes.dashboard.path}
-									className={`${
-										isActive("dashboard") ? "active-link" : ""
-									}`}
-									style={linkStyle("dashboard")}
-								>
-									{__(
-										"Connections",
-										"surefeedback"
-									)}
-								</Link>
-								<Link
-									to={routes.connection.path}
-									className={`${
-										isActive("connection")
-											? "active-link"
-											: ""
-									}`}
-									style={linkStyle("connection")}
-								>
-									{__("Permissions", "surefeedback")}
-								</Link>
-								<Link
-									to={routes.settings.path}
-									className={`${
-										isActive("settings")
-											? "active-link"
-											: ""
-									}`}
-									style={linkStyle("settings")}
-								>
-									{__("Settings", "surefeedback")}
-								</Link>
-							</nav>
-						</Topbar.Item>
-					</Topbar.Middle>
-					<Topbar.Right className="gap-4">
-						<Topbar.Item>
-							<DropdownMenu placement="bottom-end">
-								<DropdownMenu.Trigger>
-									<Badge
-										label={__(
-											"Free",
-											"surefeedback"
-										)}
-										size="xs"
-										variant="neutral"
-									/>
-									<span className="sr-only">Open Menu</span>
-								</DropdownMenu.Trigger>
-								<DropdownMenu.Portal>
-								<DropdownMenu.ContentWrapper>
-								<DropdownMenu.Content className="w-60" style={{ backgroundColor: 'white' }}>
-										<DropdownMenu.List>
-											<DropdownMenu.Item>
-												{__(
-													"Version",
-													"surefeedback"
-												)}
-											</DropdownMenu.Item>
-											{/* <DropdownMenu.Item>
-												<div className="flex justify-between w-full">
-													{`${hfeSettingsData.uaelite_current_version}`}
-													<Badge
-														label={__(
-															"Free",
-															"surefeedback"
-														)}
-														size="xs"
-														variant="neutral"
-													/>
-												</div>
-											</DropdownMenu.Item> */}
-										</DropdownMenu.List>
-									</DropdownMenu.Content>
-								</DropdownMenu.ContentWrapper>
-								</DropdownMenu.Portal>
-							</DropdownMenu>
-						</Topbar.Item>
-						<Topbar.Item className="gap-4 cursor-pointer">
-							<DropdownMenu placement="bottom-end">
-								<DropdownMenu.Trigger>
-									<CircleHelp />
-								</DropdownMenu.Trigger>
-								<DropdownMenu.Portal>
-								<DropdownMenu.ContentWrapper>
-								<DropdownMenu.Content className="w-60" style={{ backgroundColor: 'white' }}>
-										<DropdownMenu.List>
-											<DropdownMenu.Item>
-												{__(
-													"Useful Resources",
-													"surefeedback"
-												)}
-											</DropdownMenu.Item>
-											<DropdownMenu.Item
-												className="text-text-primary"
-												style={{ color: "black" }}
-												onClick={() =>
-													handleRedirect(
-														"https://ultimateelementor.com/docs/getting-started-with-ultimate-addons-for-elementor-lite/"
-													)
-												}
-											>
-												<FileText
-													style={{ color: "black" }}
-												/>
-												{__(
-													"Getting Started",
-													"surefeedback"
-												)}
-											</DropdownMenu.Item>
-											<DropdownMenu.Item
-												onClick={() =>
-													handleRedirect(
-														"https://ultimateelementor.com/docs-category/widgets/"
-													)
-												}
-											>
-												<FileText />
-												{__(
-													"How to use widgets",
-													"surefeedback"
-												)}
-											</DropdownMenu.Item>
-											<DropdownMenu.Item
-												onClick={() =>
-													handleRedirect(
-														"https://ultimateelementor.com/docs-category/features/"
-													)
-												}
-											>
-												<FileText />
-												{__(
-													"How to use features",
-													"surefeedback"
-												)}
-											</DropdownMenu.Item>
-											<DropdownMenu.Item
-												onClick={() =>
-													handleRedirect(
-														"https://ultimateelementor.com/docs-category/templates/"
-													)
-												}
-											>
-												<FileText />
-												{__(
-													"How to use templates",
-													"surefeedback"
-												)}
-											</DropdownMenu.Item>
-											<DropdownMenu.Item
-												onClick={() =>
-													handleRedirect(
-														"https://ultimateelementor.com/contact/"
-													)
-												}
-											>
-												<Headset />
-												{__(
-													"Contact us",
-													"surefeedback"
-												)}
-											</DropdownMenu.Item>
-										</DropdownMenu.List>
-									</DropdownMenu.Content>
-								</DropdownMenu.ContentWrapper>
-								</DropdownMenu.Portal>
-							</DropdownMenu>
-						</Topbar.Item>
-						<Link to={routes.settings.path}>
-							<User
-								className="cursor-pointer surefeedback-user-icon"
-								style={{ color: "black" }}
-							/>
-						</Link>
-					</Topbar.Right>
-				</div>
-			</div>
-		</Topbar>
-	);
+      {/* Center: Navigation Tabs */}
+      <div className="flex items-center justify-center min-w-0">
+        <NavigationMenu>
+          <NavigationMenuList className="flex gap-4 justify-center">
+            {navItems.map(({ label, path, icon: Icon }) => (
+              <NavigationMenuItem key={path}>
+                <NavigationMenuLink
+                  href={`#${path}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(path);
+                  }}
+                  className={cn(
+                    "px-2 py-1.5 text-sm font-medium transition-colors border-b-2 focus:outline-none focus-visible:outline-none whitespace-nowrap flex items-center gap-1.5 cursor-pointer",
+                    isActive(path)
+                      ? "text-gray-900 border-[#455AFB]"
+                      : "text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            ))}
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+
+      {/* Right: Actions */}
+      <div className="flex items-center justify-end gap-3 min-w-0">
+
+        {/* Help Dropdown */}
+        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <CircleHelp className="cursor-pointer flex-shrink-0 w-5 h-5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-64 bg-white">
+            <DropdownMenuLabel>
+              {__("Useful Resources", "surefeedback-cloud")}
+            </DropdownMenuLabel>
+            {[
+              {
+                label: __("Getting Started", "surefeedback-cloud"),
+                url: "https://surefeedback.com/docs/plugin-set-up-guide/",
+                icon: <FileText />,
+              },
+              {
+                label: __("Start adding comments", "surefeedback-cloud"),
+                url: "https://surefeedback.com/docs/start-adding-comments/",
+                icon: <FileText />,
+              },
+              {
+                label: __("Contact us", "surefeedback-cloud"),
+                url: "https://surefeedback.com/contact-us/",
+                icon: <Headset />,
+              },
+            ].map(({ label, url, icon }) => (
+              <DropdownMenuItem
+                key={label}
+                onClick={() => handleRedirect(url)}
+                className="flex items-center gap-2 text-gray-800 cursor-pointer"
+              >
+                {icon}
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+      </div>
+    </div>
+  );
 };
 
 export default NavMenu;

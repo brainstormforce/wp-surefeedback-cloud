@@ -1,7 +1,13 @@
-@import url("https://fonts.googleapis.com/css?family=Josefin+Sans");
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html, body, * {
+    font-family: 'Figtree', ui-sans-serif, sans-serif;
+  }
+}
 
 /* Add to your main CSS file (e.g., index.css) */
 
@@ -9,6 +15,15 @@
 .post-type-elementor-hf #wpcontent {
     padding-left: 0;
 }
+
+/* Mobile: Remove all left padding/margin */
+@media (max-width: 782px) {
+	.toplevel_page_surefeedback #wpcontent {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+}
+
 .post-type-elementor-hf #wpbody-content .wrap {
 	padding-left: 20px;
 }
@@ -200,6 +215,35 @@ input[type="radio"].surefeedback-radio-field:focus {
 }
 
 @media (max-width: 768px) {
+	/* Fix left spacing on mobile - aggressive override */
+	body.toplevel_page_surefeedback #wpcontent,
+	.toplevel_page_surefeedback #wpcontent,
+	#wpcontent {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	body.toplevel_page_surefeedback #wpbody-content,
+	.toplevel_page_surefeedback #wpbody-content,
+	#wpbody-content {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	body.toplevel_page_surefeedback,
+	.toplevel_page_surefeedback {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	/* Remove spacing from the dashboard wrapper */
+	.surefeedback-dashboard,
+	.surefeedback-app-wrapper,
+	#surefeedback-dashboard-app {
+		margin-left: 0 !important;
+		padding-left: 0 !important;
+	}
+
 	#toplevel_page_surefeedback .container {
 		padding: 0 1rem;
 	}
@@ -212,6 +256,96 @@ input[type="radio"].surefeedback-radio-field:focus {
 		width: 100% !important;
 		height: 100% !important;
 		border-radius: 0 !important;
+	}
+
+	/* Mobile Navbar Fixes */
+	.surefeedback-nav-menu {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 0.75rem !important;
+		padding: 0.75rem 1rem !important;
+		grid-template-columns: none !important;
+	}
+
+	/* Logo at top */
+	.surefeedback-nav-menu > div:first-child {
+		justify-content: center !important;
+		width: 100%;
+	}
+
+	/* Navigation tabs below logo */
+	.surefeedback-nav-menu > div:nth-child(2) {
+		width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.surefeedback-nav-menu > div:nth-child(2) > nav {
+		width: 100%;
+	}
+
+	.surefeedback-nav-menu > div:nth-child(2) > nav > ul {
+		gap: 0.5rem !important;
+		flex-wrap: nowrap;
+		justify-content: flex-start !important;
+		padding-bottom: 0.25rem;
+	}
+
+	.surefeedback-nav-menu > div:nth-child(2) > nav > ul > li {
+		flex-shrink: 0;
+	}
+
+	/* Actions at bottom */
+	.surefeedback-nav-menu > div:last-child {
+		justify-content: center !important;
+		width: 100%;
+		gap: 1rem !important;
+	}
+
+	/* Widget Control Mobile Optimizations */
+	#surefeedback-dashboard-app {
+		font-size: 14px;
+	}
+	
+	/* Mobile responsive cards */
+	#surefeedback-dashboard-app .space-y-6 {
+		gap: 1rem;
+	}
+	
+	/* Improve touch targets */
+	#surefeedback-dashboard-app button,
+	#surefeedback-dashboard-app input,
+	#surefeedback-dashboard-app select {
+		min-height: 36px;
+	}
+	
+	/* Better badge sizing on mobile */
+	#surefeedback-dashboard-app .badge {
+		font-size: 10px;
+		padding: 2px 6px;
+	}
+	
+	/* Optimize page list items */
+	#surefeedback-dashboard-app .page-list-item {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	
+	/* Make switches easier to tap */
+	#surefeedback-dashboard-app [role="switch"] {
+		width: 44px;
+		height: 24px;
+	}
+
+	/* Fix main content area */
+	#surefeedback-dashboard-app .surefeedback-dashboard {
+		margin-left: 0 !important;
+		padding-left: 0 !important;
+	}
+
+	/* Remove any negative margins */
+	#surefeedback-dashboard-app * {
+		margin-left: 0 !important;
 	}
 }
 :is(#surefeedback-dashboard-app, [data-floating-ui-portal]) .uae-steps .text-xs {
@@ -284,10 +418,39 @@ div#surefeedback-dashboard-app {
 		overflow: scroll;
 		max-width: fit-content;
 	}
-        .surefeedback-onboarding-bottom {
-                display: grid !important;
-                max-width: fit-content;
-        }
+	.surefeedback-onboarding-bottom {
+		display: grid !important;
+		max-width: fit-content;
+	}
+
+	/* Additional mobile navbar fixes */
+	.surefeedback-nav-menu [class*="NavigationMenuLink"] {
+		font-size: 0.875rem !important;
+		padding: 0.5rem 0.75rem !important;
+		white-space: nowrap;
+	}
+
+	.surefeedback-nav-menu img {
+		display: block !important;
+		max-height: 20px !important;
+	}
+
+	/* Fix dropdown menus on mobile */
+	.surefeedback-nav-menu [role="menu"] {
+		max-width: 90vw !important;
+	}
+
+	/* Icon sizing on mobile */
+	.surefeedback-nav-menu svg {
+		width: 20px !important;
+		height: 20px !important;
+	}
+
+	/* Badge responsive */
+	.surefeedback-nav-menu [class*="Badge"] {
+		font-size: 0.75rem !important;
+		padding: 0.125rem 0.5rem !important;
+	}
 }
 
 body.surefeedback-onboarding-fullscreen #wpadminbar,
@@ -349,4 +512,130 @@ input[type="checkbox"].role-checkbox:checked::after {
 
 .uae-rating:hover{
 	color: #4B00CC;
+}
+
+
+
+@layer base {
+  :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 3.9%;
+        --primary: 234 100% 63%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 96.1%;
+        --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --accent: 0 0% 96.1%;
+        --accent-foreground: 0 0% 9%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 89.8%;
+        --input: 0 0% 89.8%;
+        --ring: 234 100% 63%;
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+        --radius: 0.375rem;
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+  .dark {
+        --background: 0 0% 3.9%;
+        --foreground: 0 0% 98%;
+        --card: 0 0% 3.9%;
+        --card-foreground: 0 0% 98%;
+        --popover: 0 0% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 234 100% 63%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 14.9%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 0 0% 14.9%;
+        --muted-foreground: 0 0% 63.9%;
+        --accent: 0 0% 14.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 14.9%;
+        --input: 0 0% 14.9%;
+        --ring: 234 100% 63%;
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+}
+
+
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+
+
+/* Mobile responsive override for WordPress admin */
+@media (max-width: 782px) {
+	#wpcontent, #wpfooter {
+		margin-left: 0 !important;
+	}
+	
+	.toplevel_page_surefeedback #wpcontent {
+		padding-left: 0 !important;
+	}
+}
+
+@media (max-width: 600px) {
+	#wpcontent, #wpfooter {
+		margin-left: 0 !important;
+	}
+	
+	.auto-fold #wpcontent, 
+	.auto-fold #wpfooter {
+		margin-left: 0 !important;
+	}
+}
+
+/* Override WordPress default focus styles for SureFeedback navbar */
+.surefeedback-nav-menu a:focus,
+.surefeedback-nav-menu a:focus img,
+.surefeedback-nav-menu button:focus,
+.surefeedback-nav-menu [role="link"]:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.surefeedback-nav-menu a:focus-visible,
+.surefeedback-nav-menu button:focus-visible,
+.surefeedback-nav-menu [role="link"]:focus-visible {
+    box-shadow: none !important;
+    outline: none !important;
 }

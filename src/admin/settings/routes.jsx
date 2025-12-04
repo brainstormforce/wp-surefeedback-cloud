@@ -5,13 +5,22 @@ export const routes = {
     settings: {
         path: "settings",
     },
-    connection: {
-        path: "connection",
+    connections: {
+        path: "connections",
+    },
+    permissions: {
+        path: "permissions",
+    },
+    setup: {
+        path: "setup",
     },
     upgrade: {
         path: "upgrade",
     },
     setupWizard: {
         path: "setup-wizard",
+    },
+    welcome: {
+        path: "welcome",
     },
 }

@@ -1,16 +1,19 @@
 parameters:
-	reportUnmatchedIgnoredErrors: false
 	ignoreErrors:
+		# False positives - openssl_random_pseudo_bytes can return false but PHPStan doesn't understand the context
 		-
-			message: "#^Call to static method get_setting() on an unknown class FLTheme\\.$#"
+			message: "#^Comparison operation \">=\" between int<2, max> and 2 is always true\\.$#"
 			count: 1
-			path: test
-
-		#common errors
-
-		- '#type has no value type specified in iterable type array\.$#'
-		- '#with no value type specified in iterable type array\.$#'
-		- "#^While loop condition is always true\\.$#"
-		- '#Unreachable statement - code above always terminates\.#'
-		- '#Argument of an invalid type mixed supplied for foreach, only iterables are supported\.#'
-		- '#Cannot cast mixed to int\.#'
+			path: includes/class-secure-cookie-manager.php
+		-
+			message: "#^Unreachable statement - code above always terminates\\.$#"
+			count: 1
+			path: includes/class-secure-cookie-manager.php
+		-
+			message: "#^Strict comparison using === between false and string will always evaluate to false\\.$#"
+			count: 3
+			path: includes/class-secure-cookie-manager.php
+		-
+			message: "#^Result of \\|\\| is always false\\.$#"
+			count: 1
+			path: includes/class-secure-cookie-manager.php
