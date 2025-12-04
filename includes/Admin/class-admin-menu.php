@@ -23,7 +23,7 @@ class Admin_Menu {
 	 *
 	 * @var string
 	 */
-	private $menu_slug = 'surefeedback';
+	private $menu_slug = 'surefeedback-cloud';
 
 	/**
 	 * Auth manager instance

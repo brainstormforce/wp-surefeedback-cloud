@@ -54,7 +54,7 @@ module.exports = function (grunt) {
       // Local/Development zip
       local: {
         options: {
-          archive: "surefeedback-local.zip",
+          archive: "surefeedback-cloud-local.zip",
           mode: 'zip',
           level: 9,
         },
@@ -151,14 +151,14 @@ module.exports = function (grunt) {
               "!*.config.ts",
               // Include complete vendor folder (no exclusions)
             ],
-            dest: "surefeedback/",
+            dest: "surefeedback-cloud/",
           },
         ],
       },
       // Staging zip
       staging: {
         options: {
-          archive: "surefeedback-staging.zip",
+          archive: "surefeedback-cloud-staging.zip",
           mode: 'zip',
           level: 9,
         },
@@ -255,14 +255,14 @@ module.exports = function (grunt) {
               "!*.config.ts",
               // Include complete vendor folder (no exclusions)
             ],
-            dest: "surefeedback/",
+            dest: "surefeedback-cloud/",
           },
         ],
       },
       // Production zip (WordPress.org release)
       production: {
         options: {
-          archive: "surefeedback.<%= version %>.zip",
+          archive: "surefeedback-cloud.<%= version %>.zip",
           mode: 'zip',
           level: 9,
         },
@@ -366,7 +366,7 @@ module.exports = function (grunt) {
               "!*.config.ts",
               // Include complete vendor folder (no exclusions)
             ],
-            dest: "surefeedback/",
+            dest: "surefeedback-cloud/",
           },
         ],
       },
@@ -379,7 +379,7 @@ module.exports = function (grunt) {
       release_production: ["release/production/*.zip"],
       release_all: ["release/**/*.zip"],
       // Clean root-level zips
-      root_zips: ["surefeedback*.zip"],
+      root_zips: ["surefeedback-cloud*.zip"],
       // Clean development artifacts (only clean files that actually exist)
       dev_artifacts: [
         ".DS_Store",
@@ -396,24 +396,24 @@ module.exports = function (grunt) {
       release_local: {
         files: [
           {
-            src: "surefeedback-local.zip",
-            dest: "release/local/surefeedback-local.zip",
+            src: "surefeedback-cloud-local.zip",
+            dest: "release/local/surefeedback-cloud-local.zip",
           },
         ],
       },
       release_staging: {
         files: [
           {
-            src: "surefeedback-staging.zip",
-            dest: "release/staging/surefeedback-staging.zip",
+            src: "surefeedback-cloud-staging.zip",
+            dest: "release/staging/surefeedback-cloud-staging.zip",
           },
         ],
       },
       release_production: {
         files: [
           {
-            src: "surefeedback.<%= version %>.zip",
-            dest: "release/production/surefeedback.<%= version %>.zip",
+            src: "surefeedback-cloud.<%= version %>.zip",
+            dest: "release/production/surefeedback-cloud.<%= version %>.zip",
           },
         ],
       },

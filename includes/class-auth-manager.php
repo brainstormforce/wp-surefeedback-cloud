@@ -150,7 +150,7 @@ class Auth_Manager {
 	 * @return string
 	 */
 	public function get_callback_url() {
-		return admin_url( 'admin.php?page=surefeedback-dashboard' );
+		return admin_url( 'admin.php?page=surefeedback-cloud-dashboard' );
 	}
 
 	/**
@@ -201,7 +201,7 @@ class Auth_Manager {
 			}
 		}
 
-		if ( ! $page || strpos( $page, 'surefeedback' ) !== 0 ) {
+		if ( ! $page || strpos( $page, 'surefeedback-cloud' ) !== 0 ) {
 			return;
 		}
 

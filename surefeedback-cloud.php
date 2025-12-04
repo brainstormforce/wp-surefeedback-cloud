@@ -217,10 +217,18 @@ final class SureFeedback {
 		if ( wp_doing_ajax() || wp_doing_cron() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		if ( isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'surefeedback' ) !== false ) {
+		
+		$current_page = '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Simple GET parameter check for activation redirect, no data modification
+		if ( isset( $_GET['page'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe GET parameter read for navigation logic
+			$current_page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		}
+		
+		if ( ! empty( $current_page ) && strpos( $current_page, 'surefeedback-cloud' ) !== false ) {
 			return;
 		}
-		wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-dashboard#setup' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-cloud-dashboard#setup' ) );
 		exit;
 	}
 
@@ -268,7 +276,7 @@ final class SureFeedback {
 
 		$dashboard_link = sprintf(
 			'<a href="%s">%s</a>',
-			admin_url( 'admin.php?page=surefeedback-dashboard' ),
+			admin_url( 'admin.php?page=surefeedback-cloud-dashboard' ),
 			$link_text
 		);
 
