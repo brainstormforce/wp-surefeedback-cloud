@@ -299,13 +299,10 @@ final class SureFeedback {
 		
 		// Log result for debugging
 		if ( is_wp_error( $result ) ) {
-			error_log( 'SureFeedback: Token polling failed - ' . $result->get_error_message() );
 		} elseif ( is_object( $result ) && method_exists( $result, 'get_data' ) ) {
 			$data = $result->get_data();
 			if ( isset( $data['connected'] ) && $data['connected'] ) {
-				error_log( 'SureFeedback: Connection established successfully via token polling' );
 			} elseif ( isset( $data['success'] ) && ! $data['success'] ) {
-				error_log( 'SureFeedback: Token polling returned: ' . ( $data['message'] ?? 'Unknown error' ) );
 			}
 		}
 	}

@@ -12,9 +12,9 @@ define( 'SUREFEEDBACK_TESTS', true );
 define( 'ABSPATH', dirname( __DIR__, 1 ) . '/' );
 define( 'SUREFEEDBACK_PLUGIN_DIR', dirname( __DIR__, 1 ) . '/' );
 define( 'SUREFEEDBACK_PLUGIN_URL', 'http://example.org/wp-content/plugins/surefeedback/' );
-define( 'SUREFEEDBACK_PLUGIN_FILE', dirname( __DIR__, 1 ) . '/surefeedback.php' );
+define( 'SUREFEEDBACK_PLUGIN_FILE', dirname( __DIR__, 1 ) . '/surefeedback-cloud.php' );
 define( 'SUREFEEDBACK_VERSION', '1.0.0' );
-define( 'SUREFEEDBACK_PLUGIN_BASENAME', 'surefeedback/surefeedback.php' );
+define( 'SUREFEEDBACK_PLUGIN_BASENAME', 'surefeedback/surefeedback-cloud.php' );
 
 // Load WordPress mocks
 require_once __DIR__ . '/mocks/wordpress-mocks.php';

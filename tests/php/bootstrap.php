@@ -42,7 +42,7 @@ function _manually_load_plugin() {
 	}
 
 	if ( ! defined( 'SUREFEEDBACK_PLUGIN_FILE' ) ) {
-		define( 'SUREFEEDBACK_PLUGIN_FILE', dirname( __DIR__, 1 ) . '/surefeedback.php' );
+		define( 'SUREFEEDBACK_PLUGIN_FILE', dirname( __DIR__, 1 ) . '/surefeedback-cloud.php' );
 	}
 
 	if ( ! defined( 'SUREFEEDBACK_VERSION' ) ) {
@@ -50,11 +50,11 @@ function _manually_load_plugin() {
 	}
 
 	if ( ! defined( 'SUREFEEDBACK_PLUGIN_BASENAME' ) ) {
-		define( 'SUREFEEDBACK_PLUGIN_BASENAME', 'surefeedback/surefeedback.php' );
+		define( 'SUREFEEDBACK_PLUGIN_BASENAME', 'surefeedback/surefeedback-cloud.php' );
 	}
 
-	// Load the plugin
-	require dirname( __DIR__, 1 ) . '/surefeedback.php';
+	// Load the plugin.
+	require dirname( __DIR__, 1 ) . '/surefeedback-cloud.php';
 }
 
 // Load the plugin after WordPress is loaded

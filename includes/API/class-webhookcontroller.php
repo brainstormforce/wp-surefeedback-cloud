@@ -85,13 +85,11 @@ class WebhookController extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handle_webhook( $request ) {
-		error_log( 'SureFeedback: Webhook received from Laravel' );
 
 		// Get JSON body
 		$body = $request->get_json_params();
 
 		if ( empty( $body ) ) {
-			error_log( 'SureFeedback: Webhook body is empty' );
 			return new WP_Error(
 				'rest_invalid_data',
 				__( 'Invalid webhook data.', 'surefeedback-cloud' ),
@@ -100,14 +98,13 @@ class WebhookController extends WP_REST_Controller {
 		}
 
 		// Verify state authentication
-		$state = $body['state'] ?? '';
+		$state        = $body['state'] ?? '';
 		$state_header = $request->get_header( 'X-SureFeedback-State' );
 
 		// Check state from both body and header
 		$provided_state = ! empty( $state ) ? $state : $state_header;
 
 		if ( empty( $provided_state ) ) {
-			error_log( 'SureFeedback: Webhook missing state parameter' );
 			return new WP_Error(
 				'rest_unauthorized',
 				__( 'Missing state parameter.', 'surefeedback-cloud' ),
@@ -119,7 +116,6 @@ class WebhookController extends WP_REST_Controller {
 		$stored_state_data = get_option( 'surefeedback_webhook_state', false );
 
 		if ( ! $stored_state_data || ! is_array( $stored_state_data ) ) {
-			error_log( 'SureFeedback: No stored webhook state found' );
 			return new WP_Error(
 				'rest_unauthorized',
 				__( 'Invalid state: no stored state found.', 'surefeedback-cloud' ),
@@ -132,7 +128,6 @@ class WebhookController extends WP_REST_Controller {
 
 		// Check if state has expired
 		if ( time() > $state_expiry ) {
-			error_log( 'SureFeedback: Webhook state has expired' );
 			// Clean up expired state
 			delete_option( 'surefeedback_webhook_state' );
 			return new WP_Error(
@@ -144,7 +139,6 @@ class WebhookController extends WP_REST_Controller {
 
 		// Verify state matches
 		if ( $provided_state !== $stored_state ) {
-			error_log( 'SureFeedback: Webhook state mismatch - provided: ' . substr( $provided_state, 0, 8 ) . '..., stored: ' . substr( $stored_state, 0, 8 ) . '...' );
 			return new WP_Error(
 				'rest_unauthorized',
 				__( 'Invalid state: state mismatch.', 'surefeedback-cloud' ),
@@ -152,13 +146,10 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		error_log( 'SureFeedback: Webhook state verified successfully' );
-
 		// Check if webhook indicates success
 		$success = isset( $body['success'] ) && ( $body['success'] === '1' || $body['success'] === true || $body['success'] === 1 );
 
 		if ( ! $success ) {
-			error_log( 'SureFeedback: Webhook indicates failure' );
 			return rest_ensure_response(
 				array(
 					'success' => false,
@@ -174,9 +165,7 @@ class WebhookController extends WP_REST_Controller {
 		if ( ! empty( $body['user_token'] ) ) {
 			$token_stored = $auth_manager->store_bearer_token( sanitize_text_field( $body['user_token'] ) );
 			if ( $token_stored ) {
-				error_log( 'SureFeedback: Bearer token stored from webhook' );
 			} else {
-				error_log( 'SureFeedback: Failed to store bearer token from webhook' );
 			}
 		}
 
@@ -234,16 +223,13 @@ class WebhookController extends WP_REST_Controller {
 			$options_stored[] = 'surefeedback_last_verification';
 			update_option( 'surefeedback_last_verification', sanitize_text_field( $body['surefeedback_last_verification'] ) );
 		}
-
-		error_log( 'SureFeedback: Webhook processed successfully - stored options: ' . implode( ', ', $options_stored ) );
-
 		// Clean up used state
 		delete_option( 'surefeedback_webhook_state' );
 
 		return rest_ensure_response(
 			array(
-				'success' => true,
-				'message' => 'Connection established via webhook',
+				'success'   => true,
+				'message'   => 'Connection established via webhook',
 				'connected' => true,
 			)
 		);
@@ -256,18 +242,15 @@ class WebhookController extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handle_disconnect_webhook( $request ) {
-		error_log( 'SureFeedback: Disconnect webhook received from Laravel' );
-
 		// Get JSON body
 		$body = $request->get_json_params();
 
 		// Verify webhook secret (site token)
-		$webhook_secret = $request->get_header( 'X-Webhook-Secret' );
+		$webhook_secret    = $request->get_header( 'X-Webhook-Secret' );
 		$stored_site_token = get_option( 'surefeedback_site_token', '' );
 
 		if ( ! empty( $webhook_secret ) && ! empty( $stored_site_token ) ) {
 			if ( $webhook_secret !== $stored_site_token ) {
-				error_log( 'SureFeedback: Disconnect webhook secret mismatch' );
 				return new WP_Error(
 					'rest_unauthorized',
 					__( 'Invalid webhook secret.', 'surefeedback-cloud' ),
@@ -280,7 +263,6 @@ class WebhookController extends WP_REST_Controller {
 		if ( ! empty( $body['site_id'] ) ) {
 			$stored_site_id = get_option( 'surefeedback_site_id', '' );
 			if ( ! empty( $stored_site_id ) && $body['site_id'] !== $stored_site_id ) {
-				error_log( 'SureFeedback: Disconnect webhook site_id mismatch' );
 				return new WP_Error(
 					'rest_unauthorized',
 					__( 'Invalid site ID.', 'surefeedback-cloud' ),
@@ -288,9 +270,6 @@ class WebhookController extends WP_REST_Controller {
 				);
 			}
 		}
-
-		error_log( 'SureFeedback: Disconnect webhook verified, clearing connection data' );
-
 		// Clear bearer token
 		$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
 		$secure_cookie_manager->delete_secure_cookie( 'auth_token' );
@@ -308,12 +287,10 @@ class WebhookController extends WP_REST_Controller {
 		delete_option( 'surefeedback_last_verification' );
 		delete_option( 'surefeedback_webhook_state' );
 
-		error_log( 'SureFeedback: Connection data cleared via disconnect webhook' );
-
 		return rest_ensure_response(
 			array(
-				'success' => true,
-				'message' => 'Disconnected successfully via webhook',
+				'success'   => true,
+				'message'   => 'Disconnected successfully via webhook',
 				'connected' => false,
 			)
 		);

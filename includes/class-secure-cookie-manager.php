@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Secure Cookie Manager
  *
@@ -78,29 +77,29 @@ class Secure_Cookie_Manager {
 	 * @return string Cookie domain (empty string for current domain, or .domain.com for subdomains).
 	 */
 	public function get_cookie_domain() {
-		// Get the current domain
+		// Get the current domain.
 		$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 
 		if ( empty( $host ) ) {
 			return '';
 		}
 
-		// Remove port if present
+		// Remove port if present.
 		$host = explode( ':', $host )[0];
 
-		// For localhost or IP addresses, don't set domain
-		if ( $host === 'localhost' || filter_var( $host, FILTER_VALIDATE_IP ) ) {
+		// For localhost or IP addresses, don't set domain.
+		if ( 'localhost' === $host || filter_var( $host, FILTER_VALIDATE_IP ) ) {
 			return '';
 		}
 
-		// Extract main domain (e.g., example.com from sub.example.com)
+		// Extract main domain (e.g., example.com from sub.example.com).
 		$parts = explode( '.', $host );
 
 		if ( count( $parts ) < 2 ) {
 			return '';
 		}
 
-		// Return domain with leading dot for subdomain support
+		// Return domain with leading dot for subdomain support.
 		if ( count( $parts ) >= 2 ) {
 			$main_domain = $parts[ count( $parts ) - 2 ] . '.' . $parts[ count( $parts ) - 1 ];
 			return '.' . $main_domain;
@@ -120,7 +119,7 @@ class Secure_Cookie_Manager {
 	 */
 	public function set_secure_cookie( string $name, $value, int $expiry = self::DEFAULT_EXPIRY, array $options = array() ) {
 		try {
-			// Convert non-string values to JSON
+			// Convert non-string values to JSON.
 			if ( ! is_string( $value ) ) {
 				$value = wp_json_encode( $value );
 				if ( false === $value ) {
@@ -128,20 +127,20 @@ class Secure_Cookie_Manager {
 				}
 			}
 
-			// Get encryption key
+			// Get encryption key.
 			$keys = $this->get_encryption_keys();
 			if ( ! $keys ) {
 				return false;
 			}
 
-			// Generate IV
+			// Generate IV.
 			$iv_length = openssl_cipher_iv_length( self::CIPHER_METHOD );
 			$iv        = openssl_random_pseudo_bytes( $iv_length );
 			if ( false === $iv ) {
 				return false;
 			}
 
-			// Encrypt the value
+			// Encrypt the value.
 			$tag       = '';
 			$encrypted = openssl_encrypt(
 				$value,
@@ -156,23 +155,23 @@ class Secure_Cookie_Manager {
 				return false;
 			}
 
-			// Create payload with metadata
+			// Create payload with metadata.
 			$payload = array(
-				'v' => 1, // Version for future compatibility
-				'i' => base64_encode( $iv ),
-				'd' => base64_encode( $encrypted ),
-				't' => base64_encode( $tag ),
-				'e' => time() + $expiry, // Expiration timestamp
+				'v' => 1, // Version for future compatibility.
+				'i' => base64_encode( $iv ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'd' => base64_encode( $encrypted ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				't' => base64_encode( $tag ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'e' => time() + $expiry, // Expiration timestamp.
 			);
 
-			// Sign the payload
+			// Sign the payload.
 			$payload_string = wp_json_encode( $payload );
 			$signature      = hash_hmac( 'sha256', $payload_string, $keys['signing_key'] );
 
-			// Final cookie value
-			$cookie_value = base64_encode( $payload_string . '.' . $signature );
+			// Final cookie value.
+			$cookie_value = base64_encode( $payload_string . '.' . $signature ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 
-			// Set cookie options
+			// Set cookie options.
 			$cookie_options = wp_parse_args(
 				$options,
 				array(
@@ -185,7 +184,7 @@ class Secure_Cookie_Manager {
 				)
 			);
 
-			// Set the cookie
+			// Set the cookie.
 			return setcookie(
 				self::COOKIE_PREFIX . $name,
 				$cookie_value,

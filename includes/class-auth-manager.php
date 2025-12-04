@@ -54,7 +54,7 @@ class Auth_Manager {
 	 */
 	public function is_authenticated() {
 		$token = $this->get_bearer_token();
-		
+
 		// If we have a valid token, we're authenticated
 		if ( ! empty( $token ) ) {
 			return true;
@@ -62,8 +62,8 @@ class Auth_Manager {
 
 		// Fallback: Check if connection data exists (for webhook-based connections)
 		// This handles cases where bearer token decryption fails but connection data exists
-		$site_id = get_option( 'surefeedback_site_id', '' );
-		$site_token = get_option( 'surefeedback_site_token', '' );
+		$site_id         = get_option( 'surefeedback_site_id', '' );
+		$site_token      = get_option( 'surefeedback_site_token', '' );
 		$organization_id = get_option( 'surefeedback_organization_id', '' );
 
 		// If we have site_id and site_token, consider it connected
@@ -71,7 +71,7 @@ class Auth_Manager {
 		if ( ! empty( $site_id ) && ! empty( $site_token ) ) {
 			// Try to get bearer token from database (might be stored as plain text)
 			$db_token = get_option( self::BEARER_TOKEN_OPTION, false );
-			
+
 			// If token exists but decryption failed, try using it as plain text
 			// This handles backward compatibility for tokens stored before encryption
 			if ( $db_token && ! empty( $db_token ) ) {
@@ -119,7 +119,7 @@ class Auth_Manager {
 			// It's a plain JWT token, return it directly
 			// Also re-encrypt it for future use
 			$encryption = new Encryption();
-			$encrypted = $encryption->encrypt( $stored_token );
+			$encrypted  = $encryption->encrypt( $stored_token );
 			if ( $encrypted ) {
 				update_option( self::BEARER_TOKEN_OPTION, $encrypted );
 			}
@@ -128,8 +128,8 @@ class Auth_Manager {
 
 		// Try to decrypt (assumes it's encrypted)
 		$encryption = new Encryption();
-		$decrypted = $encryption->decrypt( $stored_token );
-		
+		$decrypted  = $encryption->decrypt( $stored_token );
+
 		// If decryption fails, it might be plain text stored incorrectly
 		// Return the stored value as-is if it looks like a JWT
 		if ( ! $decrypted && is_string( $stored_token ) && strpos( $stored_token, 'eyJ' ) === 0 ) {

@@ -5,8 +5,8 @@ includes:
 parameters:
   level: 5
   paths:
-    - includes
-    - surefeedback.php
+    - includes/
+    - surefeedback-cloud.php
   excludePaths:
     - vendor/*
     - tests/*

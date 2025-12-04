@@ -7,7 +7,7 @@ module.exports = function (grunt) {
 
     // Read version from main plugin file
     version: (function() {
-      var phpFile = grunt.file.read('surefeedback.php');
+      var phpFile = grunt.file.read('surefeedback-cloud.php');
       var versionMatch = phpFile.match(/\* Version:\s*([0-9.]+)/);
       return versionMatch ? versionMatch[1] : '0.0.1';
     })(),
@@ -42,7 +42,7 @@ module.exports = function (grunt) {
     // Custom WP-CLI task for better JavaScript/JSX support
     shell: {
       makepot: {
-        command: 'php -d memory_limit=512M $(which wp) i18n make-pot . languages/surefeedback.pot --domain=surefeedback-cloud --include="*.php" --exclude="node_modules,tests,vendor,assets/js"',
+        command: 'php -d memory_limit=512M $(which wp) i18n make-pot . languages/surefeedback-cloud.pot --domain=surefeedback-cloud --include="*.php" --exclude="node_modules,tests,vendor,assets/js"',
         options: {
           stderr: false,
           failOnError: false
@@ -534,14 +534,7 @@ module.exports = function (grunt) {
     grunt.log.writeln("Empty directories removed.");
   });
 
-  // Note: Environment configuration uses WordPress constants
-  // - Constants defined in surefeedback.php with production defaults
-  // - Checks WP_ENVIRONMENT_TYPE for local development
-  // - Local: SUREFEEDBACK_API_BASE_URL = http://localhost:8000
-  // - Local: SUREFEEDBACK_APP_BASE_URL = http://localhost:3000
-  // - Production: Uses production URLs (api.surefeedback.com / app.surefeedback.com)
-  // - Can be overridden in wp-config.php per environment
-  // - No .env files needed - WordPress.org compliant
+
 
   grunt.registerTask("i18n", ["addtextdomain", "shell:makepot"]);
   grunt.registerTask("makepot", ["shell:makepot"]); // Alias for backward compatibility

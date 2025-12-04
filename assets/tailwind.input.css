@@ -1,7 +1,7 @@
 /* Tailwind v4 @source lines */
 @source "../src/**/*.{js,jsx}";
 @source "../includes/**/*.php";
-@source "../surefeedback.php";
+@source "../surefeedback-cloud.php";
 
 /* Import Google Fonts - must be first */
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap');

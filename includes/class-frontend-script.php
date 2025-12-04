@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Frontend Script Loader 
+ * Frontend Script Loader
  *
  * @package SureFeedback
  * @since   0.0.1
@@ -116,7 +116,7 @@ class Frontend_Script {
 		}
 
 		$settings = get_option( 'surefeedback_page_settings', array() );
-		
+
 		// Validate settings format
 		if ( ! is_array( $settings ) ) {
 			$settings = array();
@@ -191,7 +191,7 @@ class Frontend_Script {
 		// Guest users handling
 		if ( ! is_user_logged_in() ) {
 			// Allow guests for SaaS connection (SDK handles token authentication)
-			$allow_guests = apply_filters( 'surefeedback_allow_guest_users', true );
+			$allow_guests                = apply_filters( 'surefeedback_allow_guest_users', true );
 			self::$cache['user_allowed'] = $allow_guests;
 			return $allow_guests;
 		}
@@ -225,10 +225,10 @@ class Frontend_Script {
 		}
 
 		$magic_token = sanitize_text_field( wp_unslash( $_GET['magic_token'] ) );
-		
+
 		// Validate token format: 64 character hex string
-		$is_valid = ! empty( $magic_token ) 
-			&& strlen( $magic_token ) === 64 
+		$is_valid = ! empty( $magic_token )
+			&& strlen( $magic_token ) === 64
 			&& ctype_xdigit( $magic_token );
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -247,10 +247,10 @@ class Frontend_Script {
 		}
 
 		$api_token = sanitize_text_field( wp_unslash( $_GET['api_token'] ) );
-		
+
 		// Validate token format: starts with 'sc_' and has reasonable length
-		$is_valid = ! empty( $api_token ) 
-			&& strpos( $api_token, 'sc_' ) === 0 
+		$is_valid = ! empty( $api_token )
+			&& strpos( $api_token, 'sc_' ) === 0
 			&& strlen( $api_token ) > 10;
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -269,7 +269,6 @@ class Frontend_Script {
 			}
 			return new Auth_Manager();
 		} catch ( \Exception $e ) {
-			error_log( 'SureFeedback: Failed to create Auth_Manager - ' . $e->getMessage() );
 			return null;
 		}
 	}
@@ -340,11 +339,11 @@ class Frontend_Script {
 	 * @return string
 	 */
 	private function generate_sdk_javascript( $config ) {
-		$page_settings    = wp_json_encode( $this->get_page_settings() );
-		$current_page_id  = wp_json_encode( $this->get_current_page_id() );
-		$sdk_url          = esc_url_raw( $config['sdk_url'] );
-		$sdk_base_url     = esc_js( $config['sdk_base_url'] );
-		$access_token     = esc_js( $config['access_token'] );
+		$page_settings   = wp_json_encode( $this->get_page_settings() );
+		$current_page_id = wp_json_encode( $this->get_current_page_id() );
+		$sdk_url         = esc_url_raw( $config['sdk_url'] );
+		$sdk_base_url    = esc_js( $config['sdk_base_url'] );
+		$access_token    = esc_js( $config['access_token'] );
 
 		// Minified JavaScript for production
 		$javascript = "
@@ -444,7 +443,7 @@ class Frontend_Script {
 		}
 
 		// Get SDK base URL
-		$sdk_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) 
+		$sdk_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' )
 			? preg_replace( '#/api/v1/?$#', '', rtrim( SUREFEEDBACK_SAAS_API_BASE_URL, '/' ) )
 			: '';
 
@@ -456,6 +455,7 @@ class Frontend_Script {
 		);
 
 		// Generate and output optimized JavaScript
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JavaScript output is properly sanitized in generate_sdk_javascript method
 		echo $this->generate_sdk_javascript( $js_config );
 
 		// Mark as loaded
@@ -471,7 +471,7 @@ class Frontend_Script {
 	 * @return void
 	 */
 	public static function clear_cache() {
-		self::$cache = array();
+		self::$cache         = array();
 		self::$script_loaded = false;
 	}
 

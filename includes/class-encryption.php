@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Based on the code from the following packages:
  * Class Google\Site_Kit\Core\Storage\Data_Encryption

@@ -132,7 +132,7 @@ class Admin_Menu {
 		$admin_css_path = SUREFEEDBACK_PLUGIN_PATH . 'assets/dist/admin.css';
 		$admin_css_url  = SUREFEEDBACK_PLUGIN_URL . 'assets/dist/admin.css';
 		$css_version    = file_exists( $admin_css_path ) ? filemtime( $admin_css_path ) : SUREFEEDBACK_VERSION;
-		
+
 		wp_enqueue_style(
 			'surefeedback-admin',
 			$admin_css_url,
@@ -144,7 +144,7 @@ class Admin_Menu {
 		$admin_js_path = SUREFEEDBACK_PLUGIN_PATH . 'assets/js/admin.js';
 		$admin_js_url  = SUREFEEDBACK_PLUGIN_URL . 'assets/js/admin.js';
 		$js_version    = file_exists( $admin_js_path ) ? filemtime( $admin_js_path ) : SUREFEEDBACK_VERSION;
-		
+
 		wp_enqueue_script(
 			'surefeedback-admin',
 			$admin_js_url,
