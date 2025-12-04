@@ -318,7 +318,7 @@ class Rest_Controller extends WP_REST_Controller {
 		if ( empty( $state ) ) {
 			return new WP_Error(
 				'rest_invalid_param',
-				__( 'State parameter is required.', 'surefeedback' ),
+				__( 'State parameter is required.', 'surefeedback-cloud' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -347,7 +347,7 @@ class Rest_Controller extends WP_REST_Controller {
 
 		return new WP_Error(
 			'rest_state_storage_failed',
-			__( 'Failed to store state.', 'surefeedback' ),
+			__( 'Failed to store state.', 'surefeedback-cloud' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -364,7 +364,7 @@ class Rest_Controller extends WP_REST_Controller {
 		if ( ! $auth_manager->is_authenticated() ) {
 			return new WP_Error(
 				'rest_not_connected',
-				__( 'Not connected to SureFeedback.', 'surefeedback' ),
+				__( 'Not connected to SureFeedback.', 'surefeedback-cloud' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -638,7 +638,7 @@ class Rest_Controller extends WP_REST_Controller {
 		if ( empty( $site_token ) ) {
 			return new WP_Error(
 				'rest_missing_param',
-				__( 'Site token is required.', 'surefeedback' ),
+				__( 'Site token is required.', 'surefeedback-cloud' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -650,7 +650,7 @@ class Rest_Controller extends WP_REST_Controller {
 		if ( ! $bearer_token ) {
 			return new WP_Error(
 				'rest_not_authenticated',
-				__( 'Not authenticated with SureFeedback.', 'surefeedback' ),
+				__( 'Not authenticated with SureFeedback.', 'surefeedback-cloud' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -697,7 +697,7 @@ class Rest_Controller extends WP_REST_Controller {
 		} catch ( \Exception $e ) {
 			return new WP_Error(
 				'rest_verification_failed',
-				__( 'Verification failed: ', 'surefeedback' ) . $e->getMessage(),
+				__( 'Verification failed: ', 'surefeedback-cloud' ) . $e->getMessage(),
 				array( 'status' => 500 )
 			);
 		}
@@ -730,7 +730,7 @@ class Rest_Controller extends WP_REST_Controller {
 		if ( empty( $domain ) ) {
 			return new WP_Error(
 				'rest_invalid_domain',
-				__( 'Unable to determine site domain.', 'surefeedback' ),
+				__( 'Unable to determine site domain.', 'surefeedback-cloud' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -998,7 +998,7 @@ class Rest_Controller extends WP_REST_Controller {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'Sorry, you are not allowed to do that.', 'surefeedback' ),
+				__( 'Sorry, you are not allowed to do that.', 'surefeedback-cloud' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}

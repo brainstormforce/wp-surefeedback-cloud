@@ -62,7 +62,7 @@ const PermissionsView = () => {
                 });
             }
         } catch (error) {
-            toast.error(__('Failed to load settings', 'surefeedback'));
+            toast.error(__('Failed to load settings', 'surefeedback-cloud'));
         } finally {
             setLoading(false);
         }
@@ -88,13 +88,13 @@ const PermissionsView = () => {
             });
 
             if (data.success) {
-                toast.success(__('Permissions saved successfully!', 'surefeedback'));
+                toast.success(__('Permissions saved successfully!', 'surefeedback-cloud'));
                 setHasUnsavedChanges(false);
             } else {
                 throw new Error(data.message || 'Save failed');
             }
         } catch (error) {
-            toast.error(__('Failed to save permissions', 'surefeedback'));
+            toast.error(__('Failed to save permissions', 'surefeedback-cloud'));
         } finally {
             setSaving(false);
         }
@@ -116,10 +116,10 @@ const PermissionsView = () => {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center space-x-3 mb-4">
                     <Users className="h-5 w-5 text-blue-600" />
-                    <Title size="md">{__('User Permissions', 'surefeedback')}</Title>
+                    <Title size="md">{__('User Permissions', 'surefeedback-cloud')}</Title>
                 </div>
                 <p className="text-gray-600 mb-6">
-                    {__('Allow user roles to view comment widget on your site', 'surefeedback')}
+                    {__('Allow user roles to view comment widget on your site', 'surefeedback-cloud')}
                 </p>
                 
                 <div className="space-y-4">
@@ -128,7 +128,7 @@ const PermissionsView = () => {
                             <div className="flex-1 pr-4">
                                 <span className="font-semibold text-gray-900 block mb-1">{role.label}</span>
                                 <p className="text-sm text-gray-600">
-                                    {__(`Enable ${role.label} role to view and interact with the feedback widget`, 'surefeedback')}
+                                    {__(`Enable ${role.label} role to view and interact with the feedback widget`, 'surefeedback-cloud')}
                                 </p>
                             </div>
                             <Switch
@@ -152,15 +152,15 @@ const PermissionsView = () => {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center space-x-3 mb-4">
                     <Eye className="h-5 w-5 text-green-600" />
-                    <Title size="md">{__('Site Visitor Access', 'surefeedback')}</Title>
+                    <Title size="md">{__('Site Visitor Access', 'surefeedback-cloud')}</Title>
                 </div>
                 
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h4 className="font-medium">{__('Allow Site Visitors', 'surefeedback')}</h4>
+                            <h4 className="font-medium">{__('Allow Site Visitors', 'surefeedback-cloud')}</h4>
                             <p className="text-sm text-gray-600">
-                                {__('Allow the site visitors to view and add comments on your site without access token.', 'surefeedback')}
+                                {__('Allow the site visitors to view and add comments on your site without access token.', 'surefeedback-cloud')}
                             </p>
                         </div>
                         <Switch
@@ -171,9 +171,9 @@ const PermissionsView = () => {
                     
                     <div className="flex items-center justify-between">
                         <div>
-                            <h4 className="font-medium">{__('Dashboard Commenting', 'surefeedback')}</h4>
+                            <h4 className="font-medium">{__('Dashboard Commenting', 'surefeedback-cloud')}</h4>
                             <p className="text-sm text-gray-600">
-                                {__('Allow commenting in your site\'s WordPress dashboard area', 'surefeedback')}
+                                {__('Allow commenting in your site\'s WordPress dashboard area', 'surefeedback-cloud')}
                             </p>
                         </div>
                         <Switch
@@ -184,9 +184,9 @@ const PermissionsView = () => {
                     
                     <div className="flex items-center justify-between">
                         <div>
-                            <h4 className="font-medium">{__('Guest Access', 'surefeedback')}</h4>
+                            <h4 className="font-medium">{__('Guest Access', 'surefeedback-cloud')}</h4>
                             <p className="text-sm text-gray-600">
-                                {__('Allow non-logged-in users to leave feedback', 'surefeedback')}
+                                {__('Allow non-logged-in users to leave feedback', 'surefeedback-cloud')}
                             </p>
                         </div>
                         <Switch
@@ -204,16 +204,16 @@ const PermissionsView = () => {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center space-x-3 mb-4">
                     <Shield className="h-5 w-5 text-purple-600" />
-                    <Title size="md">{__('Advanced Permissions', 'surefeedback')}</Title>
+                    <Title size="md">{__('Advanced Permissions', 'surefeedback-cloud')}</Title>
                 </div>
                 
                 <div className="space-y-4">
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <h4 className="font-medium text-yellow-800 mb-2">
-                            {__('Coming Soon', 'surefeedback')}
+                            {__('Coming Soon', 'surefeedback-cloud')}
                         </h4>
                         <p className="text-sm text-yellow-700">
-                            {__('Advanced permission settings including custom roles, time-based access, and IP restrictions will be available in a future update.', 'surefeedback')}
+                            {__('Advanced permission settings including custom roles, time-based access, and IP restrictions will be available in a future update.', 'surefeedback-cloud')}
                         </p>
                     </div>
                 </div>
@@ -285,10 +285,10 @@ const PermissionsView = () => {
             <div className="surefeedback-permissions-view">
                 <div className="mb-6">
                     <Title size="xl" className="mb-2">
-                        {__('Permission Management', 'surefeedback')}
+                        {__('Permission Management', 'surefeedback-cloud')}
                     </Title>
                     <p className="text-gray-600">
-                        {__('Control what each user role can do in SureFeedback.', 'surefeedback')}
+                        {__('Control what each user role can do in SureFeedback.', 'surefeedback-cloud')}
                     </p>
                 </div>
                 
@@ -301,7 +301,7 @@ const PermissionsView = () => {
                         className="rounded-b-none"
                     >
                         <Users className="w-4 h-4 mr-2" />
-                        {__('User Roles', 'surefeedback')}
+                        {__('User Roles', 'surefeedback-cloud')}
                     </Button>
                     <Button
                         variant={activeTab === 'site-access' ? 'primary' : 'ghost'}
@@ -310,7 +310,7 @@ const PermissionsView = () => {
                         className="rounded-b-none"
                     >
                         <Eye className="w-4 h-4 mr-2" />
-                        {__('Site Access', 'surefeedback')}
+                        {__('Site Access', 'surefeedback-cloud')}
                     </Button>
                     <Button
                         variant={activeTab === 'advanced' ? 'primary' : 'ghost'}
@@ -319,7 +319,7 @@ const PermissionsView = () => {
                         className="rounded-b-none"
                     >
                         <Shield className="w-4 h-4 mr-2" />
-                        {__('Advanced', 'surefeedback')}
+                        {__('Advanced', 'surefeedback-cloud')}
                     </Button>
                 </div>
                 
@@ -337,10 +337,10 @@ const PermissionsView = () => {
                         {saving ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                {__('Saving...', 'surefeedback')}
+                                {__('Saving...', 'surefeedback-cloud')}
                             </>
                         ) : (
-                            hasUnsavedChanges ? __('Save Changes', 'surefeedback') : __('No Changes', 'surefeedback')
+                            hasUnsavedChanges ? __('Save Changes', 'surefeedback-cloud') : __('No Changes', 'surefeedback-cloud')
                         )}
                     </Button>
                 </div>

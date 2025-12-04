@@ -17,16 +17,16 @@ export const Welcome = ({ setCurrentStep }) => {
         <CardHeader>
           <img
             src={window.sureFeedbackAdmin?.surefeedback_icon || window.surefeedbackAdmin?.surefeedback_icon || ""}
-            alt={__("SureFeedback Logo", "surefeedback")}
+            alt={__("SureFeedback Logo", "surefeedback-cloud")}
             className="mx-auto h-16 w-[200px] object-contain pb-4"
           />
           <CardTitle className="text-2xl font-semibold text-foreground mt-3">
-            {__("Welcome to the Setup Wizard!", "surefeedback")}
+            {__("Welcome to the Setup Wizard!", "surefeedback-cloud")}
           </CardTitle>
           <CardDescription className="text-muted-foreground mt-2 max-w-md mx-auto">
             {__(
               "SureFeedback makes it easy to collect and manage customer comments, helping you take action and improve satisfaction with less effort.",
-              "surefeedback"
+              "surefeedback-cloud"
             )}
           </CardDescription>
         </CardHeader>
@@ -36,7 +36,7 @@ export const Welcome = ({ setCurrentStep }) => {
             size="default"
             onClick={handleGetStarted}
           >
-            {__("Get Started Now", "surefeedback")}
+            {__("Get Started Now", "surefeedback-cloud")}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
 
@@ -44,7 +44,7 @@ export const Welcome = ({ setCurrentStep }) => {
             variant="link"
             onClick={() => (window.location.href = `${window.origin}/wp-admin`)}
           >
-            {__("Go Back to the Dashboard", "surefeedback")}
+            {__("Go Back to the Dashboard", "surefeedback-cloud")}
           </Button>
         </CardContent>
       </Card>
@@ -60,7 +60,7 @@ export const Welcome = ({ setCurrentStep }) => {
         >
           <img
             src={window.sureFeedbackAdmin?.welcome || window.surefeedbackAdmin?.welcome || ""}
-            alt={__("Welcome Illustration", "surefeedback")}
+            alt={__("Welcome Illustration", "surefeedback-cloud")}
             className="absolute inset-0 mx-auto object-contain w-[90%] h-full"
           />
         </div>
@@ -70,9 +70,9 @@ export const Welcome = ({ setCurrentStep }) => {
       <Card className="mt-12 w-full max-w-5xl bg-muted border-none">
         <CardHeader>
           <CardTitle className="text-2xl text-center text-foreground font-semibold">
-            {__("Accelerate Issue Resolution with", "surefeedback")}
+            {__("Accelerate Issue Resolution with", "surefeedback-cloud")}
             <br />
-            {__("Seamless Client Collaboration", "surefeedback")}
+            {__("Seamless Client Collaboration", "surefeedback-cloud")}
           </CardTitle>
         </CardHeader>
 
@@ -80,34 +80,34 @@ export const Welcome = ({ setCurrentStep }) => {
           {[
             {
               icon: window.sureFeedbackAdmin?.thumbs || window.surefeedbackAdmin?.thumbs,
-              title: __("Lightweight and Easy to Use", "surefeedback"),
+              title: __("Lightweight and Easy to Use", "surefeedback-cloud"),
               desc: __(
                 "SureFeedback is lightweight, bloat-free, and user-friendly with no training required.",
-                "surefeedback"
+                "surefeedback-cloud"
               ),
             },
             {
               icon: window.sureFeedbackAdmin?.rocket || window.surefeedbackAdmin?.rocket,
-              title: __("Report Bugs Easily", "surefeedback"),
+              title: __("Report Bugs Easily", "surefeedback-cloud"),
               desc: __(
                 "Bug reporting and tracking made easy. Simply point your cursor and leave review comments.",
-                "surefeedback"
+                "surefeedback-cloud"
               ),
             },
             {
               icon: window.sureFeedbackAdmin?.admin || window.surefeedbackAdmin?.admin,
-              title: __("1-click Client Approvals", "surefeedback"),
+              title: __("1-click Client Approvals", "surefeedback-cloud"),
               desc: __(
                 "Clients can review and approve designs/projects with one click, reducing email exchanges.",
-                "surefeedback"
+                "surefeedback-cloud"
               ),
             },
             {
               icon: window.sureFeedbackAdmin?.docs || window.surefeedbackAdmin?.docs,
-              title: __("Keeps Records", "surefeedback"),
+              title: __("Keeps Records", "surefeedback-cloud"),
               desc: __(
                 "SureFeedback records all feedback, simplifying referencing and tracking revisions.",
-                "surefeedback"
+                "surefeedback-cloud"
               ),
             },
           ].map(({ icon, title, desc }, idx) => (
@@ -129,17 +129,17 @@ export const Welcome = ({ setCurrentStep }) => {
       {/* Footer Section */}
       <div className="flex flex-col items-center text-center px-4">
         <h2 className="text-xl font-semibold text-foreground max-w-sm">
-          {__("One Dashboard. Unlimited Websites. Any Platform.", "surefeedback")}
+          {__("One Dashboard. Unlimited Websites. Any Platform.", "surefeedback-cloud")}
         </h2>
         <p className="mt-2 max-w-xl text-sm text-muted-foreground">
           {__(
             "Once installed on WordPress, SureFeedback works on unlimited websites, ANY platform. Central dashboard management included.",
-            "surefeedback"
+            "surefeedback-cloud"
           )}
         </p>
         <img
           src={window.sureFeedbackAdmin?.footer || window.surefeedbackAdmin?.footer || ""}
-          alt={__("Footer Illustration", "surefeedback")}
+          alt={__("Footer Illustration", "surefeedback-cloud")}
           className="object-contain mt-8 w-[700px] h-[130px]"
         />
 
@@ -148,14 +148,14 @@ export const Welcome = ({ setCurrentStep }) => {
             size="default"
             onClick={handleGetStarted}
           >
-            {__("Get Started Now", "surefeedback")}
+            {__("Get Started Now", "surefeedback-cloud")}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
           <Button
             variant="link"
             onClick={() => (window.location.href = `${window.origin}/wp-admin`)}
           >
-            {__("Go Back to the Dashboard", "surefeedback")}
+            {__("Go Back to the Dashboard", "surefeedback-cloud")}
           </Button>
         </div>
       </div>

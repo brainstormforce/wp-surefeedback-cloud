@@ -11,7 +11,7 @@ const ConnectionFailed = ({ verificationResult }) => {
     reconnectSite();
   };
 
-  const errorMessage = verificationResult?.message || __("We couldn't connect your site. Please try again.", "surefeedback");
+  const errorMessage = verificationResult?.message || __("We couldn't connect your site. Please try again.", "surefeedback-cloud");
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-background">
@@ -19,7 +19,7 @@ const ConnectionFailed = ({ verificationResult }) => {
         <CardContent className="space-y-4 p-4">
           <Frown className="mx-auto text-destructive h-8 w-8" />
           <h2 className="text-xl font-semibold text-foreground">
-            {__("Connection Failed...", "surefeedback")}
+            {__("Connection Failed...", "surefeedback-cloud")}
           </h2>
           <p className="text-muted-foreground">
             {errorMessage}
@@ -28,7 +28,7 @@ const ConnectionFailed = ({ verificationResult }) => {
             size="default"
             onClick={() => handleConnectAgain()}
           >
-            {__("Connect Again", "surefeedback")}
+            {__("Connect Again", "surefeedback-cloud")}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </CardContent>

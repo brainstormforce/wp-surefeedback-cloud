@@ -46,7 +46,7 @@ const WidgetControl = () => {
         setSettings(response.settings || {});
       }
     } catch (error) {
-      toast.error(__('Failed to load page settings', 'surefeedback'));
+      toast.error(__('Failed to load page settings', 'surefeedback-cloud'));
     } finally {
       setLoading(false);
     }
@@ -74,13 +74,13 @@ const WidgetControl = () => {
       });
 
       if (response.success) {
-        toast.success(__('Page settings saved successfully', 'surefeedback'));
+        toast.success(__('Page settings saved successfully', 'surefeedback-cloud'));
         setHasUnsavedChanges(false);
         // Reload to get updated data
         await loadPagesSettings();
       }
     } catch (error) {
-      toast.error(__('Failed to save settings', 'surefeedback'));
+      toast.error(__('Failed to save settings', 'surefeedback-cloud'));
     } finally {
       setSaving(false);
     }
@@ -97,12 +97,12 @@ const WidgetControl = () => {
       const response = await apiGateway.post('page-settings/enable-all');
 
       if (response.success) {
-        toast.success(__('Widget enabled for all pages', 'surefeedback'));
+        toast.success(__('Widget enabled for all pages', 'surefeedback-cloud'));
         setHasUnsavedChanges(false);
         await loadPagesSettings();
       }
     } catch (error) {
-      toast.error(__('Failed to enable widget for all pages', 'surefeedback'));
+      toast.error(__('Failed to enable widget for all pages', 'surefeedback-cloud'));
     } finally {
       setSaving(false);
       setShowEnableAllDialog(false);
@@ -120,12 +120,12 @@ const WidgetControl = () => {
       const response = await apiGateway.post('page-settings/disable-all');
 
       if (response.success) {
-        toast.success(__('Widget disabled for all pages', 'surefeedback'));
+        toast.success(__('Widget disabled for all pages', 'surefeedback-cloud'));
         setHasUnsavedChanges(false);
         await loadPagesSettings();
       }
     } catch (error) {
-      toast.error(__('Failed to disable widget for all pages', 'surefeedback'));
+      toast.error(__('Failed to disable widget for all pages', 'surefeedback-cloud'));
     } finally {
       setSaving(false);
       setShowDisableAllDialog(false);
@@ -282,9 +282,9 @@ const WidgetControl = () => {
           <div className="space-y-4 sm:space-y-6">
             {/* Header */}
             <div>
-              <h2 className="text-xl font-semibold text-foreground">{__('Widget Control', 'surefeedback')}</h2>
+              <h2 className="text-xl font-semibold text-foreground">{__('Widget Control', 'surefeedback-cloud')}</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {__('Control which pages display the SureFeedback widget', 'surefeedback')}
+                {__('Control which pages display the SureFeedback widget', 'surefeedback-cloud')}
               </p>
             </div>
 
@@ -293,7 +293,7 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Total Pages', 'surefeedback')}</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Total Pages', 'surefeedback-cloud')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{pages.length}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
@@ -305,11 +305,11 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Enabled Pages', 'surefeedback')}</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Enabled Pages', 'surefeedback-cloud')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{enabledCount}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
-                    <img src={SyncedMonitor} alt={__('synced', 'surefeedback')} className="w-8 h-8" />
+                    <img src={SyncedMonitor} alt={__('synced', 'surefeedback-cloud')} className="w-8 h-8" />
                   </div>
                 </CardContent>
               </Card>
@@ -317,11 +317,11 @@ const WidgetControl = () => {
               <Card className="overflow-hidden rounded-lg bg-[#F9FAFBF9] shadow-none">
                 <CardContent className="p-3 sm:p-4 flex items-center gap-4 h-full">
                   <div className="flex-1">
-                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Disabled Pages', 'surefeedback')}</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm text-[#475569] font-normal mb-2">{__('Disabled Pages', 'surefeedback-cloud')}</CardTitle>
                     <div className="text-xl sm:text-2xl font-semibold">{disabledCount}</div>
                   </div>
                   <div className="flex items-center justify-center flex-shrink-0">
-                    <img src={SyncedMonitorOff} alt={__('off - synced', 'surefeedback')} className="w-8 h-8" />
+                    <img src={SyncedMonitorOff} alt={__('off - synced', 'surefeedback-cloud')} className="w-8 h-8" />
                   </div>
                 </CardContent>
               </Card>
@@ -331,8 +331,8 @@ const WidgetControl = () => {
             <Card className="w-full rounded-lg border border-border shadow-none">
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-6 !pb-0">
                 <div className="flex-1">
-                  <CardTitle className="text-base sm:text-lg">{__('Page List', 'surefeedback')}</CardTitle>
-                  <CardDescription className="text-xs sm:text-sm mt-1">{__('Toggle widget visibility for individual pages', 'surefeedback')}</CardDescription>
+                  <CardTitle className="text-base sm:text-lg">{__('Page List', 'surefeedback-cloud')}</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm mt-1">{__('Toggle widget visibility for individual pages', 'surefeedback-cloud')}</CardDescription>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                   {enabledCount === pages.length ? (
@@ -348,8 +348,8 @@ const WidgetControl = () => {
                       ) : (
                         <XCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                       )}
-                      <span className="hidden sm:inline">{__('Disable All Pages', 'surefeedback')}</span>
-                      <span className="sm:hidden">{__('Disable All', 'surefeedback')}</span>
+                      <span className="hidden sm:inline">{__('Disable All Pages', 'surefeedback-cloud')}</span>
+                      <span className="sm:hidden">{__('Disable All', 'surefeedback-cloud')}</span>
                     </Button>
                   ) : (
                     <Button
@@ -363,8 +363,8 @@ const WidgetControl = () => {
                       ) : (
                         <CheckCheck className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       )}
-                      <span className="hidden sm:inline">{__('Enable All Pages', 'surefeedback')}</span>
-                      <span className="sm:hidden">{__('Enable All', 'surefeedback')}</span>
+                      <span className="hidden sm:inline">{__('Enable All Pages', 'surefeedback-cloud')}</span>
+                      <span className="sm:hidden">{__('Enable All', 'surefeedback-cloud')}</span>
                     </Button>
                   )}
                 </div>
@@ -374,7 +374,7 @@ const WidgetControl = () => {
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                     <Input
-                      placeholder={__('Search pages...', 'surefeedback')}
+                      placeholder={__('Search pages...', 'surefeedback-cloud')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-8 sm:pl-10 text-sm h-9 sm:h-10"
@@ -385,13 +385,13 @@ const WidgetControl = () => {
                     onChange={(e) => setFilterType(e.target.value)}
                     className="px-4 text-sm border rounded-lg bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary h-10"
                   >
-                    <option value="all">{__('All Types', 'surefeedback')}</option>
-                    <option value="enabled">{__('Enabled Only', 'surefeedback')}</option>
-                    <option value="disabled">{__('Disabled Only', 'surefeedback')}</option>
-                    <option value="home">{__('Homepage', 'surefeedback')}</option>
-                    <option value="page">{__('Pages', 'surefeedback')}</option>
-                    <option value="post">{__('Posts', 'surefeedback')}</option>
-                    <option value="archive">{__('Archives', 'surefeedback')}</option>
+                    <option value="all">{__('All Types', 'surefeedback-cloud')}</option>
+                    <option value="enabled">{__('Enabled Only', 'surefeedback-cloud')}</option>
+                    <option value="disabled">{__('Disabled Only', 'surefeedback-cloud')}</option>
+                    <option value="home">{__('Homepage', 'surefeedback-cloud')}</option>
+                    <option value="page">{__('Pages', 'surefeedback-cloud')}</option>
+                    <option value="post">{__('Posts', 'surefeedback-cloud')}</option>
+                    <option value="archive">{__('Archives', 'surefeedback-cloud')}</option>
                   </select>
                 </div>
 
@@ -400,7 +400,7 @@ const WidgetControl = () => {
                   {paginatedPages.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" />
-                      <p className="text-sm">{__('No pages found', 'surefeedback')}</p>
+                      <p className="text-sm">{__('No pages found', 'surefeedback-cloud')}</p>
                     </div>
                   ) : (
                     paginatedPages.map((page) => (
@@ -438,7 +438,7 @@ const WidgetControl = () => {
                 {!searchTerm && totalPages > 1 && (
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t pt-4 mb-4">
                     <div className="text-xs sm:text-sm text-muted-foreground">
-                      {sprintf(__('Showing %1$d-%2$d of %3$d pages', 'surefeedback'), startIndex + 1, Math.min(endIndex, filteredPages.length), filteredPages.length)}
+                      {sprintf(__('Showing %1$d-%2$d of %3$d pages', 'surefeedback-cloud'), startIndex + 1, Math.min(endIndex, filteredPages.length), filteredPages.length)}
                     </div>
                     <div className="flex gap-1 sm:gap-2 w-full sm:w-auto justify-end">
                       <Button
@@ -448,7 +448,7 @@ const WidgetControl = () => {
                         disabled={currentPage === 1}
                         className="text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
                       >
-                        <span className="hidden sm:inline">{__('Previous', 'surefeedback')}</span>
+                        <span className="hidden sm:inline">{__('Previous', 'surefeedback-cloud')}</span>
                         <ChevronLeft className="h-4 w-4 sm:hidden" />
                       </Button>
                       <div className="hidden sm:flex items-center gap-1">
@@ -486,7 +486,7 @@ const WidgetControl = () => {
                         disabled={currentPage === totalPages}
                         className="text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
                       >
-                        <span className="hidden sm:inline">{__('Next', 'surefeedback')}</span>
+                        <span className="hidden sm:inline">{__('Next', 'surefeedback-cloud')}</span>
                         <ChevronRight className="h-4 w-4 sm:hidden" />
                       </Button>
                     </div>
@@ -500,13 +500,13 @@ const WidgetControl = () => {
                       {hasUnsavedChanges && (
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-orange-600 bg-orange-50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border border-orange-200">
                           <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                          <span className="font-medium">{__('Unsaved changes', 'surefeedback')}</span>
+                          <span className="font-medium">{__('Unsaved changes', 'surefeedback-cloud')}</span>
                         </div>
                       )}
                       {!hasUnsavedChanges && (
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                           <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
-                          <span>{__('All changes saved', 'surefeedback')}</span>
+                          <span>{__('All changes saved', 'surefeedback-cloud')}</span>
                         </div>
                       )}
                     </div>
@@ -517,7 +517,7 @@ const WidgetControl = () => {
                         disabled={saving || !hasUnsavedChanges}
                         className="flex-1 sm:flex-initial sm:min-w-[100px] text-xs sm:text-sm h-9"
                       >
-                        {__('Cancel', 'surefeedback')}
+                        {__('Cancel', 'surefeedback-cloud')}
                       </Button>
                       <Button
                         onClick={saveSettings}
@@ -527,13 +527,13 @@ const WidgetControl = () => {
                         {saving ? (
                           <>
                             <Loader2 className=" h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                            <span className="hidden sm:inline">{__('Saving...', 'surefeedback')}</span>
-                            <span className="sm:hidden">{__('Saving...', 'surefeedback')}</span>
+                            <span className="hidden sm:inline">{__('Saving...', 'surefeedback-cloud')}</span>
+                            <span className="sm:hidden">{__('Saving...', 'surefeedback-cloud')}</span>
                           </>
                         ) : (
                           <>
-                            <span className="hidden sm:inline">{__('Save Changes', 'surefeedback')}</span>
-                            <span className="sm:hidden">{__('Save', 'surefeedback')}</span>
+                            <span className="hidden sm:inline">{__('Save Changes', 'surefeedback-cloud')}</span>
+                            <span className="sm:hidden">{__('Save', 'surefeedback-cloud')}</span>
                           </>
                         )}
                       </Button>
@@ -556,21 +556,21 @@ const WidgetControl = () => {
             <AlertDialog open={showEnableAllDialog} onOpenChange={setShowEnableAllDialog}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{__('Enable Widget for All Pages?', 'surefeedback')}</AlertDialogTitle>
+                  <AlertDialogTitle>{__('Enable Widget for All Pages?', 'surefeedback-cloud')}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {__('This will enable the SureFeedback widget on all pages of your website. This action can be undone.', 'surefeedback')}
+                    {__('This will enable the SureFeedback widget on all pages of your website. This action can be undone.', 'surefeedback-cloud')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel disabled={saving}>{__('Cancel', 'surefeedback')}</AlertDialogCancel>
+                  <AlertDialogCancel disabled={saving}>{__('Cancel', 'surefeedback-cloud')}</AlertDialogCancel>
                   <AlertDialogAction onClick={confirmEnableAll} disabled={saving}>
                     {saving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {__('Enabling...', 'surefeedback')}
+                        {__('Enabling...', 'surefeedback-cloud')}
                       </>
                     ) : (
-                      __('Enable All', 'surefeedback')
+                      __('Enable All', 'surefeedback-cloud')
                     )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -581,21 +581,21 @@ const WidgetControl = () => {
             <AlertDialog open={showDisableAllDialog} onOpenChange={setShowDisableAllDialog}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{__('Disable Widget for All Pages?', 'surefeedback')}</AlertDialogTitle>
+                  <AlertDialogTitle>{__('Disable Widget for All Pages?', 'surefeedback-cloud')}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {__('This will disable the SureFeedback widget on all pages of your website. Users will not be able to leave feedback. This action can be undone.', 'surefeedback')}
+                    {__('This will disable the SureFeedback widget on all pages of your website. Users will not be able to leave feedback. This action can be undone.', 'surefeedback-cloud')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel disabled={saving}>{__('Cancel', 'surefeedback')}</AlertDialogCancel>
+                  <AlertDialogCancel disabled={saving}>{__('Cancel', 'surefeedback-cloud')}</AlertDialogCancel>
                   <AlertDialogAction onClick={confirmDisableAll} disabled={saving} className="bg-red-600 hover:bg-red-700">
                     {saving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {__('Disabling...', 'surefeedback')}
+                        {__('Disabling...', 'surefeedback-cloud')}
                       </>
                     ) : (
-                      __('Disable All', 'surefeedback')
+                      __('Disable All', 'surefeedback-cloud')
                     )}
                   </AlertDialogAction>
                 </AlertDialogFooter>

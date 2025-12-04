@@ -75,8 +75,8 @@ class Admin_Menu {
 	public function register_menu() {
 		// Main menu
 		add_menu_page(
-			__( 'SureFeedback', 'surefeedback' ),
-			__( 'SureFeedback', 'surefeedback' ),
+			__( 'SureFeedback', 'surefeedback-cloud' ),
+			__( 'SureFeedback', 'surefeedback-cloud' ),
 			'manage_options',
 			$this->menu_slug . '-dashboard',
 			array( $this, 'render_dashboard_page' ),
@@ -87,8 +87,8 @@ class Admin_Menu {
 		// Connections submenu
 		add_submenu_page(
 			$this->menu_slug . '-dashboard',
-			__( 'Connections', 'surefeedback' ),
-			__( 'Connections', 'surefeedback' ),
+			__( 'Connections', 'surefeedback-cloud' ),
+			__( 'Connections', 'surefeedback-cloud' ),
 			'manage_options',
 			$this->menu_slug . '-dashboard',
 			array( $this, 'render_dashboard_page' )
@@ -97,8 +97,8 @@ class Admin_Menu {
 		// Widget Control submenu
 		add_submenu_page(
 			$this->menu_slug . '-dashboard',
-			__( 'Widget Control', 'surefeedback' ),
-			__( 'Widget Control', 'surefeedback' ),
+			__( 'Widget Control', 'surefeedback-cloud' ),
+			__( 'Widget Control', 'surefeedback-cloud' ),
 			'manage_options',
 			$this->menu_slug . '-widget-control',
 			array( $this, 'render_widget_control_page' )
@@ -107,8 +107,8 @@ class Admin_Menu {
 		// Settings submenu
 		add_submenu_page(
 			$this->menu_slug . '-dashboard',
-			__( 'Settings', 'surefeedback' ),
-			__( 'Settings', 'surefeedback' ),
+			__( 'Settings', 'surefeedback-cloud' ),
+			__( 'Settings', 'surefeedback-cloud' ),
 			'manage_options',
 			$this->menu_slug . '-settings',
 			array( $this, 'render_settings_page' )
@@ -254,7 +254,7 @@ class Admin_Menu {
 
 			<?php if ( $has_error ) : ?>
 				<div class="notice notice-error">
-					<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback' ); ?></p>
+					<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback-cloud' ); ?></p>
 				</div>
 			<?php endif; ?>
 
@@ -277,7 +277,7 @@ class Admin_Menu {
 
 			<?php if ( $has_error ) : ?>
 				<div class="notice notice-error">
-					<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback' ); ?></p>
+					<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback-cloud' ); ?></p>
 				</div>
 			<?php endif; ?>
 
@@ -299,7 +299,7 @@ class Admin_Menu {
 		<div class="wrap surefeedback-admin">
 			<?php if ( $has_error ) : ?>
 				<div class="notice notice-error">
-					<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback' ); ?></p>
+					<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback-cloud' ); ?></p>
 				</div>
 			<?php endif; ?>
 

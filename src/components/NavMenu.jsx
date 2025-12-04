@@ -43,9 +43,9 @@ const NavMenu = () => {
 
   // Filter nav items based on connection status
   const allNavItems = [
-    { label: __("Connections", "surefeedback"), path: "connections", icon: ConnectionIcon, showWhenConnected: true },
-    { label: __("Widget Control", "surefeedback"), path: "widget-control", icon: WidgetControlIcon, showWhenConnected: true },
-    { label: __("Settings", "surefeedback"), path: "settings", icon: SettingsIconComponent, showWhenConnected: true },
+    { label: __("Connections", "surefeedback-cloud"), path: "connections", icon: ConnectionIcon, showWhenConnected: true },
+    { label: __("Widget Control", "surefeedback-cloud"), path: "widget-control", icon: WidgetControlIcon, showWhenConnected: true },
+    { label: __("Settings", "surefeedback-cloud"), path: "settings", icon: SettingsIconComponent, showWhenConnected: true },
   ];
 
   const navItems = allNavItems.filter(item =>
@@ -106,21 +106,21 @@ const NavMenu = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-64 bg-white">
             <DropdownMenuLabel>
-              {__("Useful Resources", "surefeedback")}
+              {__("Useful Resources", "surefeedback-cloud")}
             </DropdownMenuLabel>
             {[
               {
-                label: __("Getting Started", "surefeedback"),
+                label: __("Getting Started", "surefeedback-cloud"),
                 url: "https://surefeedback.com/docs/plugin-set-up-guide/",
                 icon: <FileText />,
               },
               {
-                label: __("Start adding comments", "surefeedback"),
+                label: __("Start adding comments", "surefeedback-cloud"),
                 url: "https://surefeedback.com/docs/start-adding-comments/",
                 icon: <FileText />,
               },
               {
-                label: __("Contact us", "surefeedback"),
+                label: __("Contact us", "surefeedback-cloud"),
                 url: "https://surefeedback.com/contact-us/",
                 icon: <Headset />,
               },

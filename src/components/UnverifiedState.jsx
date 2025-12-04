@@ -32,23 +32,23 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
     try {
       const result = await verifyConnection({});
       if (result.status === 'verified') {
-        toast.success(__('Connection verified successfully!', 'surefeedback'));
+        toast.success(__('Connection verified successfully!', 'surefeedback-cloud'));
         setTimeout(() => {
           window.location.reload();
         }, 1500);
       } else if (result.status === 'pending') {
-        toast.info(__('Verification is still pending. Please check your connection settings.', 'surefeedback'));
+        toast.info(__('Verification is still pending. Please check your connection settings.', 'surefeedback-cloud'));
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       } else {
-        toast.warning(__('Connection verification failed. Please try again.', 'surefeedback'));
+        toast.warning(__('Connection verification failed. Please try again.', 'surefeedback-cloud'));
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       }
     } catch (error) {
-      toast.error(__('An error occurred while testing the connection. Please try again.', 'surefeedback'));
+      toast.error(__('An error occurred while testing the connection. Please try again.', 'surefeedback-cloud'));
     } finally {
       setIsTestingConnection(false);
     }
@@ -66,18 +66,18 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
   const { icon: Icon, bgColor, iconBgColor, textColor } = getIconAndColor();
 
   const getTitle = () => {
-    return __("Verification Pending", "surefeedback");
+    return __("Verification Pending", "surefeedback-cloud");
   };
 
   const getDescription = () => {
     if (verificationResult && verificationResult.message) {
-      return verificationResult.message + '. ' + __("Please add the SureFeedback script to complete integration.", "surefeedback");
+      return verificationResult.message + '. ' + __("Please add the SureFeedback script to complete integration.", "surefeedback-cloud");
     }
-    return __("Your verification is in progress. You can check the status on your dashboard.", "surefeedback");
+    return __("Your verification is in progress. You can check the status on your dashboard.", "surefeedback-cloud");
   };
 
   const getButtonText = () => {
-    return __("Go to Dashboard", "surefeedback");
+    return __("Go to Dashboard", "surefeedback-cloud");
   };
 
   return (
@@ -89,10 +89,10 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
               <img src={LoadingConnection} alt="Connecting..." className="w-18 h-18 animate-spin" />
               <div className="space-y-4">
                 <h2 className="text-2xl font-semibold text-[#0F172A]">
-                  {__("Connecting...", "surefeedback")}
+                  {__("Connecting...", "surefeedback-cloud")}
                 </h2>
                 <p className="text-muted-foreground text-sm max-w-[300px]">
-                  {__("Please wait while we verify your website with SureFeedback servers.", "surefeedback")}
+                  {__("Please wait while we verify your website with SureFeedback servers.", "surefeedback-cloud")}
                 </p>
               </div>
             </>
@@ -115,7 +115,7 @@ const UnverifiedState = ({ showLoading = false, onRetryVerification = null, veri
                   className="flex items-center bg-primary h-[48px] text-sm rounded-lg"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  {__("Test Connection", "surefeedback")}
+                  {__("Test Connection", "surefeedback-cloud")}
                 </Button>
                 <Button
                   variant="outline"

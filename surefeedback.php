@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: SureFeedback Cloud Connector
+ * Plugin Name: SureFeedback Cloud
  * Plugin URI: https://surefeedback.com
  * Description: Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.
  * Version: 0.0.1
@@ -9,7 +9,7 @@
  * Author URI: https://www.brainstormforce.com
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: surefeedback-cloud-connector
+ * Text Domain: surefeedback-cloud
  * Domain Path: /languages
  * Requires at least: 5.8
  * Tested up to: 6.9
@@ -323,8 +323,8 @@ final class SureFeedback {
 
 		// Show different link text based on connection status
 		$link_text = $is_connected
-			? __( 'Access Dashboard', 'surefeedback' )
-			: __( 'Get Started Now', 'surefeedback' );
+			? __( 'Access Dashboard', 'surefeedback-cloud' )
+			: __( 'Get Started Now', 'surefeedback-cloud' );
 
 		$dashboard_link = sprintf(
 			'<a href="%s">%s</a>',

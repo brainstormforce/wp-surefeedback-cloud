@@ -352,7 +352,7 @@ class Auth_Manager {
 	public function show_auth_error() {
 		?>
 		<div class="notice notice-error">
-			<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback' ); ?></p>
+			<p><?php esc_html_e( 'Authentication failed. Please try again.', 'surefeedback-cloud' ); ?></p>
 		</div>
 		<?php
 	}

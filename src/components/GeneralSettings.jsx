@@ -26,7 +26,7 @@ const ResetConnectionButton = () => {
       const data = await apiGateway.post('connection/disconnect');
 
       if (data.success || data.connected === false) {
-        toast.success(__('Site connection reset successfully! All SureFeedback data has been cleared.', 'surefeedback'));
+        toast.success(__('Site connection reset successfully! All SureFeedback data has been cleared.', 'surefeedback-cloud'));
         // Reload the page after a short delay to refresh the UI
         setTimeout(() => {
           window.location.reload();
@@ -35,7 +35,7 @@ const ResetConnectionButton = () => {
         throw new Error(data.message || 'Reset failed');
       }
     } catch (error) {
-      toast.error(__('Failed to reset site connection', 'surefeedback'));
+      toast.error(__('Failed to reset site connection', 'surefeedback-cloud'));
     } finally {
       setResetting(false);
       setShowConfirmation(false);
@@ -53,10 +53,10 @@ const ResetConnectionButton = () => {
           <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <h4 className="font-semibold text-red-800 mb-2">
-              {__("Are you absolutely sure?", "surefeedback")}
+              {__("Are you absolutely sure?", "surefeedback-cloud")}
             </h4>
             <p className="text-sm text-red-700 mb-4">
-              {__("This will permanently delete all SureFeedback data including connection settings, user permissions, and white label settings. This action cannot be undone.", "surefeedback")}
+              {__("This will permanently delete all SureFeedback data including connection settings, user permissions, and white label settings. This action cannot be undone.", "surefeedback-cloud")}
             </p>
             <div className="flex gap-3">
               <Button
@@ -65,7 +65,7 @@ const ResetConnectionButton = () => {
                 onClick={handleCancel}
                 disabled={resetting}
               >
-                {__("Cancel", "surefeedback")}
+                {__("Cancel", "surefeedback-cloud")}
               </Button>
               <Button
                 variant="destructive"
@@ -76,12 +76,12 @@ const ResetConnectionButton = () => {
                 {resetting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {__("Resetting...", "surefeedback")}
+                    {__("Resetting...", "surefeedback-cloud")}
                   </>
                 ) : (
                   <>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    {__("Yes, reset everything", "surefeedback")}
+                    {__("Yes, reset everything", "surefeedback-cloud")}
                   </>
                 )}
               </Button>
@@ -96,10 +96,10 @@ const ResetConnectionButton = () => {
     <div className="flex items-center justify-between p-4 border border-[#FF5C5C] bg-[#FF5C5C1A] rounded-lg">
       <div>
         <h4 className="font-semibold text-base text-[#FF5C5C] mb-1">
-          {__("Reset Site Connection", "surefeedback")}
+          {__("Reset Site Connection", "surefeedback-cloud")}
         </h4>
         <p className="text-sm text-[#FF5C5C]">
-          {__("Permanently delete all SureFeedback data and disconnect from the parent site.", "surefeedback")}
+          {__("Permanently delete all SureFeedback data and disconnect from the parent site.", "surefeedback-cloud")}
         </p>
       </div>
       <Button
@@ -109,7 +109,7 @@ const ResetConnectionButton = () => {
         disabled={resetting}
       >
         <Ban className=" h-4 w-4" />
-        {__("Reset Connection", "surefeedback")}
+        {__("Reset Connection", "surefeedback-cloud")}
       </Button>
     </div>
   );
@@ -149,7 +149,7 @@ const GeneralSettings = () => {
         setAvailableRoles(availableRolesList);
       }
     } catch (error) {
-      toast.error(__('Failed to load settings', 'surefeedback'));
+      toast.error(__('Failed to load settings', 'surefeedback-cloud'));
     } finally {
       setLoading(false);
     }
@@ -162,13 +162,13 @@ const GeneralSettings = () => {
       const data = await apiGateway.post('settings/general', settings);
 
       if (data.success) {
-        toast.success(__('Settings saved successfully!', 'surefeedback'));
+        toast.success(__('Settings saved successfully!', 'surefeedback-cloud'));
         setHasUnsavedChanges(false);
         return true;
       }
       throw new Error('Save failed');
     } catch (error) {
-      toast.error(__('Failed to save settings', 'surefeedback'));
+      toast.error(__('Failed to save settings', 'surefeedback-cloud'));
       return false;
     } finally {
       setSaving(false);
@@ -251,10 +251,10 @@ const GeneralSettings = () => {
             {/* Page Header */}
             <div className="space-y-1 w-full">
               <h4 className="text-xl font-semibold text-foreground">
-                {__("User Permissions", "surefeedback")}
+                {__("User Permissions", "surefeedback-cloud")}
               </h4>
               <p className="text-sm text-muted-foreground">
-                {__("Allow user roles to view comment widget on your site", "surefeedback")}
+                {__("Allow user roles to view comment widget on your site", "surefeedback-cloud")}
               </p>
             </div>
 
@@ -271,7 +271,7 @@ const GeneralSettings = () => {
                         {role.label}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        {__(`Enable ${role.label} role to view and interact with the feedback widget`, "surefeedback")}
+                        {__(`Enable ${role.label} role to view and interact with the feedback widget`, "surefeedback-cloud")}
                       </p>
                     </div>
                     <Switch
@@ -296,11 +296,11 @@ const GeneralSettings = () => {
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {__("Saving...", "surefeedback")}
+                    {__("Saving...", "surefeedback-cloud")}
                   </>
                 ) : (
                   <>
-                    {hasUnsavedChanges ? __("Save Changes", "surefeedback") : __("No Changes", "surefeedback")}
+                    {hasUnsavedChanges ? __("Save Changes", "surefeedback-cloud") : __("No Changes", "surefeedback-cloud")}
                   </>
                 )}
               </Button>
@@ -313,10 +313,10 @@ const GeneralSettings = () => {
           <CardHeader className="pb-4">
             <div className="space-y-1 w-full">
               <h4 className="text-xl font-semibold text-foreground">
-                {__("Reset Connection", "surefeedback")}
+                {__("Reset Connection", "surefeedback-cloud")}
               </h4>
               <p className="text-sm text-muted-foreground">
-                {__("Irreversible actions that will permanently delete data.", "surefeedback")}
+                {__("Irreversible actions that will permanently delete data.", "surefeedback-cloud")}
               </p>
             </div>
           </CardHeader>

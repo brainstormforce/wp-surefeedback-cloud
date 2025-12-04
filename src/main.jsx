@@ -80,7 +80,7 @@ function initApp() {
     // Critical initialization error
     
     // Try to show a basic error message if possible
-    const errorContainer = document.querySelector('[id*="surefeedback"]')
+    const errorContainer = document.querySelector('[id*="surefeedback-cloud"]')
     if (errorContainer) {
       errorContainer.innerHTML = `
         <div style="padding: 20px; background: #fee; border: 1px solid #fcc; border-radius: 4px; color: #c33;">

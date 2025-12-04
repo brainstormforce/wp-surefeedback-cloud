@@ -17,12 +17,12 @@ const NotConnected = ({ setIsStarted }) => {
           {/* Content */}
           <div className="space-y-4 text-center">
             <h2 className="text-2xl font-semibold text-[#0F172A]">
-              {__("SureFeedback Not Connected!", "surefeedback")}
+              {__("SureFeedback Not Connected!", "surefeedback-cloud")}
             </h2>
             <p className="text-muted-foreground text-sm max-w-[300px] mx-auto">
               {__(
                 'Click “Connect Website” to authorize this website with SureFeedback.',
-                "surefeedback"
+                "surefeedback-cloud"
               )}
             </p>
           </div>
@@ -32,7 +32,7 @@ const NotConnected = ({ setIsStarted }) => {
             onClick={() => authenticateRedirect()}
             className="bg-primary w-[300px] h-[48px] text-sm rounded-lg"
           >
-            {__("Connect Website", "surefeedback")}
+            {__("Connect Website", "surefeedback-cloud")}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </CardContent>

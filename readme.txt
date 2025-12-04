@@ -1,4 +1,4 @@
-=== SureFeedback Cloud Connector ===
+=== SureFeedback Cloud ===
 Contributors: brainstormforce
 Donate link: https://surefeedback.com
 Tags: surefeedback, client, feedback, design

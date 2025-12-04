@@ -355,7 +355,7 @@ export const authUtils = {
      */
     isSureFeedbackPage() {
         const params = new URLSearchParams(window.location.search);
-        return params.get('page')?.startsWith('surefeedback') || false;
+        return params.get('page')?.startsWith('surefeedback-cloud') || false;
     },
 
     /**

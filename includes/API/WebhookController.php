@@ -94,7 +94,7 @@ class WebhookController extends WP_REST_Controller {
 			error_log( 'SureFeedback: Webhook body is empty' );
 			return new WP_Error(
 				'rest_invalid_data',
-				__( 'Invalid webhook data.', 'surefeedback' ),
+				__( 'Invalid webhook data.', 'surefeedback-cloud' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -110,7 +110,7 @@ class WebhookController extends WP_REST_Controller {
 			error_log( 'SureFeedback: Webhook missing state parameter' );
 			return new WP_Error(
 				'rest_unauthorized',
-				__( 'Missing state parameter.', 'surefeedback' ),
+				__( 'Missing state parameter.', 'surefeedback-cloud' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -122,7 +122,7 @@ class WebhookController extends WP_REST_Controller {
 			error_log( 'SureFeedback: No stored webhook state found' );
 			return new WP_Error(
 				'rest_unauthorized',
-				__( 'Invalid state: no stored state found.', 'surefeedback' ),
+				__( 'Invalid state: no stored state found.', 'surefeedback-cloud' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -137,7 +137,7 @@ class WebhookController extends WP_REST_Controller {
 			delete_option( 'surefeedback_webhook_state' );
 			return new WP_Error(
 				'rest_unauthorized',
-				__( 'State has expired.', 'surefeedback' ),
+				__( 'State has expired.', 'surefeedback-cloud' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -147,7 +147,7 @@ class WebhookController extends WP_REST_Controller {
 			error_log( 'SureFeedback: Webhook state mismatch - provided: ' . substr( $provided_state, 0, 8 ) . '..., stored: ' . substr( $stored_state, 0, 8 ) . '...' );
 			return new WP_Error(
 				'rest_unauthorized',
-				__( 'Invalid state: state mismatch.', 'surefeedback' ),
+				__( 'Invalid state: state mismatch.', 'surefeedback-cloud' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -270,7 +270,7 @@ class WebhookController extends WP_REST_Controller {
 				error_log( 'SureFeedback: Disconnect webhook secret mismatch' );
 				return new WP_Error(
 					'rest_unauthorized',
-					__( 'Invalid webhook secret.', 'surefeedback' ),
+					__( 'Invalid webhook secret.', 'surefeedback-cloud' ),
 					array( 'status' => 401 )
 				);
 			}
@@ -283,7 +283,7 @@ class WebhookController extends WP_REST_Controller {
 				error_log( 'SureFeedback: Disconnect webhook site_id mismatch' );
 				return new WP_Error(
 					'rest_unauthorized',
-					__( 'Invalid site ID.', 'surefeedback' ),
+					__( 'Invalid site ID.', 'surefeedback-cloud' ),
 					array( 'status' => 401 )
 				);
 			}
