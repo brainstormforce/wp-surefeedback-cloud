@@ -9,10 +9,10 @@
  * Author URI: https://www.brainstormforce.com
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: surefeedback
+ * Text Domain: surefeedback-cloud-connector
  * Domain Path: /languages
  * Requires at least: 5.8
- * Tested up to: 6.8
+ * Tested up to: 6.9
  * Requires PHP: 7.4
  *
  * @package SureFeedback
