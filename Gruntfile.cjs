@@ -14,7 +14,7 @@ module.exports = function (grunt) {
 
     addtextdomain: {
       options: {
-        textdomain: "surefeedback",
+        textdomain: "surefeedback-cloud",
       },
       update_all_domains: {
         options: {
@@ -42,7 +42,7 @@ module.exports = function (grunt) {
     // Custom WP-CLI task for better JavaScript/JSX support
     shell: {
       makepot: {
-        command: 'php -d memory_limit=512M $(which wp) i18n make-pot . languages/surefeedback.pot --domain=surefeedback --include="*.php" --exclude="node_modules,tests,vendor,assets/js"',
+        command: 'php -d memory_limit=512M $(which wp) i18n make-pot . languages/surefeedback.pot --domain=surefeedback-cloud --include="*.php" --exclude="node_modules,tests,vendor,assets/js"',
         options: {
           stderr: false,
           failOnError: false
