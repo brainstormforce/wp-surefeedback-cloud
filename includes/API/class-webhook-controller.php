@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Webhook Controller class
  *
@@ -15,7 +14,6 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -42,7 +40,6 @@ class WebhookController extends WP_REST_Controller {
 	 * @since 0.0.1
 	 */
 	public function __construct() {
-		// No initialization needed
 	}
 
 	/**
@@ -51,7 +48,6 @@ class WebhookController extends WP_REST_Controller {
 	 * @since 0.0.1
 	 */
 	public function register_routes() {
-		// Webhook endpoint for automatic connection (from Laravel)
 		register_rest_route(
 			$this->namespace,
 			'/webhook',
@@ -59,12 +55,11 @@ class WebhookController extends WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'handle_webhook' ),
-					'permission_callback' => '__return_true', // Public endpoint, authenticated via state
+					'permission_callback' => '__return_true',
 				),
 			)
 		);
 
-		// Webhook endpoint for disconnect (from Laravel)
 		register_rest_route(
 			$this->namespace,
 			'/webhook/disconnect',
@@ -72,7 +67,7 @@ class WebhookController extends WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'handle_disconnect_webhook' ),
-					'permission_callback' => '__return_true', // Public endpoint, authenticated via secret
+					'permission_callback' => '__return_true',
 				),
 			)
 		);
@@ -86,7 +81,6 @@ class WebhookController extends WP_REST_Controller {
 	 */
 	public function handle_webhook( $request ) {
 
-		// Get JSON body
 		$body = $request->get_json_params();
 
 		if ( empty( $body ) ) {
@@ -97,11 +91,9 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		// Verify state authentication
 		$state        = $body['state'] ?? '';
 		$state_header = $request->get_header( 'X-SureFeedback-State' );
 
-		// Check state from both body and header
 		$provided_state = ! empty( $state ) ? $state : $state_header;
 
 		if ( empty( $provided_state ) ) {
@@ -112,7 +104,6 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		// Verify state matches stored state
 		$stored_state_data = get_option( 'surefeedback_webhook_state', false );
 
 		if ( ! $stored_state_data || ! is_array( $stored_state_data ) ) {
@@ -126,9 +117,7 @@ class WebhookController extends WP_REST_Controller {
 		$stored_state = $stored_state_data['state'] ?? '';
 		$state_expiry = $stored_state_data['expiry'] ?? 0;
 
-		// Check if state has expired
 		if ( time() > $state_expiry ) {
-			// Clean up expired state
 			delete_option( 'surefeedback_webhook_state' );
 			return new WP_Error(
 				'rest_unauthorized',
@@ -137,7 +126,6 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		// Verify state matches
 		if ( $provided_state !== $stored_state ) {
 			return new WP_Error(
 				'rest_unauthorized',
@@ -146,8 +134,7 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		// Check if webhook indicates success
-		$success = isset( $body['success'] ) && ( $body['success'] === '1' || $body['success'] === true || $body['success'] === 1 );
+		$success = isset( $body['success'] ) && ( '1' === $body['success'] || true === $body['success'] || 1 === $body['success'] );
 
 		if ( ! $success ) {
 			return rest_ensure_response(
@@ -158,18 +145,12 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		// Store connection data (same as OAuth flow in Auth_Manager::exchange_token)
 		$auth_manager = new \SureFeedback\Auth_Manager();
 
-		// Store bearer token (user_token from webhook)
 		if ( ! empty( $body['user_token'] ) ) {
-			$token_stored = $auth_manager->store_bearer_token( sanitize_text_field( $body['user_token'] ) );
-			if ( $token_stored ) {
-			} else {
-			}
+			$auth_manager->store_bearer_token( sanitize_text_field( $body['user_token'] ) );
 		}
 
-		// Store connection metadata
 		$options_stored = array();
 
 		if ( ! empty( $body['site_id'] ) ) {
@@ -182,21 +163,18 @@ class WebhookController extends WP_REST_Controller {
 			update_option( 'surefeedback_organization_id', sanitize_text_field( $body['organization_id'] ) );
 		}
 
-		// Store script token (site token) for verification
 		if ( ! empty( $body['script_token'] ) ) {
 			$options_stored[] = 'access_token';
 			$options_stored[] = 'site_token';
 			update_option( 'surefeedback_access_token', sanitize_text_field( $body['script_token'] ) );
 			update_option( 'surefeedback_site_token', sanitize_text_field( $body['script_token'] ) );
 		} elseif ( ! empty( $body['site_token'] ) ) {
-			// Fallback to site_token if script_token not provided
 			$options_stored[] = 'access_token';
 			$options_stored[] = 'site_token';
 			update_option( 'surefeedback_access_token', sanitize_text_field( $body['site_token'] ) );
 			update_option( 'surefeedback_site_token', sanitize_text_field( $body['site_token'] ) );
 		}
 
-		// Store additional metadata
 		if ( ! empty( $body['parent_url'] ) ) {
 			$options_stored[] = 'parent_url';
 			update_option( 'surefeedback_parent_url', esc_url_raw( $body['parent_url'] ) );
@@ -207,13 +185,11 @@ class WebhookController extends WP_REST_Controller {
 			update_option( 'surefeedback_widget_script_url', esc_url_raw( $body['widget_script_url'] ) );
 		}
 
-		// Store connection ID if provided
 		if ( ! empty( $body['connection_id'] ) ) {
 			$options_stored[] = 'connection_id';
 			update_option( 'surefeedback_connection_id', sanitize_text_field( $body['connection_id'] ) );
 		}
 
-		// Store verification status
 		if ( isset( $body['is_fully_verified'] ) ) {
 			$options_stored[] = 'is_fully_verified';
 			update_option( 'surefeedback_is_fully_verified', intval( $body['is_fully_verified'] ) );
@@ -223,7 +199,6 @@ class WebhookController extends WP_REST_Controller {
 			$options_stored[] = 'surefeedback_last_verification';
 			update_option( 'surefeedback_last_verification', sanitize_text_field( $body['surefeedback_last_verification'] ) );
 		}
-		// Clean up used state
 		delete_option( 'surefeedback_webhook_state' );
 
 		return rest_ensure_response(
@@ -242,10 +217,8 @@ class WebhookController extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handle_disconnect_webhook( $request ) {
-		// Get JSON body
 		$body = $request->get_json_params();
 
-		// Verify webhook secret (site token)
 		$webhook_secret    = $request->get_header( 'X-Webhook-Secret' );
 		$stored_site_token = get_option( 'surefeedback_site_token', '' );
 
@@ -259,7 +232,6 @@ class WebhookController extends WP_REST_Controller {
 			}
 		}
 
-		// Verify site_id matches if provided
 		if ( ! empty( $body['site_id'] ) ) {
 			$stored_site_id = get_option( 'surefeedback_site_id', '' );
 			if ( ! empty( $stored_site_id ) && $body['site_id'] !== $stored_site_id ) {
@@ -270,11 +242,9 @@ class WebhookController extends WP_REST_Controller {
 				);
 			}
 		}
-		// Clear bearer token
 		$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
 		$secure_cookie_manager->delete_secure_cookie( 'auth_token' );
 
-		// Clear all database options
 		delete_option( 'surefeedback_bearer_token' );
 		delete_option( 'surefeedback_connection_id' );
 		delete_option( 'surefeedback_site_id' );

@@ -18,12 +18,10 @@
  * @package SureFeedback
  */
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Check if running in local development environment
 $surefeedback_is_local_env = defined( 'WP_ENVIRONMENT_TYPE' ) && 'local' === WP_ENVIRONMENT_TYPE;
 
 /**
@@ -131,19 +129,14 @@ final class SureFeedback {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 
-		// Add plugin action links
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'add_action_links' ) );
 
-		// Handle activation redirect
 		add_action( 'admin_init', array( $this, 'activation_redirect' ) );
 
-		// Poll for connection tokens automatically
 		add_action( 'admin_init', array( $this, 'poll_connection_tokens' ) );
 		
-		// Also poll after plugins are loaded (ensures REST API is available)
 		add_action( 'plugins_loaded', array( $this, 'poll_connection_tokens' ), 20 );
 
-		// Set up cron job for periodic token polling
 		add_action( 'surefeedback_poll_connection_tokens', array( $this, 'poll_connection_tokens' ) );
 		if ( ! wp_next_scheduled( 'surefeedback_poll_connection_tokens' ) ) {
 			wp_schedule_event( time(), 'hourly', 'surefeedback_poll_connection_tokens' );
@@ -154,43 +147,25 @@ final class SureFeedback {
 	 * Include required files
 	 */
 	private function includes() {
-		// Include autoloader
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Autoloader.php';
-
-		// Security & Encryption
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Encryption.php';
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Secure_Cookie_Manager.php';
-
-		// Authentication
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Auth_Manager.php';
-
-		// SaaS Integration
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/SaaS_Client.php';
-
-		// Admin
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Admin/Admin_Menu.php';
-
-		// REST API
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/API/Rest_Controller.php';
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/API/WebhookController.php';
-
-		// Frontend Script Loader
-		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Frontend_Script.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/class-surefeedback-autoloader.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/class-encryption.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/class-secure-cookie-manager.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/class-auth-manager.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/class-saas-client.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Admin/class-admin-menu.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Api/class-rest-controller.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/Api/class-webhook-controller.php';
+		require_once SUREFEEDBACK_PLUGIN_PATH . 'includes/class-frontend-script.php';
 	}
 
 	/**
 	 * Initialize plugin components
 	 */
 	private function init() {
-		// Initialize admin menu (instantiate early so menu registers properly)
 		if ( is_admin() ) {
 			new SureFeedback\Admin\Admin_Menu();
 		}
-
-		// Initialize REST API
 		add_action( 'rest_api_init', array( $this, 'init_rest_api' ) );
-
-		// Initialize frontend script loader
 		add_action( 'init', array( $this, 'init_frontend_script' ) );
 	}
 
@@ -200,7 +175,6 @@ final class SureFeedback {
 	public function init_rest_api() {
 		$rest_controller = new SureFeedback\API\Rest_Controller();
 		$rest_controller->register_routes();
-
 		$webhook_controller = new SureFeedback\API\WebhookController();
 		$webhook_controller->register_routes();
 	}
@@ -216,14 +190,8 @@ final class SureFeedback {
 	 * Plugin activation
 	 */
 	public function activate() {
-		// Clear permalinks
 		flush_rewrite_rules();
-
-		// Set transient for activation redirect
 		set_transient( 'surefeedback_activation_redirect', true, 30 );
-
-		// Poll for connection tokens immediately on activation
-		// This ensures automatic connection works right after installation
 		$this->poll_connection_tokens();
 	}
 
@@ -232,8 +200,6 @@ final class SureFeedback {
 	 */
 	public function deactivate() {
 		flush_rewrite_rules();
-
-		// Clear scheduled cron job
 		$timestamp = wp_next_scheduled( 'surefeedback_poll_connection_tokens' );
 		if ( $timestamp ) {
 			wp_unschedule_event( $timestamp, 'surefeedback_poll_connection_tokens' );
@@ -244,26 +210,16 @@ final class SureFeedback {
 	 * Handle activation redirect to setup view
 	 */
 	public function activation_redirect() {
-		// Check if we should redirect after activation
 		if ( ! get_transient( 'surefeedback_activation_redirect' ) ) {
 			return;
 		}
-
-		// Delete the transient so we only redirect once
 		delete_transient( 'surefeedback_activation_redirect' );
-
-		// Don't redirect if doing AJAX, cron, or if user is not admin
 		if ( wp_doing_ajax() || wp_doing_cron() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-
-		// Don't redirect if already on our plugin page
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking page parameter for redirect prevention, no data processing
 		if ( isset( $_GET['page'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'surefeedback' ) !== false ) {
 			return;
 		}
-
-		// Redirect to dashboard with setup route (hash will be picked up by React router)
 		wp_safe_redirect( admin_url( 'admin.php?page=surefeedback-dashboard#setup' ) );
 		exit;
 	}
@@ -273,31 +229,21 @@ final class SureFeedback {
 	 * Called on admin_init, plugin activation, and via cron
 	 */
 	public function poll_connection_tokens() {
-		// Only poll if not already connected
 		$auth_manager = new SureFeedback\Auth_Manager();
 		if ( $auth_manager->is_authenticated() ) {
 			return;
 		}
-
-		// Allow polling in admin area, during cron, during activation, or after plugins loaded
-		// During activation, is_admin() might not be true yet, so we allow it
 		$is_activation = doing_action( 'activate_' . plugin_basename( __FILE__ ) );
 		$is_plugins_loaded = doing_action( 'plugins_loaded' );
-		
+
 		if ( ! is_admin() && ! wp_doing_cron() && ! $is_activation && ! $is_plugins_loaded ) {
 			return;
 		}
-
-		// Get REST controller instance and call internal polling method
 		$rest_controller = new SureFeedback\API\Rest_Controller();
 		
-		// Create a mock REST request for the method
 		$request = new WP_REST_Request( 'POST', '/surefeedback/v1/connection/poll-tokens' );
 		
-		// Call the poll method (it will handle the logic internally)
 		$result = $rest_controller->poll_connection_tokens( $request );
-		
-		// Log result for debugging
 		if ( is_wp_error( $result ) ) {
 		} elseif ( is_object( $result ) && method_exists( $result, 'get_data' ) ) {
 			$data = $result->get_data();
@@ -314,11 +260,8 @@ final class SureFeedback {
 	 * @return array Modified plugin action links.
 	 */
 	public function add_action_links( $links ) {
-		// Check if plugin is connected to SureFeedback
 		$auth_manager = new SureFeedback\Auth_Manager();
 		$is_connected = $auth_manager->is_authenticated();
-
-		// Show different link text based on connection status
 		$link_text = $is_connected
 			? __( 'Access Dashboard', 'surefeedback-cloud' )
 			: __( 'Get Started Now', 'surefeedback-cloud' );
@@ -329,7 +272,6 @@ final class SureFeedback {
 			$link_text
 		);
 
-		// Add our link to the beginning of the array
 		array_unshift( $links, $dashboard_link );
 
 		return $links;
@@ -354,10 +296,8 @@ final class SureFeedback {
 	}
 }
 
-// Initialize the plugin
 function surefeedback() {
 	return SureFeedback::get_instance();
 }
 
-// Start the plugin
 surefeedback();

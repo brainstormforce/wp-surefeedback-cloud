@@ -1,5 +1,4 @@
 <?php
-
 /**
  * REST Controller class
  *
@@ -19,7 +18,6 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -48,7 +46,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @since 0.0.1
 	 */
 	public function __construct() {
-		// No initialization needed
 	}
 
 	/**
@@ -57,16 +54,12 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @since 0.0.1
 	 */
 	public function register_routes() {
-		// Connection routes
 		$this->register_connection_routes();
 
-		// Settings routes
 		$this->register_settings_routes();
 
-		// Page settings routes
 		$this->register_page_settings_routes();
 
-		// Verification routes
 		$this->register_verification_routes();
 	}
 
@@ -74,7 +67,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * Register connection routes
 	 */
 	private function register_connection_routes() {
-		// Connection status
 		register_rest_route(
 			$this->namespace,
 			'/connection/status',
@@ -87,7 +79,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Disconnect
 		register_rest_route(
 			$this->namespace,
 			'/connection/disconnect',
@@ -100,7 +91,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Store state (for OAuth)
 		register_rest_route(
 			$this->namespace,
 			'/connection/store-state',
@@ -120,7 +110,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Verify connection
 		register_rest_route(
 			$this->namespace,
 			'/connection/verify',
@@ -133,7 +122,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Connection health
 		register_rest_route(
 			$this->namespace,
 			'/connection/health',
@@ -151,7 +139,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * Register settings routes
 	 */
 	private function register_settings_routes() {
-		// Get all settings
 		register_rest_route(
 			$this->namespace,
 			'/settings',
@@ -169,7 +156,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// General settings
 		register_rest_route(
 			$this->namespace,
 			'/settings/general',
@@ -192,7 +178,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * Register page settings routes
 	 */
 	private function register_page_settings_routes() {
-		// Get/Update page settings
 		register_rest_route(
 			$this->namespace,
 			'/page-settings',
@@ -210,7 +195,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Enable all pages
 		register_rest_route(
 			$this->namespace,
 			'/page-settings/enable-all',
@@ -223,7 +207,6 @@ class Rest_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// Disable all pages
 		register_rest_route(
 			$this->namespace,
 			'/page-settings/disable-all',
@@ -241,7 +224,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * Register verification routes
 	 */
 	private function register_verification_routes() {
-		// Verify integration
 		register_rest_route(
 			$this->namespace,
 			'/verification/verify',
@@ -286,11 +268,9 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function disconnect_from_saas( $request ) {
-		// Clear bearer token
 		$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
 		$secure_cookie_manager->delete_secure_cookie( 'auth_token' );
 
-		// Clear database options
 		delete_option( 'surefeedback_bearer_token' );
 		delete_option( 'surefeedback_connection_id' );
 		delete_option( 'surefeedback_site_id' );
@@ -369,7 +349,6 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Return connection info
 		return rest_ensure_response(
 			array(
 				'success'   => true,
@@ -411,7 +390,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_settings( $request ) {
-		// Get available WordPress roles
 		$wp_roles        = wp_roles()->get_names();
 		$available_roles = array();
 
@@ -422,10 +400,8 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Get saved roles
 		$saved_roles = get_option( 'surefeedback_allowed_roles', array( 'administrator' ) );
 
-		// Get general settings
 		$general = array(
 			'roles' => $saved_roles,
 		);
@@ -467,7 +443,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_general_settings( $request ) {
-		// Get available WordPress roles
 		$wp_roles        = wp_roles()->get_names();
 		$available_roles = array();
 
@@ -478,7 +453,6 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Get saved roles
 		$saved_roles = get_option( 'surefeedback_allowed_roles', array( 'administrator' ) );
 
 		return rest_ensure_response(
@@ -520,7 +494,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_page_settings( $request ) {
-		// Get all pages
 		$pages = get_pages(
 			array(
 				'sort_column' => 'post_title',
@@ -538,7 +511,6 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Get page settings
 		$settings = get_option( 'surefeedback_page_settings', array() );
 
 		return rest_ensure_response(
@@ -582,7 +554,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function enable_all_pages( $request ) {
-		// Get all pages
 		$pages    = get_pages();
 		$settings = array();
 
@@ -607,7 +578,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function disable_all_pages( $request ) {
-		// Get all pages
 		$pages    = get_pages();
 		$settings = array();
 
@@ -643,7 +613,6 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Get bearer token for API call
 		$auth_manager = new \SureFeedback\Auth_Manager();
 		$bearer_token = $auth_manager->get_bearer_token();
 
@@ -655,17 +624,14 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Call Laravel API to verify integration
 		try {
 			$saas_client = new SaaS_Client( $auth_manager );
 
-			// Get site token from options if not provided (should already be set from earlier)
 			$site_token = get_option( 'surefeedback_access_token', '' );
 			if ( ! $site_token ) {
 				$site_token = '';
 			}
 
-			// Laravel API expects GET with query parameter
 			$result = $saas_client->get(
 				'admin/verify-integration',
 				array(
@@ -679,9 +645,8 @@ class Rest_Controller extends WP_REST_Controller {
 				return $result;
 			}
 
-			// Check if verification was successful
 			$is_verified = false;
-			if ( isset( $result['data']['integrated'] ) && $result['data']['integrated'] === true ) {
+			if ( isset( $result['data']['integrated'] ) && true === $result['data']['integrated'] ) {
 				$is_verified = true;
 			}
 
@@ -710,7 +675,6 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function poll_connection_tokens( $request ) {
-		// Check if already connected
 		$auth_manager = new \SureFeedback\Auth_Manager();
 		if ( $auth_manager->is_authenticated() ) {
 			return rest_ensure_response(
@@ -722,7 +686,6 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Get site URL and domain
 		$site_url = get_site_url();
 		$parsed   = wp_parse_url( $site_url );
 		$domain   = $parsed['host'] ?? '';
@@ -735,15 +698,10 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Normalize domain to match Laravel's normalization (remove www, port, etc.)
 		$domain = $this->normalize_domain_for_query( $domain );
 
-		// Get Laravel API base URL
 		$api_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ? SUREFEEDBACK_SAAS_API_BASE_URL : 'https://api.surefeedback.com';
 
-		// Log polling attempt for debugging
-
-		// Fetch pending tokens
 		$saas_client = new SaaS_Client();
 		$result      = $saas_client->get(
 			'connections/pending-tokens',
@@ -786,7 +744,6 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Get the most recent token (first in array)
 		$token = $tokens[0]['token'] ?? null;
 
 		if ( ! $token ) {
@@ -799,7 +756,6 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Exchange token
 		$exchange_result = $this->exchange_connection_token( $token, $site_url );
 
 		if ( is_wp_error( $exchange_result ) ) {
@@ -835,7 +791,6 @@ class Rest_Controller extends WP_REST_Controller {
 		$api_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ? SUREFEEDBACK_SAAS_API_BASE_URL : 'https://api.surefeedback.com';
 		$api_url      = $api_base_url . '/api/v1/connections/exchange';
 
-		// Build site API URL
 		$site_api_url = rtrim( $site_url, '/' ) . '/wp-json/surefeedback/v1';
 
 		$response = wp_remote_post(
@@ -881,7 +836,6 @@ class Rest_Controller extends WP_REST_Controller {
 				$data['message'] ?? 'Token exchange failed',
 			);
 		}
-		// Store connection data (same as manual OAuth flow)
 		$connection_data = $data['data'] ?? array();
 		$access_token    = $connection_data['access_token'] ?? null;
 		$site_id         = $connection_data['site_id'] ?? null;
@@ -895,15 +849,9 @@ class Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Store using Auth_Manager (same as manual OAuth flow)
 		$auth_manager = new \SureFeedback\Auth_Manager();
-		$store_result = $auth_manager->store_bearer_token( $access_token );
+		$auth_manager->store_bearer_token( $access_token );
 
-		if ( ! $store_result ) {
-		} else {
-		}
-
-		// Store connection metadata (same as manual OAuth flow in Auth_Manager::exchange_token)
 		$options_stored = array();
 
 		if ( ! empty( $connection_data['connection_id'] ) ) {
@@ -921,7 +869,6 @@ class Rest_Controller extends WP_REST_Controller {
 			update_option( 'surefeedback_organization_id', sanitize_text_field( $organization_id ) );
 		}
 
-		// Store script token (site token) for verification (same as manual OAuth flow)
 		if ( ! empty( $script_token ) ) {
 			$options_stored[] = 'access_token';
 			$options_stored[] = 'site_token';
@@ -929,7 +876,6 @@ class Rest_Controller extends WP_REST_Controller {
 			update_option( 'surefeedback_site_token', sanitize_text_field( $script_token ) );
 		}
 
-		// Store additional metadata for widget and parent URL
 		$options_stored[] = 'parent_url';
 		$options_stored[] = 'widget_script_url';
 		update_option( 'surefeedback_parent_url', esc_url_raw( $api_base_url ) );
@@ -944,20 +890,15 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return string Normalized domain.
 	 */
 	private function normalize_domain_for_query( $domain ) {
-		// Remove protocol if present
 		$domain = preg_replace( '#^https?://#', '', $domain );
 
-		// Remove trailing slash
 		$domain = rtrim( $domain, '/' );
 
-		// Remove www. prefix
 		$domain = preg_replace( '#^www\.#', '', $domain );
 
-		// Extract host (remove path if present)
 		$parts  = explode( '/', $domain );
 		$domain = $parts[0];
 
-		// Remove port if present
 		$domain = preg_replace( '#:\d+$#', '', $domain );
 
 		return strtolower( $domain );

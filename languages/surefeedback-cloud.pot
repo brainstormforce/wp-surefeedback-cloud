@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-04T10:54:22+00:00\n"
+"POT-Creation-Date: 2025-12-04T11:20:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback-cloud\n"
@@ -39,97 +39,97 @@ msgstr ""
 msgid "https://www.brainstormforce.com"
 msgstr ""
 
-#: includes/Admin/Admin_Menu.php:78
-#: includes/Admin/Admin_Menu.php:79
+#: includes/Admin/class-admin-menu.php:72
+#: includes/Admin/class-admin-menu.php:73
 msgid "SureFeedback"
 msgstr ""
 
-#: includes/Admin/Admin_Menu.php:90
-#: includes/Admin/Admin_Menu.php:91
+#: includes/Admin/class-admin-menu.php:83
+#: includes/Admin/class-admin-menu.php:84
 msgid "Connections"
 msgstr ""
 
-#: includes/Admin/Admin_Menu.php:100
-#: includes/Admin/Admin_Menu.php:101
+#: includes/Admin/class-admin-menu.php:92
+#: includes/Admin/class-admin-menu.php:93
 msgid "Widget Control"
 msgstr ""
 
-#: includes/Admin/Admin_Menu.php:110
-#: includes/Admin/Admin_Menu.php:111
+#: includes/Admin/class-admin-menu.php:101
+#: includes/Admin/class-admin-menu.php:102
 msgid "Settings"
 msgstr ""
 
-#: includes/Admin/Admin_Menu.php:257
-#: includes/Admin/Admin_Menu.php:280
-#: includes/Admin/Admin_Menu.php:302
-#: includes/Auth_Manager.php:355
+#: includes/Admin/class-admin-menu.php:241
+#: includes/Admin/class-admin-menu.php:264
+#: includes/Admin/class-admin-menu.php:286
+#: includes/class-auth-manager.php:306
 msgid "Authentication failed. Please try again."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:321
+#: includes/Api/class-rest-controller.php:301
 msgid "State parameter is required."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:350
+#: includes/Api/class-rest-controller.php:330
 msgid "Failed to store state."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:367
+#: includes/Api/class-rest-controller.php:347
 msgid "Not connected to SureFeedback."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:641
+#: includes/Api/class-rest-controller.php:611
 msgid "Site token is required."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:653
+#: includes/Api/class-rest-controller.php:622
 msgid "Not authenticated with SureFeedback."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:700
+#: includes/Api/class-rest-controller.php:665
 msgid "Verification failed: "
 msgstr ""
 
-#: includes/API/Rest_Controller.php:733
+#: includes/Api/class-rest-controller.php:696
 msgid "Unable to determine site domain."
 msgstr ""
 
-#: includes/API/Rest_Controller.php:1001
+#: includes/Api/class-rest-controller.php:916
 msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-#: includes/API/WebhookController.php:97
+#: includes/Api/class-webhook-controller.php:89
 msgid "Invalid webhook data."
 msgstr ""
 
-#: includes/API/WebhookController.php:113
+#: includes/Api/class-webhook-controller.php:102
 msgid "Missing state parameter."
 msgstr ""
 
-#: includes/API/WebhookController.php:125
+#: includes/Api/class-webhook-controller.php:112
 msgid "Invalid state: no stored state found."
 msgstr ""
 
-#: includes/API/WebhookController.php:140
+#: includes/Api/class-webhook-controller.php:124
 msgid "State has expired."
 msgstr ""
 
-#: includes/API/WebhookController.php:150
+#: includes/Api/class-webhook-controller.php:132
 msgid "Invalid state: state mismatch."
 msgstr ""
 
-#: includes/API/WebhookController.php:273
+#: includes/Api/class-webhook-controller.php:229
 msgid "Invalid webhook secret."
 msgstr ""
 
-#: includes/API/WebhookController.php:286
+#: includes/Api/class-webhook-controller.php:240
 msgid "Invalid site ID."
 msgstr ""
 
-#: surefeedback-cloud.php:326
+#: surefeedback-cloud.php:266
 msgid "Access Dashboard"
 msgstr ""
 
-#: surefeedback-cloud.php:327
+#: surefeedback-cloud.php:267
 msgid "Get Started Now"
 msgstr ""

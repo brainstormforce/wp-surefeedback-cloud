@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Authentication Manager class
  *
@@ -8,7 +7,6 @@
 
 namespace SureFeedback;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -41,8 +39,6 @@ class Auth_Manager {
 	 */
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'handle_oauth_callback' ) );
-		// Don't check authentication on admin_init - let menu show first
-		// Authentication check will happen when page is accessed
 	}
 
 	/**
@@ -55,36 +51,24 @@ class Auth_Manager {
 	public function is_authenticated() {
 		$token = $this->get_bearer_token();
 
-		// If we have a valid token, we're authenticated
 		if ( ! empty( $token ) ) {
 			return true;
 		}
 
-		// Fallback: Check if connection data exists (for webhook-based connections)
-		// This handles cases where bearer token decryption fails but connection data exists
 		$site_id         = get_option( 'surefeedback_site_id', '' );
 		$site_token      = get_option( 'surefeedback_site_token', '' );
 		$organization_id = get_option( 'surefeedback_organization_id', '' );
 
-		// If we have site_id and site_token, consider it connected
-		// This is a valid connection established via webhook
 		if ( ! empty( $site_id ) && ! empty( $site_token ) ) {
-			// Try to get bearer token from database (might be stored as plain text)
 			$db_token = get_option( self::BEARER_TOKEN_OPTION, false );
 
-			// If token exists but decryption failed, try using it as plain text
-			// This handles backward compatibility for tokens stored before encryption
 			if ( $db_token && ! empty( $db_token ) ) {
-				// Check if it looks like a JWT (starts with eyJ)
 				if ( strpos( $db_token, 'eyJ' ) === 0 ) {
-					// It's a plain JWT token, store it properly encrypted
 					$this->store_bearer_token( $db_token );
 					return true;
 				}
 			}
 
-			// Connection data exists, consider connected even without valid bearer token
-			// The bearer token can be refreshed later if needed
 			return true;
 		}
 
@@ -99,7 +83,6 @@ class Auth_Manager {
 	 * @return string|false
 	 */
 	public function get_bearer_token() {
-		// Try secure cookie first
 		$secure_cookie_manager = Secure_Cookie_Manager::get_instance();
 		$token                 = $secure_cookie_manager->get_auth_token();
 
@@ -107,17 +90,12 @@ class Auth_Manager {
 			return $token;
 		}
 
-		// Fallback to database option
 		$stored_token = get_option( self::BEARER_TOKEN_OPTION, false );
 		if ( ! $stored_token ) {
 			return false;
 		}
 
-		// Check if token is already a plain JWT (starts with "eyJ" for JWT header)
-		// This handles backward compatibility for tokens stored before encryption
 		if ( is_string( $stored_token ) && strpos( $stored_token, 'eyJ' ) === 0 ) {
-			// It's a plain JWT token, return it directly
-			// Also re-encrypt it for future use
 			$encryption = new Encryption();
 			$encrypted  = $encryption->encrypt( $stored_token );
 			if ( $encrypted ) {
@@ -126,12 +104,9 @@ class Auth_Manager {
 			return $stored_token;
 		}
 
-		// Try to decrypt (assumes it's encrypted)
 		$encryption = new Encryption();
 		$decrypted  = $encryption->decrypt( $stored_token );
 
-		// If decryption fails, it might be plain text stored incorrectly
-		// Return the stored value as-is if it looks like a JWT
 		if ( ! $decrypted && is_string( $stored_token ) && strpos( $stored_token, 'eyJ' ) === 0 ) {
 			return $stored_token;
 		}
@@ -146,11 +121,9 @@ class Auth_Manager {
 	 * @return bool
 	 */
 	public function store_bearer_token( $token ) {
-		// Store in secure cookie
 		$secure_cookie_manager = Secure_Cookie_Manager::get_instance();
 		$cookie_result         = $secure_cookie_manager->store_auth_token( $token, 30 * DAY_IN_SECONDS );
 
-		// Also store in database as backup
 		$encryption      = new Encryption();
 		$encrypted_token = $encryption->encrypt( sanitize_text_field( $token ) );
 		$db_result       = update_option( self::BEARER_TOKEN_OPTION, $encrypted_token );
@@ -166,8 +139,7 @@ class Auth_Manager {
 	 * @return bool
 	 */
 	public function has_auth_error() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback, nonce not applicable for external redirects
-		return isset( $_GET['auth_error'] ) && sanitize_text_field( wp_unslash( $_GET['auth_error'] ) ) === '1';
+		return isset( $_GET['auth_error'] ) && sanitize_text_field( wp_unslash( $_GET['auth_error'] ) ) === '1'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**
@@ -192,7 +164,7 @@ class Auth_Manager {
 		$callback_url = $this->get_callback_url();
 		return add_query_arg(
 			array(
-				'oauth_url' => urlencode( $callback_url ),
+				'oauth_url' => rawurlencode( $callback_url ),
 			),
 			self::SAAS_AUTH_URL
 		);
@@ -206,53 +178,39 @@ class Auth_Manager {
 	 * @return void
 	 */
 	public function handle_oauth_callback() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- OAuth callback from external SaaS, nonce not applicable
-
-		// First check if we have oauth_token in the URL
-		// Handle both proper format and malformed URLs
 		$oauth_token = null;
 
-		// Check standard $_GET parameter
-		if ( isset( $_GET['oauth_token'] ) ) {
-			$oauth_token = sanitize_text_field( wp_unslash( $_GET['oauth_token'] ) );
+		if ( isset( $_GET['oauth_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$oauth_token = sanitize_text_field( wp_unslash( $_GET['oauth_token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		} else {
-			// Handle malformed URL with double question mark
 			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 			if ( $request_uri && preg_match( '/[?&]oauth_token=([^&]+)/', $request_uri, $matches ) ) {
 				$oauth_token = sanitize_text_field( $matches[1] );
 			}
 		}
 
-		// If no token found, return early
 		if ( ! $oauth_token ) {
 			return;
 		}
 
-		// Check if we're on our plugin page
-		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $page ) {
-			// Try to extract page from URL if not in $_GET
 			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 			if ( $request_uri && preg_match( '/page=([^&?]+)/', $request_uri, $matches ) ) {
 				$page = sanitize_text_field( $matches[1] );
 			}
 		}
 
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
 		if ( ! $page || strpos( $page, 'surefeedback' ) !== 0 ) {
 			return;
 		}
 
-		// Exchange token
 		$result = $this->exchange_token( $oauth_token );
 
 		if ( $result ) {
-			// Redirect to remove oauth_token from URL
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $page ) );
 			exit;
 		} else {
-			// Redirect with error parameter
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $page . '&auth_error=1' ) );
 			exit;
 		}
@@ -289,19 +247,15 @@ class Auth_Manager {
 			$body          = wp_remote_retrieve_body( $response );
 			$result        = json_decode( $body, true );
 
-			// Check HTTP status code
-			if ( $response_code !== 200 && $response_code !== 201 ) {
+			if ( 200 !== $response_code && 201 !== $response_code ) {
 				return false;
 			}
 
-			// Check if the response is successful and has the expected structure
-			if ( ! empty( $result['success'] ) && $result['success'] === true && ! empty( $result['data'] ) ) {
+			if ( ! empty( $result['success'] ) && true === $result['success'] && ! empty( $result['data'] ) ) {
 				$data = $result['data'];
-				// Store the access token as bearer token
 				if ( ! empty( $data['access_token'] ) ) {
 					$this->store_bearer_token( $data['access_token'] );
 
-					// Also store the connection ID if needed
 					if ( ! empty( $data['connection_id'] ) ) {
 						update_option( 'surefeedback_connection_id', sanitize_text_field( $data['connection_id'] ) );
 					}
@@ -314,7 +268,6 @@ class Auth_Manager {
 						update_option( 'surefeedback_organization_id', sanitize_text_field( $data['organization_id'] ) );
 					}
 
-					// Store script token (site token) for verification
 					if ( ! empty( $data['script_token'] ) ) {
 						update_option( 'surefeedback_access_token', sanitize_text_field( $data['script_token'] ) );
 					}
@@ -338,8 +291,6 @@ class Auth_Manager {
 	 * @return void
 	 */
 	public function check_authentication() {
-		// This method is no longer needed - menu should always be visible
-		// Authentication will be checked when the page is rendered
 	}
 
 	/**

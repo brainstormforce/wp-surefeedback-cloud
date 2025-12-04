@@ -1,5 +1,4 @@
 <?php
-
 /**
  * SaaS API Client
  *
@@ -10,7 +9,6 @@ namespace SureFeedback;
 
 use WP_Error;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -44,7 +42,7 @@ class SaaS_Client {
 	 * @param Auth_Manager $auth_manager Optional. Auth manager instance.
 	 */
 	public function __construct( Auth_Manager $auth_manager = null ) {
-		$this->auth_manager = $auth_manager ?: new Auth_Manager();
+		$this->auth_manager = $auth_manager ? $auth_manager : new Auth_Manager();
 	}
 
 	/**
@@ -82,14 +80,12 @@ class SaaS_Client {
 		try {
 			$url = $this->api_base_url . '/' . ltrim( $endpoint, '/' );
 
-			// Extract query parameters if provided
 			$query_params = array();
 			if ( isset( $args['query'] ) && is_array( $args['query'] ) ) {
 				$query_params = $args['query'];
 				unset( $args['query'] );
 			}
 
-			// Add query parameters to URL
 			if ( ! empty( $query_params ) ) {
 				$url = add_query_arg( $query_params, $url );
 			}

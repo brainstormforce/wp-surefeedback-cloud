@@ -7,7 +7,6 @@
 
 namespace SureFeedback;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -77,29 +76,24 @@ class Secure_Cookie_Manager {
 	 * @return string Cookie domain (empty string for current domain, or .domain.com for subdomains).
 	 */
 	public function get_cookie_domain() {
-		// Get the current domain.
 		$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 
 		if ( empty( $host ) ) {
 			return '';
 		}
 
-		// Remove port if present.
 		$host = explode( ':', $host )[0];
 
-		// For localhost or IP addresses, don't set domain.
 		if ( 'localhost' === $host || filter_var( $host, FILTER_VALIDATE_IP ) ) {
 			return '';
 		}
 
-		// Extract main domain (e.g., example.com from sub.example.com).
 		$parts = explode( '.', $host );
 
 		if ( count( $parts ) < 2 ) {
 			return '';
 		}
 
-		// Return domain with leading dot for subdomain support.
 		if ( count( $parts ) >= 2 ) {
 			$main_domain = $parts[ count( $parts ) - 2 ] . '.' . $parts[ count( $parts ) - 1 ];
 			return '.' . $main_domain;
@@ -119,7 +113,6 @@ class Secure_Cookie_Manager {
 	 */
 	public function set_secure_cookie( string $name, $value, int $expiry = self::DEFAULT_EXPIRY, array $options = array() ) {
 		try {
-			// Convert non-string values to JSON.
 			if ( ! is_string( $value ) ) {
 				$value = wp_json_encode( $value );
 				if ( false === $value ) {
@@ -127,20 +120,17 @@ class Secure_Cookie_Manager {
 				}
 			}
 
-			// Get encryption key.
 			$keys = $this->get_encryption_keys();
 			if ( ! $keys ) {
 				return false;
 			}
 
-			// Generate IV.
 			$iv_length = openssl_cipher_iv_length( self::CIPHER_METHOD );
 			$iv        = openssl_random_pseudo_bytes( $iv_length );
 			if ( false === $iv ) {
 				return false;
 			}
 
-			// Encrypt the value.
 			$tag       = '';
 			$encrypted = openssl_encrypt(
 				$value,
@@ -155,7 +145,6 @@ class Secure_Cookie_Manager {
 				return false;
 			}
 
-			// Create payload with metadata.
 			$payload = array(
 				'v' => 1, // Version for future compatibility.
 				'i' => base64_encode( $iv ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
@@ -164,14 +153,11 @@ class Secure_Cookie_Manager {
 				'e' => time() + $expiry, // Expiration timestamp.
 			);
 
-			// Sign the payload.
 			$payload_string = wp_json_encode( $payload );
 			$signature      = hash_hmac( 'sha256', $payload_string, $keys['signing_key'] );
 
-			// Final cookie value.
 			$cookie_value = base64_encode( $payload_string . '.' . $signature ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 
-			// Set cookie options.
 			$cookie_options = wp_parse_args(
 				$options,
 				array(
@@ -184,7 +170,6 @@ class Secure_Cookie_Manager {
 				)
 			);
 
-			// Set the cookie.
 			return setcookie(
 				self::COOKIE_PREFIX . $name,
 				$cookie_value,
@@ -210,23 +195,19 @@ class Secure_Cookie_Manager {
 		}
 
 		try {
-			// Get cookie value and sanitize by allowing only base64 characters
 			$raw_cookie = wp_unslash( $_COOKIE[ $cookie_name ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-			// Sanitize: strip any characters that aren't valid base64 (whitelist approach)
 			$sanitized_cookie = preg_replace( '/[^a-zA-Z0-9\/+=\r\n]/', '', $raw_cookie );
 
 			if ( empty( $sanitized_cookie ) ) {
 				return null;
 			}
 
-			// Decode the cookie value
-			$cookie_value = base64_decode( $sanitized_cookie, true );
+			$cookie_value = base64_decode( $sanitized_cookie, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			if ( false === $cookie_value ) {
 				return null;
 			}
 
-			// Split payload and signature
 			$parts = explode( '.', $cookie_value, 2 );
 			if ( 2 !== count( $parts ) ) {
 				return null;
@@ -234,39 +215,33 @@ class Secure_Cookie_Manager {
 
 			list($payload_string, $signature) = $parts;
 
-			// Get keys
 			$keys = $this->get_encryption_keys();
 			if ( ! $keys ) {
 				return null;
 			}
 
-			// Verify signature
 			$expected_signature = hash_hmac( 'sha256', $payload_string, $keys['signing_key'] );
 			if ( ! hash_equals( $expected_signature, $signature ) ) {
 				return null;
 			}
 
-			// Decode payload
 			$payload = json_decode( $payload_string, true );
 			if ( ! is_array( $payload ) || ! isset( $payload['v'], $payload['i'], $payload['d'], $payload['t'], $payload['e'] ) ) {
 				return null;
 			}
 
-			// Check expiration
 			if ( $payload['e'] < time() ) {
 				return null;
 			}
 
-			// Decode components
-			$iv        = base64_decode( $payload['i'], true );
-			$encrypted = base64_decode( $payload['d'], true );
-			$tag       = base64_decode( $payload['t'], true );
+			$iv        = base64_decode( $payload['i'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$encrypted = base64_decode( $payload['d'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$tag       = base64_decode( $payload['t'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
 			if ( false === $iv || false === $encrypted || false === $tag ) {
 				return null;
 			}
 
-			// Decrypt
 			$decrypted = openssl_decrypt(
 				$encrypted,
 				self::CIPHER_METHOD,
@@ -280,10 +255,9 @@ class Secure_Cookie_Manager {
 				return null;
 			}
 
-			// Optionally JSON decode
 			if ( $json_decode ) {
 				$decoded = json_decode( $decrypted, true );
-				return ( json_last_error() === JSON_ERROR_NONE ) ? $decoded : $decrypted;
+				return ( JSON_ERROR_NONE === json_last_error() ) ? $decoded : $decrypted;
 			}
 
 			return $decrypted;
@@ -301,7 +275,6 @@ class Secure_Cookie_Manager {
 	public function delete_secure_cookie( string $name ) {
 		$cookie_name = self::COOKIE_PREFIX . $name;
 
-		// Delete the cookie - use the same domain as when setting the cookie
 		$result = setcookie(
 			$cookie_name,
 			'',
@@ -312,7 +285,6 @@ class Secure_Cookie_Manager {
 			true
 		);
 
-		// Remove from superglobal
 		unset( $_COOKIE[ $cookie_name ] );
 
 		return $result;
@@ -347,7 +319,6 @@ class Secure_Cookie_Manager {
 			return null;
 		}
 
-		// Double-check expiration
 		if ( isset( $token_data['expires_at'] ) && $token_data['expires_at'] < time() ) {
 			$this->delete_secure_cookie( 'auth_token' );
 			return null;
@@ -362,41 +333,34 @@ class Secure_Cookie_Manager {
 	 * @return array|false Array with 'encryption_key' and 'signing_key' or false on failure.
 	 */
 	private function get_encryption_keys() {
-		// Check cache first
 		if ( null !== $this->keys_cache ) {
 			return $this->keys_cache;
 		}
 
-		// Try to get from object cache
 		$keys = wp_cache_get( 'encryption_keys', self::CACHE_GROUP );
 		if ( false !== $keys && is_array( $keys ) ) {
 			$this->keys_cache = $keys;
 			return $keys;
 		}
 
-		// Get from database
 		$stored_keys = get_option( self::KEY_OPTION );
 
 		if ( false === $stored_keys || ! is_array( $stored_keys ) ) {
-			// Generate new keys
 			$keys = $this->generate_keys();
 			if ( false === $keys ) {
 				return false;
 			}
 
-			// Store encrypted in database
 			if ( ! $this->store_keys( $keys ) ) {
 				return false;
 			}
 		} else {
-			// Decrypt stored keys
 			$keys = $this->decrypt_stored_keys( $stored_keys );
 			if ( false === $keys ) {
 				return false;
 			}
 		}
 
-		// Cache the keys
 		wp_cache_set( 'encryption_keys', $keys, self::CACHE_GROUP, 3600 );
 		$this->keys_cache = $keys;
 
@@ -410,7 +374,6 @@ class Secure_Cookie_Manager {
 	 */
 	private function generate_keys() {
 		try {
-			// Generate random keys
 			$encryption_key = openssl_random_pseudo_bytes( 32 );
 			$signing_key    = openssl_random_pseudo_bytes( 32 );
 
@@ -435,15 +398,13 @@ class Secure_Cookie_Manager {
 	 */
 	private function store_keys( array $keys ) {
 		try {
-			// Use WordPress salts for key derivation
 			$master_key = $this->derive_master_key();
 
-			// Encrypt keys before storage
 			$iv  = openssl_random_pseudo_bytes( 16 );
 			$tag = '';
 
 			$encrypted_keys = openssl_encrypt(
-				serialize( $keys ),
+				serialize( $keys ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				self::CIPHER_METHOD,
 				$master_key,
 				OPENSSL_RAW_DATA,
@@ -456,9 +417,9 @@ class Secure_Cookie_Manager {
 			}
 
 			$stored_data = array(
-				'iv'      => base64_encode( $iv ),
-				'data'    => base64_encode( $encrypted_keys ),
-				'tag'     => base64_encode( $tag ),
+				'iv'      => base64_encode( $iv ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'data'    => base64_encode( $encrypted_keys ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'tag'     => base64_encode( $tag ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 				'created' => time(),
 			);
 
@@ -482,9 +443,9 @@ class Secure_Cookie_Manager {
 
 			$master_key = $this->derive_master_key();
 
-			$iv        = base64_decode( $stored_data['iv'], true );
-			$encrypted = base64_decode( $stored_data['data'], true );
-			$tag       = base64_decode( $stored_data['tag'], true );
+			$iv        = base64_decode( $stored_data['iv'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$encrypted = base64_decode( $stored_data['data'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$tag       = base64_decode( $stored_data['tag'], true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
 			if ( false === $iv || false === $encrypted || false === $tag ) {
 				return false;
@@ -503,7 +464,7 @@ class Secure_Cookie_Manager {
 				return false;
 			}
 
-			$keys = unserialize( $decrypted );
+			$keys = unserialize( $decrypted ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 			if ( ! is_array( $keys ) || ! isset( $keys['encryption_key'], $keys['signing_key'] ) ) {
 				return false;
 			}
@@ -520,7 +481,6 @@ class Secure_Cookie_Manager {
 	 * @return string
 	 */
 	private function derive_master_key() {
-		// Combine WordPress salts for key derivation
 		$salt_data = '';
 		$salts     = array( 'AUTH_KEY', 'SECURE_AUTH_KEY', 'LOGGED_IN_KEY', 'NONCE_KEY' );
 
@@ -530,12 +490,10 @@ class Secure_Cookie_Manager {
 			}
 		}
 
-		// Fallback if salts are not defined (should not happen in production)
 		if ( empty( $salt_data ) ) {
 			$salt_data = wp_salt( 'auth' ) . wp_salt( 'secure_auth' );
 		}
 
-		// Derive key using PBKDF2
 		return hash_pbkdf2( 'sha256', $salt_data, 'surefeedback_cookie_encryption', 10000, 32, true );
 	}
 
@@ -545,17 +503,14 @@ class Secure_Cookie_Manager {
 	 * @return bool
 	 */
 	public function rotate_keys() {
-		// Clear caches
 		wp_cache_delete( 'encryption_keys', self::CACHE_GROUP );
 		$this->keys_cache = null;
 
-		// Generate new keys
 		$new_keys = $this->generate_keys();
 		if ( false === $new_keys ) {
 			return false;
 		}
 
-		// Store new keys
 		return $this->store_keys( $new_keys );
 	}
 }

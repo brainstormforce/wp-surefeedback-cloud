@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Frontend Script Loader
  *
@@ -9,7 +8,6 @@
 
 namespace SureFeedback;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -49,12 +47,10 @@ class Frontend_Script {
 	 * @return void
 	 */
 	private function init_hooks() {
-		// Frontend loading
 		if ( ! is_admin() ) {
 			add_action( 'wp_footer', array( $this, 'enqueue_script' ), 20 );
 		}
 
-		// Admin loading if enabled
 		if ( is_admin() && $this->should_load_in_admin() ) {
 			add_action( 'admin_footer', array( $this, 'enqueue_script' ), 20 );
 		}
@@ -80,7 +76,6 @@ class Frontend_Script {
 	 * @return bool
 	 */
 	private function should_display_widget() {
-		// Use cache for repeated calls
 		$cache_key = 'should_display_widget_' . $this->get_current_page_id();
 		if ( isset( self::$cache[ $cache_key ] ) ) {
 			return self::$cache[ $cache_key ];
@@ -89,16 +84,13 @@ class Frontend_Script {
 		$current_page_id = $this->get_current_page_id();
 		$page_settings   = $this->get_page_settings();
 
-		// Default behavior: show on all pages if no settings configured
 		if ( empty( $page_settings ) || ! $current_page_id ) {
 			self::$cache[ $cache_key ] = true;
 			return true;
 		}
 
-		// Check if this specific page is disabled
 		$should_display = ! isset( $page_settings[ $current_page_id ] ) || false !== $page_settings[ $current_page_id ];
 
-		// Apply filter for customization
 		$should_display = apply_filters( 'surefeedback_should_display_widget', $should_display, $current_page_id, $page_settings );
 
 		self::$cache[ $cache_key ] = $should_display;
@@ -117,7 +109,6 @@ class Frontend_Script {
 
 		$settings = get_option( 'surefeedback_page_settings', array() );
 
-		// Validate settings format
 		if ( ! is_array( $settings ) ) {
 			$settings = array();
 		}
@@ -138,7 +129,6 @@ class Frontend_Script {
 
 		$page_id = null;
 
-		// Specific page type detection with priority order
 		if ( is_front_page() ) {
 			$page_id = 'home';
 		} elseif ( is_home() ) {
@@ -164,7 +154,6 @@ class Frontend_Script {
 			$page_id = '404';
 		}
 
-		// Allow filtering for custom page ID logic
 		$page_id = apply_filters( 'surefeedback_current_page_id', $page_id );
 
 		self::$cache['current_page_id'] = $page_id;
@@ -183,20 +172,16 @@ class Frontend_Script {
 
 		$allowed_roles = get_option( 'surefeedback_allowed_roles', array( 'administrator' ) );
 
-		// Validate and sanitize allowed roles
 		if ( ! is_array( $allowed_roles ) || empty( $allowed_roles ) ) {
 			$allowed_roles = array( 'administrator' );
 		}
 
-		// Guest users handling
 		if ( ! is_user_logged_in() ) {
-			// Allow guests for SaaS connection (SDK handles token authentication)
 			$allow_guests                = apply_filters( 'surefeedback_allow_guest_users', true );
 			self::$cache['user_allowed'] = $allow_guests;
 			return $allow_guests;
 		}
 
-		// Logged in user role check
 		$user = wp_get_current_user();
 		if ( ! $user || ! $user->exists() ) {
 			self::$cache['user_allowed'] = false;
@@ -206,7 +191,6 @@ class Frontend_Script {
 		$user_roles = (array) $user->roles;
 		$is_allowed = ! empty( array_intersect( $user_roles, $allowed_roles ) );
 
-		// Apply filter for custom authorization logic
 		$is_allowed = apply_filters( 'surefeedback_is_user_allowed', $is_allowed, $user, $allowed_roles );
 
 		self::$cache['user_allowed'] = $is_allowed;
@@ -219,19 +203,16 @@ class Frontend_Script {
 	 * @return bool
 	 */
 	private function has_magic_token_param() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only token validation
-		if ( ! isset( $_GET['magic_token'] ) ) {
+		if ( ! isset( $_GET['magic_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
-		$magic_token = sanitize_text_field( wp_unslash( $_GET['magic_token'] ) );
+		$magic_token = sanitize_text_field( wp_unslash( $_GET['magic_token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Validate token format: 64 character hex string
 		$is_valid = ! empty( $magic_token )
 			&& strlen( $magic_token ) === 64
 			&& ctype_xdigit( $magic_token );
 
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		return $is_valid;
 	}
 
@@ -241,19 +222,16 @@ class Frontend_Script {
 	 * @return bool
 	 */
 	private function has_api_token_param() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only token validation
-		if ( ! isset( $_GET['api_token'] ) ) {
+		if ( ! isset( $_GET['api_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
-		$api_token = sanitize_text_field( wp_unslash( $_GET['api_token'] ) );
+		$api_token = sanitize_text_field( wp_unslash( $_GET['api_token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Validate token format: starts with 'sc_' and has reasonable length
 		$is_valid = ! empty( $api_token )
 			&& strpos( $api_token, 'sc_' ) === 0
 			&& strlen( $api_token ) > 10;
 
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		return $is_valid;
 	}
 
@@ -291,7 +269,6 @@ class Frontend_Script {
 			return false;
 		}
 
-		// Basic validation
 		if ( ! preg_match( '/^[a-zA-Z0-9_-]+$/', $site_id ) ) {
 			self::$cache['site_config'] = false;
 			return false;
@@ -324,7 +301,6 @@ class Frontend_Script {
 			return false;
 		}
 
-		// Validate base URL format
 		if ( ! filter_var( $sdk_base_url, FILTER_VALIDATE_URL ) ) {
 			return false;
 		}
@@ -345,7 +321,6 @@ class Frontend_Script {
 		$sdk_base_url    = esc_js( $config['sdk_base_url'] );
 		$access_token    = esc_js( $config['access_token'] );
 
-		// Minified JavaScript for production
 		$javascript = "
 		<script>
 		(function(){
@@ -397,17 +372,14 @@ class Frontend_Script {
 	 * @since 0.0.1
 	 */
 	public function enqueue_script() {
-		// Prevent multiple loads
 		if ( self::$script_loaded ) {
 			return;
 		}
 
-		// Early exit filters
 		if ( ! apply_filters( 'surefeedback_script_should_load', true ) ) {
 			return;
 		}
 
-		// Check widget display permissions
 		if ( ! $this->should_display_widget() ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				echo '<!-- SureFeedback: Widget disabled for this page -->';
@@ -415,7 +387,6 @@ class Frontend_Script {
 			return;
 		}
 
-		// Validate authentication
 		$auth_manager = $this->get_auth_manager();
 		if ( ! $auth_manager || ! $auth_manager->is_authenticated() ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -424,7 +395,6 @@ class Frontend_Script {
 			return;
 		}
 
-		// Get and validate site configuration
 		$site_config = $this->get_site_config();
 		if ( false === $site_config ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -433,7 +403,6 @@ class Frontend_Script {
 			return;
 		}
 
-		// Build SDK URL
 		$sdk_url = $this->build_sdk_url( $site_config['site_id'] );
 		if ( false === $sdk_url ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -442,26 +411,20 @@ class Frontend_Script {
 			return;
 		}
 
-		// Get SDK base URL
 		$sdk_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' )
 			? preg_replace( '#/api/v1/?$#', '', rtrim( SUREFEEDBACK_SAAS_API_BASE_URL, '/' ) )
 			: '';
 
-		// Prepare configuration for JavaScript
 		$js_config = array(
 			'sdk_url'      => $sdk_url,
 			'sdk_base_url' => $sdk_base_url,
 			'access_token' => $site_config['access_token'],
 		);
 
-		// Generate and output optimized JavaScript
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JavaScript output is properly sanitized in generate_sdk_javascript method
-		echo $this->generate_sdk_javascript( $js_config );
+		echo $this->generate_sdk_javascript( $js_config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		// Mark as loaded
 		self::$script_loaded = true;
 
-		// Fire action for extensibility
 		do_action( 'surefeedback_script_loaded', $js_config );
 	}
 

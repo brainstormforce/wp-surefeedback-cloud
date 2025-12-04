@@ -11,7 +11,6 @@
 
 namespace SureFeedback;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -93,10 +92,9 @@ class Encryption {
 		}
 
 		$raw_value = base64_decode( $raw_value, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-
-		$method = 'aes-256-ctr';
-		$ivlen  = openssl_cipher_iv_length( $method );
-		$iv     = substr( $raw_value, 0, $ivlen );
+		$method    = 'aes-256-ctr';
+		$ivlen     = openssl_cipher_iv_length( $method );
+		$iv        = substr( $raw_value, 0, $ivlen );
 
 		$raw_value = substr( $raw_value, $ivlen );
 
@@ -124,7 +122,6 @@ class Encryption {
 			return LOGGED_IN_KEY;
 		}
 
-		// If this is reached, you're either not on a live site or have a serious security issue.
 		return 'this-is-fallback-key-for-encryption';
 	}
 
@@ -144,7 +141,6 @@ class Encryption {
 			return LOGGED_IN_SALT;
 		}
 
-		// If this is reached, you're either not on a live site or have a serious security issue.
 		return 'this-is-fallback-salt-for-encryption';
 	}
 

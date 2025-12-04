@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Admin Menu class
  *
@@ -10,7 +9,6 @@ namespace SureFeedback\Admin;
 
 use SureFeedback\Auth_Manager;
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -42,10 +40,8 @@ class Admin_Menu {
 	public function __construct() {
 		$this->auth_manager = new Auth_Manager();
 
-		// Register menu
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 
-		// Enqueue assets
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
@@ -59,9 +55,8 @@ class Admin_Menu {
 		$icon_path = SUREFEEDBACK_PLUGIN_DIR . 'assets/images/settings/surefeedback-icon.svg';
 
 		if ( file_exists( $icon_path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			$svg = file_get_contents( $icon_path );
-			return 'data:image/svg+xml;base64,' . base64_encode( $svg );
+			$svg = file_get_contents( $icon_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 
 		return 'dashicons-feedback';
@@ -73,7 +68,6 @@ class Admin_Menu {
 	 * @since 0.0.1
 	 */
 	public function register_menu() {
-		// Main menu
 		add_menu_page(
 			__( 'SureFeedback', 'surefeedback-cloud' ),
 			__( 'SureFeedback', 'surefeedback-cloud' ),
@@ -84,7 +78,6 @@ class Admin_Menu {
 			30
 		);
 
-		// Connections submenu
 		add_submenu_page(
 			$this->menu_slug . '-dashboard',
 			__( 'Connections', 'surefeedback-cloud' ),
@@ -94,7 +87,6 @@ class Admin_Menu {
 			array( $this, 'render_dashboard_page' )
 		);
 
-		// Widget Control submenu
 		add_submenu_page(
 			$this->menu_slug . '-dashboard',
 			__( 'Widget Control', 'surefeedback-cloud' ),
@@ -104,7 +96,6 @@ class Admin_Menu {
 			array( $this, 'render_widget_control_page' )
 		);
 
-		// Settings submenu
 		add_submenu_page(
 			$this->menu_slug . '-dashboard',
 			__( 'Settings', 'surefeedback-cloud' ),
@@ -123,12 +114,10 @@ class Admin_Menu {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue_assets( $hook ) {
-		// Only load on our plugin pages
 		if ( strpos( $hook, $this->menu_slug ) === false ) {
 			return;
 		}
 
-		// Enqueue admin CSS (webpack bundle)
 		$admin_css_path = SUREFEEDBACK_PLUGIN_PATH . 'assets/dist/admin.css';
 		$admin_css_url  = SUREFEEDBACK_PLUGIN_URL . 'assets/dist/admin.css';
 		$css_version    = file_exists( $admin_css_path ) ? filemtime( $admin_css_path ) : SUREFEEDBACK_VERSION;
@@ -140,7 +129,6 @@ class Admin_Menu {
 			$css_version
 		);
 
-		// Enqueue admin scripts (webpack bundle)
 		$admin_js_path = SUREFEEDBACK_PLUGIN_PATH . 'assets/js/admin.js';
 		$admin_js_url  = SUREFEEDBACK_PLUGIN_URL . 'assets/js/admin.js';
 		$js_version    = file_exists( $admin_js_path ) ? filemtime( $admin_js_path ) : SUREFEEDBACK_VERSION;
@@ -153,7 +141,6 @@ class Admin_Menu {
 			true
 		);
 
-		// Localize script
 		$connection_id       = get_option( 'surefeedback_connection_id', '' );
 		$site_id             = get_option( 'surefeedback_site_id', '' );
 		$site_token          = get_option( 'surefeedback_access_token', '' );
@@ -162,7 +149,6 @@ class Admin_Menu {
 		$app_url             = SUREFEEDBACK_SAAS_API_BASE_URL;
 		$verification_status = get_option( 'surefeedback_verification_status', 'unverified' );
 
-		// Build connection data
 		$connection_data = array(
 			'connection_id' => $connection_id,
 			'site_id'       => $site_id,
@@ -198,7 +184,6 @@ class Admin_Menu {
 					'roles' => get_option( 'surefeedback_allowed_roles', array( 'administrator' ) ),
 				),
 				'availableRoles'      => $this->get_available_roles(),
-				// Image URLs
 				'surefeedback_icon'   => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/surefeedback-logo-img.svg',
 				'welcome_background'  => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/welcome_background.png',
 				'welcome'             => SUREFEEDBACK_PLUGIN_URL . 'assets/images/settings/welcome.png',
@@ -210,7 +195,6 @@ class Admin_Menu {
 			)
 		);
 
-		// Create alias for sureFeedbackAdmin (capital F) for backwards compatibility
 		wp_add_inline_script(
 			'surefeedback-admin',
 			'if (typeof window.surefeedbackAdmin !== "undefined" && typeof window.sureFeedbackAdmin === "undefined") {
