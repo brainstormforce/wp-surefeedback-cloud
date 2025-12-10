@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-10T09:01:52+00:00\n"
+"POT-Creation-Date: 2025-12-10T09:39:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: surefeedback-cloud\n"
@@ -66,79 +66,79 @@ msgstr ""
 msgid "Authentication failed. Please try again."
 msgstr ""
 
-#: includes/API/class-rest-controller.php:301
+#: includes/Api/class-rest-controller.php:301
 msgid "State parameter is required."
 msgstr ""
 
-#: includes/API/class-rest-controller.php:330
+#: includes/Api/class-rest-controller.php:330
 msgid "Failed to store state."
 msgstr ""
 
-#: includes/API/class-rest-controller.php:347
+#: includes/Api/class-rest-controller.php:347
 msgid "Not connected to SureFeedback."
 msgstr ""
 
-#: includes/API/class-rest-controller.php:611
+#: includes/Api/class-rest-controller.php:611
 msgid "Site token is required."
 msgstr ""
 
-#: includes/API/class-rest-controller.php:622
+#: includes/Api/class-rest-controller.php:622
 msgid "Not authenticated with SureFeedback."
 msgstr ""
 
-#: includes/API/class-rest-controller.php:665
+#: includes/Api/class-rest-controller.php:665
 msgid "Verification failed: "
 msgstr ""
 
-#: includes/API/class-rest-controller.php:696
+#: includes/Api/class-rest-controller.php:696
 msgid "Unable to determine site domain."
 msgstr ""
 
-#: includes/API/class-rest-controller.php:916
+#: includes/Api/class-rest-controller.php:916
 msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:101
+#: includes/Api/class-webhook-controller.php:101
 msgid "Invalid webhook data."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:114
+#: includes/Api/class-webhook-controller.php:114
 msgid "Missing state parameter."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:124
+#: includes/Api/class-webhook-controller.php:124
 msgid "Invalid state: no stored state found."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:136
+#: includes/Api/class-webhook-controller.php:136
 msgid "State has expired."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:144
+#: includes/Api/class-webhook-controller.php:144
 msgid "Invalid state: state mismatch."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:241
+#: includes/Api/class-webhook-controller.php:241
 msgid "Invalid webhook secret."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:252
+#: includes/Api/class-webhook-controller.php:252
 msgid "Invalid site ID."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:316
+#: includes/Api/class-webhook-controller.php:316
 msgid "Missing authorization header."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:325
+#: includes/Api/class-webhook-controller.php:325
 msgid "Invalid authorization header format."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:336
+#: includes/Api/class-webhook-controller.php:336
 msgid "No access token configured."
 msgstr ""
 
-#: includes/API/class-webhook-controller.php:344
+#: includes/Api/class-webhook-controller.php:344
 msgid "Invalid bearer token."
 msgstr ""
 
