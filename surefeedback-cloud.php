@@ -22,34 +22,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$surefeedback_is_local_env = defined( 'WP_ENVIRONMENT_TYPE' ) && 'local' === WP_ENVIRONMENT_TYPE;
-
 /**
- * SaaS API Base URL constant
- */
-if ( ! defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_SAAS_API_BASE_URL', $surefeedback_is_local_env ? 'http://localhost:8000' : 'https://api.surefeedback.com' );
-}
-
-/**
- * SaaS App Base URL constant
- */
-if ( ! defined( 'SUREFEEDBACK_SAAS_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_SAAS_BASE_URL', $surefeedback_is_local_env ? 'http://localhost:3000' : 'https://app.surefeedback.com' );
-}
-
-/**
- * API Base URL constant (alias for backward compatibility)
+ * API Base URL constant
  */
 if ( ! defined( 'SUREFEEDBACK_API_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_API_BASE_URL', SUREFEEDBACK_SAAS_API_BASE_URL );
+	define( 'SUREFEEDBACK_API_BASE_URL', 'https://api.surefeedback.com' );
 }
 
 /**
- * App Base URL constant (alias for backward compatibility)
+ * App Base URL constant
  */
 if ( ! defined( 'SUREFEEDBACK_APP_BASE_URL' ) ) {
-	define( 'SUREFEEDBACK_APP_BASE_URL', SUREFEEDBACK_SAAS_BASE_URL );
+	define( 'SUREFEEDBACK_APP_BASE_URL', 'https://app.surefeedback.com' );
 }
 
 /**

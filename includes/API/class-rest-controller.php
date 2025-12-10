@@ -700,7 +700,7 @@ class Rest_Controller extends WP_REST_Controller {
 
 		$domain = $this->normalize_domain_for_query( $domain );
 
-		$api_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ? SUREFEEDBACK_SAAS_API_BASE_URL : 'https://api.surefeedback.com';
+		$api_base_url = SUREFEEDBACK_API_BASE_URL;
 
 		$saas_client = new SaaS_Client();
 		$result      = $saas_client->get(
@@ -788,7 +788,7 @@ class Rest_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
 	private function exchange_connection_token( $oauth_token, $site_url ) {
-		$api_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ? SUREFEEDBACK_SAAS_API_BASE_URL : 'https://api.surefeedback.com';
+		$api_base_url = SUREFEEDBACK_API_BASE_URL;
 		$api_url      = $api_base_url . '/api/v1/connections/exchange';
 
 		$site_api_url = rtrim( $site_url, '/' ) . '/wp-json/surefeedback/v1';

@@ -146,7 +146,7 @@ class Admin_Menu {
 		$site_token          = get_option( 'surefeedback_access_token', '' );
 		$site_url            = home_url();
 		$admin_url           = admin_url();
-		$app_url             = SUREFEEDBACK_SAAS_API_BASE_URL;
+		$app_url             = SUREFEEDBACK_API_BASE_URL;
 		$verification_status = get_option( 'surefeedback_verification_status', 'unverified' );
 
 		$connection_data = array(

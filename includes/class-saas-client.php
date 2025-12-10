@@ -25,7 +25,7 @@ class SaaS_Client {
 	 *
 	 * @var string
 	 */
-	private $api_base_url = SUREFEEDBACK_SAAS_API_BASE_URL . '/api/v1';
+	private $api_base_url = SUREFEEDBACK_API_BASE_URL . '/api/v1';
 
 	/**
 	 * Auth Manager instance

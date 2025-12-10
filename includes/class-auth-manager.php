@@ -25,12 +25,12 @@ class Auth_Manager {
 	/**
 	 * SaaS authentication URL
 	 */
-	const SAAS_AUTH_URL = SUREFEEDBACK_SAAS_BASE_URL . '/connect';
+	const SAAS_AUTH_URL = SUREFEEDBACK_APP_BASE_URL . '/connect';
 
 	/**
 	 * SaaS token exchange URL
 	 */
-	const TOKEN_EXCHANGE_URL = SUREFEEDBACK_SAAS_API_BASE_URL . '/api/v1/connections/exchange';
+	const TOKEN_EXCHANGE_URL = SUREFEEDBACK_API_BASE_URL . '/api/v1/connections/exchange';
 
 	/**
 	 * Constructor

@@ -290,11 +290,11 @@ class Frontend_Script {
 	 * @return string|false
 	 */
 	private function build_sdk_url( $site_id ) {
-		if ( ! defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' ) ) {
+		if ( ! defined( 'SUREFEEDBACK_API_BASE_URL' ) ) {
 			return false;
 		}
 
-		$sdk_base_url = SUREFEEDBACK_SAAS_API_BASE_URL;
+		$sdk_base_url = SUREFEEDBACK_API_BASE_URL;
 		$sdk_base_url = preg_replace( '#/api/v1/?$#', '', rtrim( $sdk_base_url, '/' ) );
 
 		if ( empty( $sdk_base_url ) ) {
@@ -411,8 +411,8 @@ class Frontend_Script {
 			return;
 		}
 
-		$sdk_base_url = defined( 'SUREFEEDBACK_SAAS_API_BASE_URL' )
-			? preg_replace( '#/api/v1/?$#', '', rtrim( SUREFEEDBACK_SAAS_API_BASE_URL, '/' ) )
+		$sdk_base_url = defined( 'SUREFEEDBACK_API_BASE_URL' )
+			? preg_replace( '#/api/v1/?$#', '', rtrim( SUREFEEDBACK_API_BASE_URL, '/' ) )
 			: '';
 
 		$js_config = array(
