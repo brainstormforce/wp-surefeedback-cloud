@@ -71,6 +71,18 @@ class WebhookController extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/webhook/sync',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'handle_sync_webhook' ),
+					'permission_callback' => array( $this, 'verify_bearer_token' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -264,5 +276,76 @@ class WebhookController extends WP_REST_Controller {
 				'connected' => false,
 			)
 		);
+	}
+
+	/**
+	 * Handle sync webhook from Laravel
+	 * Triggered when the SaaS platform wants to sync data with WordPress
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function handle_sync_webhook( $request ) {
+		// Update last sync timestamp
+		update_option( 'surefeedback_last_sync', current_time( 'mysql' ) );
+
+		// Log the sync event
+		error_log( 'SureFeedback: Manual sync webhook received from SaaS platform' );
+
+		return rest_ensure_response(
+			array(
+				'success'   => true,
+				'message'   => 'Sync webhook received successfully',
+				'synced_at' => current_time( 'mysql' ),
+			)
+		);
+	}
+
+	/**
+	 * Verify bearer token for sync webhook
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True if authorized, WP_Error otherwise.
+	 */
+	public function verify_bearer_token( $request ) {
+		$auth_header = $request->get_header( 'authorization' );
+
+		if ( empty( $auth_header ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Missing authorization header.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Extract bearer token from "Bearer {token}" format
+		if ( ! preg_match( '/Bearer\s+(.+)/i', $auth_header, $matches ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Invalid authorization header format.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		$provided_token = trim( $matches[1] );
+		$stored_token   = get_option( 'surefeedback_access_token', '' );
+
+		if ( empty( $stored_token ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'No access token configured.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		if ( ! hash_equals( $stored_token, $provided_token ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Invalid bearer token.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		return true;
 	}
 }
