@@ -907,9 +907,10 @@ class Rest_Controller extends WP_REST_Controller {
 	/**
 	 * Check if user has admin permissions
 	 *
+	 * @param WP_REST_Request $request Full details about the request.
 	 * @return bool|WP_Error
 	 */
-	public function admin_permissions_check() {
+	public function admin_permissions_check( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
