@@ -30,10 +30,10 @@
 		"test": "phpunit",
 		"test:coverage": "phpunit --coverage-html coverage",
 		"phpstan": "vendor/bin/phpstan --memory-limit=2048M analyse",
-		"phpcs": "vendor/bin/phpcs",
-		"phpcbf": "vendor/bin/phpcbf",
-		"lint": "vendor/bin/phpcs",
-		"format": "vendor/bin/phpcbf"
+		"phpcs": "vendor/bin/phpcs ./includes/ --standard=phpcs.xml.dist --report-full",
+		"phpcbf": "vendor/bin/phpcbf ./includes/ --standard=phpcs.xml.dist --report-summary --report-source",
+		"lint": "vendor/bin/phpcs ./includes/ --standard=phpcs.xml.dist --report-full",
+		"format": "vendor/bin/phpcbf ./includes/ --standard=phpcs.xml.dist --report-summary --report-source"
 	},
 	"config": {
 		"allow-plugins": {
