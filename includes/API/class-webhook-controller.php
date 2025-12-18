@@ -286,11 +286,8 @@ class WebhookController extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handle_sync_webhook( $request ) {
-		// Update last sync timestamp
+		// Update last sync timestamp.
 		update_option( 'surefeedback_last_sync', current_time( 'mysql' ) );
-
-		// Log the sync event
-		error_log( 'SureFeedback: Manual sync webhook received from SaaS platform' );
 
 		return rest_ensure_response(
 			array(
@@ -318,7 +315,7 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		// Extract bearer token from "Bearer {token}" format
+		// Extract bearer token from "Bearer {token}" format.
 		if ( ! preg_match( '/Bearer\s+(.+)/i', $auth_header, $matches ) ) {
 			return new WP_Error(
 				'rest_unauthorized',

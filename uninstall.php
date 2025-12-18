@@ -82,18 +82,18 @@ function surefeedback_uninstall_cleanup() {
 /**
  * Delete all options matching a specific pattern
  *
- * @param string $pattern The prefix pattern to match (e.g., 'surefeedback_rate_limit_')
- * @return int Number of options deleted
+ * @param string $pattern The prefix pattern to match (e.g., 'surefeedback_rate_limit_').
+ * @return int Number of options deleted.
  */
 function surefeedback_delete_options_by_pattern( $pattern ) {
 	global $wpdb;
 
 	$deleted_count = 0;
-	
-	// Cache key for this pattern search
+
+	// Cache key for this pattern search.
 	$cache_key = 'surefeedback_options_' . md5( $pattern );
-	$options = wp_cache_get( $cache_key, 'surefeedback-cloud' );
-	
+	$options   = wp_cache_get( $cache_key, 'surefeedback-cloud' );
+
 	if ( false === $options ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for plugin uninstall cleanup
 		$options = $wpdb->get_col(
@@ -104,14 +104,14 @@ function surefeedback_delete_options_by_pattern( $pattern ) {
 		);
 		wp_cache_set( $cache_key, $options, 'surefeedback-cloud', 300 );
 	}
-	
+
 	if ( ! empty( $options ) && is_array( $options ) ) {
 		foreach ( $options as $option ) {
 			if ( delete_option( $option ) ) {
 				++$deleted_count;
 			}
 		}
-		// Clear cache after deletion
+		// Clear cache after deletion.
 		wp_cache_delete( $cache_key, 'surefeedback-cloud' );
 	}
 

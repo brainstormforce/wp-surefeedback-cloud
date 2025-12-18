@@ -15,6 +15,11 @@
     <exclude-pattern>\.github/*</exclude-pattern>
     <exclude-pattern>\.wordpress-org/*</exclude-pattern>
     <exclude-pattern>src/*</exclude-pattern>
+    <exclude-pattern>stubs-generator.php</exclude-pattern>
+    <exclude-pattern>Gruntfile.cjs</exclude-pattern>
+    <exclude-pattern>*.config.js</exclude-pattern>
+    <exclude-pattern>*.config.cjs</exclude-pattern>
+    <exclude-pattern>*.config.ts</exclude-pattern>
 
     <!-- How to scan -->
     <arg value="sp"/><!-- Show sniff and progress -->
@@ -60,4 +65,9 @@
 
     <!-- Enforce PSR-4 autoloading compatibility for class files -->
     <rule ref="Generic.Files.OneObjectStructurePerFile"/>
+
+    <!-- Allow mixed OO and functions in main plugin file (WordPress convention) -->
+    <rule ref="Universal.Files.SeparateFunctionsFromOO">
+        <exclude-pattern>surefeedback-cloud.php</exclude-pattern>
+    </rule>
 </ruleset>
