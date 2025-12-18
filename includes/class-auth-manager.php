@@ -180,7 +180,8 @@ class Auth_Manager {
 	 */
 	public function handle_oauth_callback() {
 		// Only process OAuth callback if oauth_token parameter exists.
-		if ( ! isset( $_GET['oauth_token'] ) && ! ( isset( $_SERVER['REQUEST_URI'] ) && strpos( $_SERVER['REQUEST_URI'], 'oauth_token=' ) !== false ) ) {
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		if ( ! isset( $_GET['oauth_token'] ) && ! ( $request_uri && strpos( $request_uri, 'oauth_token=' ) !== false ) ) {
 			return;
 		}
 
