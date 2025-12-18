@@ -161,7 +161,8 @@ class Auth_Manager {
 	 * @return string
 	 */
 	public function get_auth_url() {
-		$callback_url = $this->get_callback_url();
+		$nonce        = wp_create_nonce( 'surefeedback_oauth_callback' );
+		$callback_url = add_query_arg( 'oauth_nonce', $nonce, $this->get_callback_url() );
 		return add_query_arg(
 			array(
 				'oauth_url' => rawurlencode( $callback_url ),
@@ -178,10 +179,34 @@ class Auth_Manager {
 	 * @return void
 	 */
 	public function handle_oauth_callback() {
+		// Only process OAuth callback if oauth_token parameter exists.
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		if ( ! isset( $_GET['oauth_token'] ) && ! ( $request_uri && strpos( $request_uri, 'oauth_token=' ) !== false ) ) {
+			return;
+		}
+
+		// Check user permissions first - only administrators can manage OAuth connections.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'surefeedback-cloud' ) );
+		}
+
+		// Verify nonce for OAuth callback security.
+		$nonce = isset( $_GET['oauth_nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['oauth_nonce'] ) ) : '';
+		if ( ! $nonce ) {
+			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			if ( $request_uri && preg_match( '/[?&]oauth_nonce=([^&]+)/', $request_uri, $matches ) ) {
+				$nonce = sanitize_text_field( $matches[1] );
+			}
+		}
+
+		if ( ! wp_verify_nonce( $nonce, 'surefeedback_oauth_callback' ) ) {
+			wp_die( esc_html__( 'Security check failed. Please try authenticating again.', 'surefeedback-cloud' ) );
+		}
+
 		$oauth_token = null;
 
-		if ( isset( $_GET['oauth_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$oauth_token = sanitize_text_field( wp_unslash( $_GET['oauth_token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['oauth_token'] ) ) {
+			$oauth_token = sanitize_text_field( wp_unslash( $_GET['oauth_token'] ) );
 		} else {
 			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 			if ( $request_uri && preg_match( '/[?&]oauth_token=([^&]+)/', $request_uri, $matches ) ) {
