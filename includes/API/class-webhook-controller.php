@@ -71,8 +71,8 @@ class WebhookController extends WP_REST_Controller {
 		/*
 		 * Disconnect webhook - lets our SaaS platform remotely disconnect a site.
 		 *
-		 * Note: Using __return_true because external webhook, not WP user action.
-		 * Auth is done inside handle_disconnect_webhook() via X-Webhook-Secret header.
+		 * Security: Uses verify_webhook_secret() permission callback to validate
+		 * the X-Webhook-Secret header against the stored site_token.
 		 */
 		register_rest_route(
 			$this->namespace,
@@ -81,7 +81,7 @@ class WebhookController extends WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'handle_disconnect_webhook' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => array( $this, 'verify_webhook_secret' ),
 				),
 			)
 		);
@@ -248,57 +248,14 @@ class WebhookController extends WP_REST_Controller {
 	/**
 	 * Handle disconnect webhook from Laravel
 	 *
-	 * Validates the webhook secret before disconnecting.
+	 * Note: Authentication is handled in verify_webhook_secret() permission callback.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function handle_disconnect_webhook( $request ) {
-		$body = $request->get_json_params();
-
-		$webhook_secret    = $request->get_header( 'X-Webhook-Secret' );
-		$stored_site_token = get_option( 'surefeedback_site_token', '' );
-
-		// Must have the secret header
-		if ( empty( $webhook_secret ) ) {
-			return new WP_Error(
-				'rest_unauthorized',
-				__( 'Missing webhook secret header.', 'surefeedback-cloud' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// Must have a token configured
-		if ( empty( $stored_site_token ) ) {
-			return new WP_Error(
-				'rest_unauthorized',
-				__( 'No site token configured.', 'surefeedback-cloud' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// Validate secret using hash_equals (prevents timing attacks)
-		if ( ! hash_equals( $stored_site_token, $webhook_secret ) ) {
-			return new WP_Error(
-				'rest_unauthorized',
-				__( 'Invalid webhook secret.', 'surefeedback-cloud' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// Double-check site_id if they sent one
-		if ( ! empty( $body['site_id'] ) ) {
-			$stored_site_id = get_option( 'surefeedback_site_id', '' );
-			if ( ! empty( $stored_site_id ) && $body['site_id'] !== $stored_site_id ) {
-				return new WP_Error(
-					'rest_unauthorized',
-					__( 'Invalid site ID.', 'surefeedback-cloud' ),
-					array( 'status' => 401 )
-				);
-			}
-		}
-
-		// Secret checks out, proceed with disconnect
+		// Permission callback has already validated the webhook secret
+		// Proceed with disconnect
 		$secure_cookie_manager = \SureFeedback\Secure_Cookie_Manager::get_instance();
 		$secure_cookie_manager->delete_secure_cookie( 'auth_token' );
 
@@ -386,6 +343,62 @@ class WebhookController extends WP_REST_Controller {
 				__( 'Invalid bearer token.', 'surefeedback-cloud' ),
 				array( 'status' => 401 )
 			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Verify webhook secret for disconnect webhook
+	 *
+	 * This permission callback validates the X-Webhook-Secret header
+	 * against the stored site token before allowing disconnection.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True if authorized, WP_Error otherwise.
+	 */
+	public function verify_webhook_secret( $request ) {
+		$webhook_secret    = $request->get_header( 'X-Webhook-Secret' );
+		$stored_site_token = get_option( 'surefeedback_site_token', '' );
+
+		// Must have the secret header
+		if ( empty( $webhook_secret ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Missing webhook secret header.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Must have a token configured
+		if ( empty( $stored_site_token ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'No site token configured.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Validate secret using hash_equals (prevents timing attacks)
+		if ( ! hash_equals( $stored_site_token, $webhook_secret ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Invalid webhook secret.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Double-check site_id if they sent one
+		$body = $request->get_json_params();
+		if ( ! empty( $body['site_id'] ) ) {
+			$stored_site_id = get_option( 'surefeedback_site_id', '' );
+			if ( ! empty( $stored_site_id ) && $body['site_id'] !== $stored_site_id ) {
+				return new WP_Error(
+					'rest_unauthorized',
+					__( 'Invalid site ID.', 'surefeedback-cloud' ),
+					array( 'status' => 401 )
+				);
+			}
 		}
 
 		return true;
