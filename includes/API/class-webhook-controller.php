@@ -234,16 +234,34 @@ class WebhookController extends WP_REST_Controller {
 		$webhook_secret    = $request->get_header( 'X-Webhook-Secret' );
 		$stored_site_token = get_option( 'surefeedback_site_token', '' );
 
-		if ( ! empty( $webhook_secret ) && ! empty( $stored_site_token ) ) {
-			if ( $webhook_secret !== $stored_site_token ) {
-				return new WP_Error(
-					'rest_unauthorized',
-					__( 'Invalid webhook secret.', 'surefeedback-cloud' ),
-					array( 'status' => 401 )
-				);
-			}
+		// ALWAYS require webhook secret header
+		if ( empty( $webhook_secret ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Missing webhook secret header.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
 		}
 
+		// ALWAYS require stored site token
+		if ( empty( $stored_site_token ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'No site token configured.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// ALWAYS validate secret matches (using hash_equals for timing attack protection)
+		if ( ! hash_equals( $stored_site_token, $webhook_secret ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Invalid webhook secret.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Optional: Validate site_id if provided
 		if ( ! empty( $body['site_id'] ) ) {
 			$stored_site_id = get_option( 'surefeedback_site_id', '' );
 			if ( ! empty( $stored_site_id ) && $body['site_id'] !== $stored_site_id ) {
