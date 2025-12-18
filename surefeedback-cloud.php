@@ -260,8 +260,8 @@ final class SureFeedback {
 
 		$dashboard_link = sprintf(
 			'<a href="%s">%s</a>',
-			admin_url( 'admin.php?page=surefeedback-cloud-dashboard' ),
-			$link_text
+			esc_url( admin_url( 'admin.php?page=surefeedback-cloud-dashboard' ) ),
+			esc_html( $link_text )
 		);
 
 		array_unshift( $links, $dashboard_link );
