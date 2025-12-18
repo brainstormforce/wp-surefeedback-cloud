@@ -51,10 +51,9 @@ class WebhookController extends WP_REST_Controller {
 		/*
 		 * Connection webhook - called by our SaaS platform during OAuth flow.
 		 *
-		 * Note: Using __return_true here because this isn't called by WP users - it's an external webhook.
-		 * Security works like OAuth: the admin generates a random state token, user gives it to our SaaS,
-		 * then SaaS sends it back here. We validate the state inside handle_webhook() - it's time-limited
-		 * (60 mins), single-use, and checked with hash_equals() to prevent timing attacks.
+		 * Security: Uses verify_webhook_state() permission callback to validate the state token.
+		 * The state is time-limited (60 mins), single-use, and checked with hash_equals()
+		 * to prevent timing attacks.
 		 */
 		register_rest_route(
 			$this->namespace,
@@ -63,7 +62,7 @@ class WebhookController extends WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'handle_webhook' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => array( $this, 'verify_webhook_state' ),
 				),
 			)
 		);
@@ -102,7 +101,7 @@ class WebhookController extends WP_REST_Controller {
 	/**
 	 * Handle webhook from Laravel for automatic connection
 	 *
-	 * OAuth-style flow: validates the state token before connecting.
+	 * Note: State validation is handled by verify_webhook_state() permission callback.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
@@ -119,54 +118,7 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
-		// Get state from body or header
-		$state        = $body['state'] ?? '';
-		$state_header = $request->get_header( 'X-SureFeedback-State' );
-
-		$provided_state = ! empty( $state ) ? $state : $state_header;
-
-		if ( empty( $provided_state ) ) {
-			return new WP_Error(
-				'rest_unauthorized',
-				__( 'Missing state parameter.', 'surefeedback-cloud' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// Check if we have a stored state to compare against
-		$stored_state_data = get_option( 'surefeedback_webhook_state', false );
-
-		if ( ! $stored_state_data || ! is_array( $stored_state_data ) ) {
-			return new WP_Error(
-				'rest_unauthorized',
-				__( 'Invalid state: no stored state found.', 'surefeedback-cloud' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		$stored_state = $stored_state_data['state'] ?? '';
-		$state_expiry = $stored_state_data['expiry'] ?? 0;
-
-		// States expire after 60 minutes
-		if ( time() > $state_expiry ) {
-			delete_option( 'surefeedback_webhook_state' );
-			return new WP_Error(
-				'rest_unauthorized',
-				__( 'State has expired.', 'surefeedback-cloud' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// Compare states using hash_equals to prevent timing attacks
-		if ( ! hash_equals( $stored_state, $provided_state ) ) {
-			return new WP_Error(
-				'rest_unauthorized',
-				__( 'Invalid state: state mismatch.', 'surefeedback-cloud' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// All good! State is valid, let's connect
+		// State validation is already done by permission_callback, so we can proceed with connection
 		$success = isset( $body['success'] ) && ( '1' === $body['success'] || true === $body['success'] || 1 === $body['success'] );
 
 		if ( ! $success ) {
@@ -345,6 +297,72 @@ class WebhookController extends WP_REST_Controller {
 			);
 		}
 
+		return true;
+	}
+
+	/**
+	 * Verify webhook state for connection webhook
+	 *
+	 * This permission callback validates the state token using OAuth-style flow:
+	 * - Admin generates a random state token
+	 * - State is stored with 60-minute expiry
+	 * - SaaS platform sends state back in webhook
+	 * - We validate state using hash_equals() to prevent timing attacks
+	 * - State is single-use only
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True if authorized, WP_Error otherwise.
+	 */
+	public function verify_webhook_state( $request ) {
+		// Get state from body or header
+		$body         = $request->get_json_params();
+		$state        = $body['state'] ?? '';
+		$state_header = $request->get_header( 'X-SureFeedback-State' );
+
+		$provided_state = ! empty( $state ) ? $state : $state_header;
+
+		if ( empty( $provided_state ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Missing state parameter.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Check if we have a stored state to compare against
+		$stored_state_data = get_option( 'surefeedback_webhook_state', false );
+
+		if ( ! $stored_state_data || ! is_array( $stored_state_data ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Invalid state: no stored state found.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		$stored_state = $stored_state_data['state'] ?? '';
+		$state_expiry = $stored_state_data['expiry'] ?? 0;
+
+		// States expire after 60 minutes
+		if ( time() > $state_expiry ) {
+			delete_option( 'surefeedback_webhook_state' );
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'State has expired.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// Compare states using hash_equals to prevent timing attacks
+		if ( ! hash_equals( $stored_state, $provided_state ) ) {
+			return new WP_Error(
+				'rest_unauthorized',
+				__( 'Invalid state: state mismatch.', 'surefeedback-cloud' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		// State is valid
 		return true;
 	}
 
