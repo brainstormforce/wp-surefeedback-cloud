@@ -44,15 +44,18 @@ class Frontend_Script {
 	/**
 	 * Initialize WordPress hooks
 	 *
+	 * Note: We use wp_enqueue_scripts for proper WordPress compliance,
+	 * with conditional checks during the enqueue process.
+	 *
 	 * @return void
 	 */
 	private function init_hooks() {
 		if ( ! is_admin() ) {
-			add_action( 'wp_footer', array( $this, 'enqueue_script' ), 20 );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_script' ), 20 );
 		}
 
 		if ( is_admin() && $this->should_load_in_admin() ) {
-			add_action( 'admin_footer', array( $this, 'enqueue_script' ), 20 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_script' ), 20 );
 		}
 	}
 
@@ -418,8 +421,13 @@ class Frontend_Script {
 			'access_token' => $site_config['access_token'],
 		);
 
-		// Output inline JavaScript using WordPress built-in function for proper escaping.
-		wp_print_inline_script_tag( $this->generate_sdk_javascript( $js_config ) );
+		// Register and enqueue a minimal script to attach inline JavaScript to.
+		$script_handle = 'surefeedback-inline-loader';
+		wp_register_script( $script_handle, false, array(), SUREFEEDBACK_VERSION, true );
+		wp_enqueue_script( $script_handle );
+
+		// Add inline JavaScript using WordPress proper enqueuing system.
+		wp_add_inline_script( $script_handle, $this->generate_sdk_javascript( $js_config ), 'after' );
 
 		self::$script_loaded = true;
 
