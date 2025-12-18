@@ -1,15 +1,63 @@
 <?xml version="1.0"?>
-<ruleset name="Surefeedback WordPress Standards">
-    <description>PHPCS rules for WordPress plugin.</description>
+<ruleset name="SureFeedback WordPress Standards">
+    <description>PHPCS rules for SureFeedback WordPress plugin</description>
 
+    <!-- What to scan -->
     <file>.</file>
 
+    <!-- Exclude patterns -->
     <exclude-pattern>vendor/*</exclude-pattern>
     <exclude-pattern>tests/*</exclude-pattern>
     <exclude-pattern>node_modules/*</exclude-pattern>
-    <exclude-pattern>src/main.tsx</exclude-pattern>
+    <exclude-pattern>assets/*</exclude-pattern>
+    <exclude-pattern>languages/*</exclude-pattern>
+    <exclude-pattern>release/*</exclude-pattern>
+    <exclude-pattern>\.github/*</exclude-pattern>
+    <exclude-pattern>\.wordpress-org/*</exclude-pattern>
+    <exclude-pattern>src/*</exclude-pattern>
 
-    <rule ref="WordPress-Core" />
-    <rule ref="WordPress-Docs" />
-    <rule ref="WordPress-Extra" />
+    <!-- How to scan -->
+    <arg value="sp"/><!-- Show sniff and progress -->
+    <arg name="basepath" value="."/><!-- Strip the file paths down to the relevant bit -->
+    <arg name="colors"/><!-- Show results with colors -->
+    <arg name="extensions" value="php"/><!-- Limit to PHP files -->
+    <arg name="parallel" value="8"/><!-- Check up to 8 files simultaneously -->
+
+    <!-- Rules: WordPress Coding Standards -->
+    <config name="minimum_supported_wp_version" value="5.8"/>
+
+    <!-- Include WordPress Coding Standards -->
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
+
+    <!-- Verify text domain -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="surefeedback-cloud"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Verify global namespace prefix -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="surefeedback"/>
+                <element value="SureFeedback"/>
+                <element value="SUREFEEDBACK"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Allow for theme specific exceptions to the file name rules based on the class names -->
+    <rule ref="WordPress.Files.FileName">
+        <properties>
+            <property name="strict_class_file_names" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Enforce PSR-4 autoloading compatibility for class files -->
+    <rule ref="Generic.Files.OneObjectStructurePerFile"/>
 </ruleset>
