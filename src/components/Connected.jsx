@@ -42,12 +42,12 @@ const Connected = ({ connectionData, verificationResult }) => {
       const data = await apiGateway.post('connection/disconnect');
 
       if (data.success || data.connected === false) {
-        toast.success(__("Site disconnected successfully! Redirecting...", "surefeedback-cloud"));
+        toast.success(__("Site disconnected successfully! Refreshing...", "surefeedback-cloud"));
         setIsDialogOpen(false);
-        
-        // Redirect to the connection setup page after a brief delay
+
+        // Reload the current page to refresh the connection state
         setTimeout(() => {
-          window.location.href = (window.surefeedbackAdmin?.admin_url || window.sureFeedbackAdmin?.admin_url || '') + 'admin.php?page=surefeedback-dashboard';
+          window.location.reload();
         }, 1500);
       } else {
         toast.error(
