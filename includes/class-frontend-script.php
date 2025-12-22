@@ -44,15 +44,18 @@ class Frontend_Script {
 	/**
 	 * Initialize WordPress hooks
 	 *
+	 * Note: We use wp_enqueue_scripts for proper WordPress compliance,
+	 * with conditional checks during the enqueue process.
+	 *
 	 * @return void
 	 */
 	private function init_hooks() {
 		if ( ! is_admin() ) {
-			add_action( 'wp_footer', array( $this, 'enqueue_script' ), 20 );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_script' ), 20 );
 		}
 
 		if ( is_admin() && $this->should_load_in_admin() ) {
-			add_action( 'admin_footer', array( $this, 'enqueue_script' ), 20 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_script' ), 20 );
 		}
 	}
 
@@ -315,30 +318,28 @@ class Frontend_Script {
 	 * @return string
 	 */
 	private function generate_sdk_javascript( $config ) {
-		$page_settings   = wp_json_encode( $this->get_page_settings() );
-		$current_page_id = wp_json_encode( $this->get_current_page_id() );
+		$page_settings   = wp_json_encode( $this->get_page_settings(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+		$current_page_id = wp_json_encode( $this->get_current_page_id(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 		$sdk_url         = esc_url_raw( $config['sdk_url'] );
 		$sdk_base_url    = esc_js( $config['sdk_base_url'] );
 		$access_token    = esc_js( $config['access_token'] );
 
-		$javascript = "
-		<script>
-		(function(){
-			'use strict';
+		$javascript = '(function(){
+			\'use strict\';
 			
 			function shouldDisplayWidget(){
-				var ps={$page_settings},cpi={$current_page_id};
+				var ps=' . $page_settings . ',cpi=' . $current_page_id . ';
 				return !ps||!Object.keys(ps).length||!cpi||ps[cpi]!==false;
 			}
 			
 			function checkAuth(){
 				var up=new URLSearchParams(window.location.search);
-				var hasMT=up.get('magic_token')!==null;
-				var hasAT=up.get('api_token')!==null;
+				var hasMT=up.get(\'magic_token\')!==null;
+				var hasAT=up.get(\'api_token\')!==null;
 				var hasSA=false;
 				
 				try{
-					var items=['surefeedback_user_session','surefeedback_site_config','surefeedback_api_token'];
+					var items=[\'surefeedback_user_session\',\'surefeedback_site_config\',\'surefeedback_api_token\'];
 					hasSA=items.some(function(item){return localStorage.getItem(item);});
 				}catch(e){/* ignored */}
 				
@@ -346,13 +347,13 @@ class Frontend_Script {
 			}
 			
 			function loadSDK(){
-				var s=document.createElement('script');
-				s.src='{$sdk_url}';
+				var s=document.createElement(\'script\');
+				s.src=\'' . $sdk_url . '\';
 				s.async=true;
 				s.defer=true;
-				s.charset='UTF-8';
-				s.setAttribute('data-token','{$access_token}');
-				s.setAttribute('data-base-url','{$sdk_base_url}');
+				s.charset=\'UTF-8\';
+				s.setAttribute(\'data-token\',\'' . $access_token . '\');
+				s.setAttribute(\'data-base-url\',\'' . $sdk_base_url . '\');
 				
 				document.head.appendChild(s);
 			}
@@ -360,8 +361,7 @@ class Frontend_Script {
 			if(shouldDisplayWidget()&&checkAuth()){
 				loadSDK();
 			}
-		})();
-		</script>";
+		})();';
 
 		return $javascript;
 	}
@@ -421,7 +421,13 @@ class Frontend_Script {
 			'access_token' => $site_config['access_token'],
 		);
 
-		echo $this->generate_sdk_javascript( $js_config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// Register and enqueue a minimal script to attach inline JavaScript to.
+		$script_handle = 'surefeedback-inline-loader';
+		wp_register_script( $script_handle, false, array(), SUREFEEDBACK_VERSION, true );
+		wp_enqueue_script( $script_handle );
+
+		// Add inline JavaScript using WordPress proper enqueuing system.
+		wp_add_inline_script( $script_handle, $this->generate_sdk_javascript( $js_config ), 'after' );
 
 		self::$script_loaded = true;
 
