@@ -161,7 +161,8 @@ class Auth_Manager {
 	 * @return string
 	 */
 	public function get_auth_url() {
-		$callback_url = $this->get_callback_url();
+		$nonce        = wp_create_nonce( 'surefeedback_oauth_callback' );
+		$callback_url = add_query_arg( 'oauth_nonce', $nonce, $this->get_callback_url() );
 		return add_query_arg(
 			array(
 				'oauth_url' => rawurlencode( $callback_url ),
@@ -173,38 +174,65 @@ class Auth_Manager {
 	/**
 	 * Handle OAuth callback
 	 *
+	 * Security: Verifies user permissions and nonce BEFORE processing any $_GET parameters.
+	 *
 	 * @since 0.0.1
 	 *
 	 * @return void
 	 */
 	public function handle_oauth_callback() {
+		// Early exit if this is not an OAuth callback request
+		// Check REQUEST_URI first to avoid processing $_GET before validation
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$has_oauth_token = isset( $_GET['oauth_token'] ) || ( $request_uri && strpos( $request_uri, 'oauth_token=' ) !== false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! $has_oauth_token ) {
+			return;
+		}
+
+		// SECURITY CHECK 1: Verify user permissions FIRST - before processing any parameters
+		// Only administrators can manage OAuth connections
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'surefeedback-cloud' ) );
+		}
+
+		// SECURITY CHECK 2: Verify nonce BEFORE processing oauth_token or any other parameters
+		$nonce = isset( $_GET['oauth_nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['oauth_nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $nonce && $request_uri ) {
+			// Try to extract from REQUEST_URI if not in $_GET
+			if ( preg_match( '/[?&]oauth_nonce=([^&]+)/', $request_uri, $matches ) ) {
+				$nonce = sanitize_text_field( $matches[1] );
+			}
+		}
+
+		if ( ! wp_verify_nonce( $nonce, 'surefeedback_oauth_callback' ) ) {
+			wp_die( esc_html__( 'Security check failed. Please try authenticating again.', 'surefeedback-cloud' ) );
+		}
+
+		// SECURITY CHECKS PASSED - Now safe to process OAuth token
 		$oauth_token = null;
 
-		if ( isset( $_GET['oauth_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['oauth_token'] ) ) {
 			$oauth_token = sanitize_text_field( wp_unslash( $_GET['oauth_token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		} else {
-			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-			if ( $request_uri && preg_match( '/[?&]oauth_token=([^&]+)/', $request_uri, $matches ) ) {
-				$oauth_token = sanitize_text_field( $matches[1] );
-			}
+		} elseif ( $request_uri && preg_match( '/[?&]oauth_token=([^&]+)/', $request_uri, $matches ) ) {
+			$oauth_token = sanitize_text_field( $matches[1] );
 		}
 
 		if ( ! $oauth_token ) {
 			return;
 		}
 
+		// Verify this is a SureFeedback admin page
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $page ) {
-			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-			if ( $request_uri && preg_match( '/page=([^&?]+)/', $request_uri, $matches ) ) {
-				$page = sanitize_text_field( $matches[1] );
-			}
+		if ( ! $page && $request_uri && preg_match( '/page=([^&?]+)/', $request_uri, $matches ) ) {
+			$page = sanitize_text_field( $matches[1] );
 		}
 
 		if ( ! $page || strpos( $page, 'surefeedback-cloud' ) !== 0 ) {
 			return;
 		}
 
+		// Exchange the OAuth token for a bearer token
 		$result = $this->exchange_token( $oauth_token );
 
 		if ( $result ) {

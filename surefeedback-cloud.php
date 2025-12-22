@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: SureFeedback Cloud
  * Plugin URI: https://surefeedback.com
@@ -118,7 +117,7 @@ final class SureFeedback {
 		add_action( 'admin_init', array( $this, 'activation_redirect' ) );
 
 		add_action( 'admin_init', array( $this, 'poll_connection_tokens' ) );
-		
+
 		add_action( 'plugins_loaded', array( $this, 'poll_connection_tokens' ), 20 );
 
 		add_action( 'surefeedback_poll_connection_tokens', array( $this, 'poll_connection_tokens' ) );
@@ -201,14 +200,14 @@ final class SureFeedback {
 		if ( wp_doing_ajax() || wp_doing_cron() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		
+
 		$current_page = '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Simple GET parameter check for activation redirect, no data modification
 		if ( isset( $_GET['page'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe GET parameter read for navigation logic
 			$current_page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
 		}
-		
+
 		if ( ! empty( $current_page ) && strpos( $current_page, 'surefeedback-cloud' ) !== false ) {
 			return;
 		}
@@ -225,22 +224,28 @@ final class SureFeedback {
 		if ( $auth_manager->is_authenticated() ) {
 			return;
 		}
-		$is_activation = doing_action( 'activate_' . plugin_basename( __FILE__ ) );
+		$is_activation     = doing_action( 'activate_' . plugin_basename( __FILE__ ) );
 		$is_plugins_loaded = doing_action( 'plugins_loaded' );
 
 		if ( ! is_admin() && ! wp_doing_cron() && ! $is_activation && ! $is_plugins_loaded ) {
 			return;
 		}
 		$rest_controller = new SureFeedback\API\Rest_Controller();
-		
+
 		$request = new WP_REST_Request( 'POST', '/surefeedback/v1/connection/poll-tokens' );
-		
+
 		$result = $rest_controller->poll_connection_tokens( $request );
 		if ( is_wp_error( $result ) ) {
+			// Handle error case - poll failed.
+			return;
 		} elseif ( is_object( $result ) && method_exists( $result, 'get_data' ) ) {
 			$data = $result->get_data();
 			if ( isset( $data['connected'] ) && $data['connected'] ) {
+				// Connection successful - tokens received.
+				return;
 			} elseif ( isset( $data['success'] ) && ! $data['success'] ) {
+				// Connection not yet completed.
+				return;
 			}
 		}
 	}
@@ -254,14 +259,14 @@ final class SureFeedback {
 	public function add_action_links( $links ) {
 		$auth_manager = new SureFeedback\Auth_Manager();
 		$is_connected = $auth_manager->is_authenticated();
-		$link_text = $is_connected
+		$link_text    = $is_connected
 			? __( 'Access Dashboard', 'surefeedback-cloud' )
 			: __( 'Get Started Now', 'surefeedback-cloud' );
 
 		$dashboard_link = sprintf(
 			'<a href="%s">%s</a>',
-			admin_url( 'admin.php?page=surefeedback-cloud-dashboard' ),
-			$link_text
+			esc_url( admin_url( 'admin.php?page=surefeedback-cloud-dashboard' ) ),
+			esc_html( $link_text )
 		);
 
 		array_unshift( $links, $dashboard_link );
@@ -288,6 +293,11 @@ final class SureFeedback {
 	}
 }
 
+/**
+ * Get SureFeedback plugin instance.
+ *
+ * @return SureFeedback Plugin instance.
+ */
 function surefeedback() {
 	return SureFeedback::get_instance();
 }
