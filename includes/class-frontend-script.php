@@ -318,11 +318,15 @@ class Frontend_Script {
 	 * @return string
 	 */
 	private function generate_sdk_javascript( $config ) {
+		// Use wp_json_encode with proper flags for JSON data to prevent XSS
 		$page_settings   = wp_json_encode( $this->get_page_settings(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 		$current_page_id = wp_json_encode( $this->get_current_page_id(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
-		$sdk_url         = esc_url_raw( $config['sdk_url'] );
-		$sdk_base_url    = esc_js( $config['sdk_base_url'] );
-		$access_token    = esc_js( $config['access_token'] );
+		
+		// Use esc_js for all string values that will be inserted into JavaScript context
+		// This prevents XSS attacks through maliciously crafted URLs or tokens
+		$sdk_url      = esc_js( $config['sdk_url'] );
+		$sdk_base_url = esc_js( $config['sdk_base_url'] );
+		$access_token = esc_js( $config['access_token'] );
 
 		$javascript = '(function(){
 			\'use strict\';

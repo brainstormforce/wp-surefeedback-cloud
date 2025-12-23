@@ -83,6 +83,69 @@ By using this plugin, you agree to the SureFeedback Cloud service terms:
 
 Please review these documents to understand how your data is handled by the SureFeedback Cloud service.
 
+== Developer Resources ==
+
+**Source Code and Build Process**
+
+This plugin uses modern build tools to compile and minify JavaScript and CSS files for optimal performance. All source code is publicly available and maintained in our GitHub repository.
+
+**Source Code Repository:**
+https://github.com/brainstormforce/surefeedback-cloud
+
+**Compressed Files and Their Sources:**
+
+1. **assets/js/admin.js** (compressed)
+   - Source files: Located in the `src/` directory of the repository
+   - Entry point: `src/main.jsx`
+   - Build tool: Webpack 5 with Babel transpilation
+
+2. **assets/dist/admin.css** (compressed)
+   - Source file: `assets/tailwind.input.css`
+   - Build tool: Tailwind CSS CLI
+
+**Building from Source:**
+
+To build the plugin from source, follow these steps:
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/brainstormforce/surefeedback-cloud.git
+   cd surefeedback-cloud
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Build for production:
+   ```
+   npm run build
+   ```
+
+4. For development with watch mode:
+   ```
+   npm run dev
+   ```
+
+**Build Tools Used:**
+
+- Webpack 5 - JavaScript bundling and minification
+- Babel - ES6+ to ES5 transpilation
+- Terser - JavaScript compression
+- Tailwind CSS - CSS processing and minification
+- React 18 - UI framework
+
+**System Requirements for Building:**
+
+- Node.js 16.x or higher
+- npm 8.x or higher
+
+For detailed build configuration, please refer to:
+- `webpack.config.js` - Webpack configuration
+- `tailwind.config.cjs` - Tailwind CSS configuration
+- `package.json` - Build scripts and dependencies
+
 == Installation ==
 
 1. Go to `Plugins -> Add New` and search for SureFeedback
