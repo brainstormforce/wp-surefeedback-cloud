@@ -548,7 +548,7 @@ module.exports = function (grunt) {
   // 4. Generate i18n translations
   // 5. Remove empty directories
   // 6. Clean old release zips
-  // 7. Create zip archive (excluding src/, node_modules/, build configs)
+  // 7. Create zip archive (excluding node_modules/, build configs, but INCLUDING src/)
   // 8. Copy to release folder
   // 9. Clean root-level zip files
   grunt.registerTask("release:local", [

@@ -436,7 +436,11 @@ class Frontend_Script {
 		wp_register_script( $script_handle, false, array(), SUREFEEDBACK_VERSION, true );
 		wp_enqueue_script( $script_handle );
 
-		// Add inline JavaScript using WordPress proper enqueuing system.
+		// SECURITY: Add inline JavaScript using WordPress proper enqueuing system.
+		// The generate_sdk_javascript() method properly escapes all values using:
+		// - wp_json_encode() with JSON_HEX_* flags for JSON data
+		// - esc_js() for all string values (URLs, tokens)
+		// See method documentation at line 314 for complete security details.
 		wp_add_inline_script( $script_handle, $this->generate_sdk_javascript( $js_config ), 'after' );
 
 		self::$script_loaded = true;
