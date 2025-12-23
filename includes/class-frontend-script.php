@@ -314,16 +314,22 @@ class Frontend_Script {
 	/**
 	 * Generate optimized JavaScript for SDK loading
 	 *
+	 * All dynamic values are properly escaped to prevent XSS attacks:
+	 * - JSON values use wp_json_encode() with JSON_HEX_* flags
+	 * - String values use esc_js() for JavaScript context escaping
+	 * - All input comes from sanitized database options
+	 *
 	 * @param array $config Configuration array with SDK URL, tokens, etc.
-	 * @return string
+	 * @return string Escaped JavaScript code safe for inline output
 	 */
 	private function generate_sdk_javascript( $config ) {
-		// Use wp_json_encode with proper flags for JSON data to prevent XSS
+		// SECURITY: Use wp_json_encode with JSON_HEX_* flags to prevent XSS in JSON data
+		// These flags convert special characters to Unicode escape sequences
 		$page_settings   = wp_json_encode( $this->get_page_settings(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 		$current_page_id = wp_json_encode( $this->get_current_page_id(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
-		
-		// Use esc_js for all string values that will be inserted into JavaScript context
-		// This prevents XSS attacks through maliciously crafted URLs or tokens
+
+		// This prevents XSS attacks through maliciously crafted URLs, tokens, or database values
+		// Note: All these values come from get_option() which returns sanitized data
 		$sdk_url      = esc_js( $config['sdk_url'] );
 		$sdk_base_url = esc_js( $config['sdk_base_url'] );
 		$access_token = esc_js( $config['access_token'] );

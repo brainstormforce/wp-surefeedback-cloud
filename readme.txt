@@ -4,7 +4,7 @@ Donate link: https://surefeedback.com
 Tags: surefeedback, client, feedback, design
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 0.0.2
+Stable tag: 0.0.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,66 +85,67 @@ Please review these documents to understand how your data is handled by the Sure
 
 == Developer Resources ==
 
-**Source Code and Build Process**
+This plugin contains minified JavaScript and CSS files for optimal performance. The complete, non-minified source code is included in the plugin and can be found in the following locations:
 
-This plugin uses modern build tools to compile and minify JavaScript and CSS files for optimal performance. All source code is publicly available and maintained in our GitHub repository.
+**Source Code Locations:**
+- Vue.js/TypeScript source files: `/src/` directory
+- Build configuration: `webpack.config.js`, `postcss.config.cjs`, `tailwind.config.ts`
+- PHP source files: Root directory and `/includes/` directory
 
-**Source Code Repository:**
-https://github.com/brainstormforce/surefeedback-cloud
+**Build Tools & Requirements:**
 
-**Compressed Files and Their Sources:**
-
-1. **assets/js/admin.js** (compressed)
-   - Source files: Located in the `src/` directory of the repository
-   - Entry point: `src/main.jsx`
-   - Build tool: Webpack 5 with Babel transpilation
-
-2. **assets/dist/admin.css** (compressed)
-   - Source file: `assets/tailwind.input.css`
-   - Build tool: Tailwind CSS CLI
+To build the plugin from source, you'll need:
+- Node.js 18+ and npm/pnpm
+- PHP 7.4+
+- Composer (for PHP dependencies)
 
 **Building from Source:**
 
-To build the plugin from source, follow these steps:
+```bash
+# Install Node.js dependencies
+npm install
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/brainstormforce/surefeedback-cloud.git
-   cd surefeedback-cloud
-   ```
+# Install PHP dependencies
+composer install
 
-2. Install dependencies:
-   ```
-   npm install
-   ```
+# Build Vue.js assets (development)
+npm run dev
 
-3. Build for production:
-   ```
-   npm run build
-   ```
+# Build Vue.js assets (production)
+npm run build
 
-4. For development with watch mode:
-   ```
-   npm run dev
-   ```
+# Build everything (Vue.js + translations)
+grunt build
 
-**Build Tools Used:**
+# Create distribution package
+grunt release
+```
 
-- Webpack 5 - JavaScript bundling and minification
-- Babel - ES6+ to ES5 transpilation
-- Terser - JavaScript compression
-- Tailwind CSS - CSS processing and minification
-- React 18 - UI framework
+**Development Commands:**
 
-**System Requirements for Building:**
+```bash
+# PHP Code Standards
+composer lint          # Check PHP code standards
+composer format        # Auto-fix PHP code standards
+composer phpstan       # Run static analysis
 
-- Node.js 16.x or higher
-- npm 8.x or higher
+# JavaScript/Vue.js Development
+npm run dev            # Development server with hot reload
+npm run build          # Production build
+npm run type-check     # TypeScript type checking
 
-For detailed build configuration, please refer to:
-- `webpack.config.js` - Webpack configuration
-- `tailwind.config.cjs` - Tailwind CSS configuration
-- `package.json` - Build scripts and dependencies
+# Translation Files
+grunt i18n             # Generate translation files
+```
+
+**Compiled Assets:**
+
+The following files are compiled from source and included in the distribution:
+- `assets/js/admin.js` - Compiled from Vue.js/TypeScript sources in `/src/`
+- `assets/dist/admin.css` - Compiled from Tailwind CSS and PostCSS
+- `languages/surefeedback-cloud.pot` - Generated from source files
+
+All source code is included in the plugin package, ensuring full transparency and compliance with open source requirements.
 
 == Installation ==
 

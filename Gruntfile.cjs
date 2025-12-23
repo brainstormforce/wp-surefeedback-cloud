@@ -71,7 +71,6 @@ module.exports = function (grunt) {
               "!**/*node_modules*/**",
               // Development and build files
               "!tests/**",
-              "!src/**",
               "!release/**",
               // Git and version control
               "!.git/**",
@@ -175,7 +174,6 @@ module.exports = function (grunt) {
               "!**/*node_modules*/**",
               // Development and build files
               "!tests/**",
-              "!src/**",
               "!release/**",
               // Git and version control
               "!.git/**",
@@ -287,7 +285,6 @@ module.exports = function (grunt) {
               "!**/*node_modules*/**",
               // Development and build files
               "!tests/**",
-              "!src/**",
               "!release/**",
               // Git and version control
               "!.git/**",

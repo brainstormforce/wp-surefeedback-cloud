@@ -1,6 +1,6 @@
 {
 	"name": "surefeedback",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"description": "SureFeedback WordPress Plugin",
 	"main": "index.js",
 	"type": "module",
