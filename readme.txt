@@ -83,6 +83,12 @@ By using this plugin, you agree to the SureFeedback Cloud service terms:
 
 Please review these documents to understand how your data is handled by the SureFeedback Cloud service.
 
+== Development / Source Code ==
+
+The human-readable source code for this plugin, including non-minified files, is available at: https://github.com/brainstormforce/wp-surefeedback-cloud
+
+The distributed plugin includes compiled production assets. Build tools used include npm, webpack, and Grunt.
+
 == Installation ==
 
 1. Go to `Plugins -> Add New` and search for SureFeedback
