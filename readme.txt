@@ -21,7 +21,7 @@ Using SureFeedback, the client can show as well as tell, providing targeted feed
 
 SureFeedback is a self-hosted client feedback system that allows you to get feedback on an endless amount of client sites from one central dashboard.
 
-The [SureFeedback](https://surefeedback.com) plugin is used to securely sync multiple WordPress client identities with your SureFeedback parent site.
+The SureFeedback Cloud plugin is used to securely sync multiple WordPress client identities with your SureFeedback parent site.
 
 All you need to do is install the plugin on the site you want feedback on and it's ready to go.
 
@@ -82,6 +82,12 @@ By using this plugin, you agree to the SureFeedback Cloud service terms:
 - Privacy Policy: https://surefeedback.com/privacy-policy/
 
 Please review these documents to understand how your data is handled by the SureFeedback Cloud service.
+
+== Development / Source Code ==
+
+The human-readable source code for this plugin, including non-minified files, is available at: https://github.com/brainstormforce/wp-surefeedback-cloud
+
+The distributed plugin includes compiled production assets. Build tools used include npm, webpack, and Grunt.
 
 == Installation ==
 

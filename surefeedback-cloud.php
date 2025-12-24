@@ -3,7 +3,7 @@
  * Plugin Name: SureFeedback Cloud
  * Plugin URI: https://surefeedback.com
  * Description: Collect note-style feedback from your client's websites and sync them with your SureFeedback parent project.
- * Version: 0.0.2
+ * Version: 0.0.3
  * Author: Brainstorm Force
  * Author URI: https://www.brainstormforce.com
  * License: GPLv2 or later
@@ -45,7 +45,7 @@ final class SureFeedback {
 	 *
 	 * @var string
 	 */
-	const VERSION = '0.0.2';
+	const VERSION = '0.0.3';
 
 	/**
 	 * Plugin singleton instance

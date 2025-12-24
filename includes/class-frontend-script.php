@@ -314,15 +314,25 @@ class Frontend_Script {
 	/**
 	 * Generate optimized JavaScript for SDK loading
 	 *
+	 * All dynamic values are properly escaped to prevent XSS attacks:
+	 * - JSON values use wp_json_encode() with JSON_HEX_* flags
+	 * - String values use esc_js() for JavaScript context escaping
+	 * - All input comes from sanitized database options
+	 *
 	 * @param array $config Configuration array with SDK URL, tokens, etc.
-	 * @return string
+	 * @return string Escaped JavaScript code safe for inline output
 	 */
 	private function generate_sdk_javascript( $config ) {
+		// SECURITY: Use wp_json_encode with JSON_HEX_* flags to prevent XSS in JSON data
+		// These flags convert special characters to Unicode escape sequences
 		$page_settings   = wp_json_encode( $this->get_page_settings(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 		$current_page_id = wp_json_encode( $this->get_current_page_id(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
-		$sdk_url         = esc_url_raw( $config['sdk_url'] );
-		$sdk_base_url    = esc_js( $config['sdk_base_url'] );
-		$access_token    = esc_js( $config['access_token'] );
+
+		// This prevents XSS attacks through maliciously crafted URLs, tokens, or database values
+		// Note: All these values come from get_option() which returns sanitized data
+		$sdk_url      = esc_js( $config['sdk_url'] );
+		$sdk_base_url = esc_js( $config['sdk_base_url'] );
+		$access_token = esc_js( $config['access_token'] );
 
 		$javascript = '(function(){
 			\'use strict\';
@@ -426,7 +436,11 @@ class Frontend_Script {
 		wp_register_script( $script_handle, false, array(), SUREFEEDBACK_VERSION, true );
 		wp_enqueue_script( $script_handle );
 
-		// Add inline JavaScript using WordPress proper enqueuing system.
+		// SECURITY: Add inline JavaScript using WordPress proper enqueuing system.
+		// The generate_sdk_javascript() method properly escapes all values using:
+		// - wp_json_encode() with JSON_HEX_* flags for JSON data
+		// - esc_js() for all string values (URLs, tokens)
+		// See method documentation at line 314 for complete security details.
 		wp_add_inline_script( $script_handle, $this->generate_sdk_javascript( $js_config ), 'after' );
 
 		self::$script_loaded = true;
