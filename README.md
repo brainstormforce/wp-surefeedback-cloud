@@ -4,7 +4,7 @@
 **Tags:** surefeedback, client, feedback, design  
 **Requires at least:** 5.8  
 **Tested up to:** 6.9  
-**Stable tag:** 0.0.1  
+**Stable tag:** 0.0.2  
 **Requires PHP:** 7.4  
 **License:** GPLv2 or later  
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
@@ -21,7 +21,7 @@ Using SureFeedback, the client can show as well as tell, providing targeted feed
 
 SureFeedback is a self-hosted client feedback system that allows you to get feedback on an endless amount of client sites from one central dashboard.
 
-The [SureFeedback](https://surefeedback.com) plugin is used to securely sync multiple WordPress client identities with your SureFeedback parent site.
+The SureFeedback Cloud plugin is used to securely sync multiple WordPress client identities with your SureFeedback parent site.
 
 All you need to do is install the plugin on the site you want feedback on and it's ready to go.
 
@@ -33,6 +33,61 @@ All you need to do is install the plugin on the site you want feedback on and it
 * Allow non-users (guests) to leave comments.
 * Optionally enable commenting on the WordPress admin.
 * White label support
+
+## External Services ##
+
+This plugin connects to the SureFeedback Cloud API (https://api.surefeedback.com) to provide visual feedback and collaboration features. This external service is required for the plugin to function.
+
+**What is the service?**
+
+SureFeedback Cloud is a visual feedback and collaboration platform that allows you to collect client feedback directly on your website designs and pages. The API service handles:
+- User authentication and authorization
+- Feedback data synchronization
+- Real-time collaboration features
+- Comment and annotation storage
+
+**What data is sent and when?**
+
+The plugin communicates with api.surefeedback.com in the following scenarios:
+
+1. **During Connection Setup**: When you connect your WordPress site to SureFeedback Cloud, the plugin sends:
+   - Your site URL
+   - WordPress REST API endpoint URL
+   - Connection verification tokens
+
+2. **During User Authentication**: When users access the feedback widget, the plugin may send:
+   - User role information (if logged in)
+   - Session tokens for authentication
+   - Page identification data (URL, page ID, page type)
+
+3. **During Feedback Collection**: When feedback is being collected, the following data is transmitted:
+   - Page screenshots and visual data
+   - Comment content and metadata
+   - User identification (name, email if provided)
+   - Element positioning data for visual markers
+
+4. **During Synchronization**: The plugin periodically syncs:
+   - Connection health status
+   - Configuration updates
+   - Widget visibility settings
+
+**Data Privacy and Security**
+
+All data transmission occurs over HTTPS encrypted connections. The plugin uses secure token-based authentication and follows WordPress security best practices.
+
+**Service Terms and Privacy**
+
+By using this plugin, you agree to the SureFeedback Cloud service terms:
+- Terms of Service: https://surefeedback.com/terms-of-service/
+- Privacy Policy: https://surefeedback.com/privacy-policy/
+
+Please review these documents to understand how your data is handled by the SureFeedback Cloud service.
+
+## Development / Source Code ##
+
+The human-readable source code for this plugin, including non-minified files, is available at: https://github.com/brainstormforce/wp-surefeedback-cloud
+
+The distributed plugin includes compiled production assets. Build tools used include npm, webpack, and Grunt.
 
 ## Installation ##
 
