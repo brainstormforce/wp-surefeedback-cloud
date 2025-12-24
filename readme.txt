@@ -4,7 +4,7 @@ Donate link: https://surefeedback.com
 Tags: surefeedback, client, feedback, design
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 0.0.3
+Stable tag: 0.0.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,70 +82,6 @@ By using this plugin, you agree to the SureFeedback Cloud service terms:
 - Privacy Policy: https://surefeedback.com/privacy-policy/
 
 Please review these documents to understand how your data is handled by the SureFeedback Cloud service.
-
-== Developer Resources ==
-
-This plugin contains minified JavaScript and CSS files for optimal performance. The complete, non-minified source code is included in the plugin and can be found in the following locations:
-
-**Source Code Locations:**
-- Vue.js/TypeScript source files: `/src/` directory
-- Build configuration: `webpack.config.js`, `postcss.config.cjs`, `tailwind.config.ts`
-- PHP source files: Root directory and `/includes/` directory
-
-**Build Tools & Requirements:**
-
-To build the plugin from source, you'll need:
-- Node.js 18+ and npm/pnpm
-- PHP 7.4+
-- Composer (for PHP dependencies)
-
-**Building from Source:**
-
-```bash
-# Install Node.js dependencies
-npm install
-
-# Install PHP dependencies
-composer install
-
-# Build Vue.js assets (development)
-npm run dev
-
-# Build Vue.js assets (production)
-npm run build
-
-# Build everything (Vue.js + translations)
-grunt build
-
-# Create distribution package
-grunt release
-```
-
-**Development Commands:**
-
-```bash
-# PHP Code Standards
-composer lint          # Check PHP code standards
-composer format        # Auto-fix PHP code standards
-composer phpstan       # Run static analysis
-
-# JavaScript/Vue.js Development
-npm run dev            # Development server with hot reload
-npm run build          # Production build
-npm run type-check     # TypeScript type checking
-
-# Translation Files
-grunt i18n             # Generate translation files
-```
-
-**Compiled Assets:**
-
-The following files are compiled from source and included in the distribution:
-- `assets/js/admin.js` - Compiled from Vue.js/TypeScript sources in `/src/`
-- `assets/dist/admin.css` - Compiled from Tailwind CSS and PostCSS
-- `languages/surefeedback-cloud.pot` - Generated from source files
-
-All source code is included in the plugin package, ensuring full transparency and compliance with open source requirements.
 
 == Installation ==
 
