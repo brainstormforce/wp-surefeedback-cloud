@@ -39,3 +39,4 @@ phpstan-baseline.neon
 # Temporary files
 *.tmp
 *.temp
+config.bat
